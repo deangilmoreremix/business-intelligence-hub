@@ -2,6 +2,8 @@ import React from 'react';
 import { DivideIcon as LucideIcon, Star } from 'lucide-react';
 import { GlassCard } from './ui/GlassCard';
 import { cn } from '../lib/utils';
+import { Tooltip } from './ui/Tooltip';
+import { tooltipContent } from '../data/tooltipContent';
 
 interface AppCardProps {
   title: string;
@@ -11,31 +13,41 @@ interface AppCardProps {
   onClick?: () => void;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
+  appId?: string;
 }
 
-export const AppCard: React.FC<AppCardProps> = ({ 
-  title, 
-  description, 
-  icon: Icon, 
-  category, 
-  onClick, 
+export const AppCard: React.FC<AppCardProps> = ({
+  title,
+  description,
+  icon: Icon,
+  category,
+  onClick,
   isFavorite = false,
-  onToggleFavorite 
+  onToggleFavorite,
+  appId
 }) => {
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onToggleFavorite?.();
   };
 
+  const getTooltipContent = () => {
+    if (appId && appId in tooltipContent.aiApps) {
+      return tooltipContent.aiApps[appId as keyof typeof tooltipContent.aiApps];
+    }
+    return description;
+  };
+
   return (
-    <GlassCard 
-      onClick={onClick} 
-      className={cn(
-        "animate-slide-in cursor-pointer",
-        "hover:border-blue-200 dark:hover:border-blue-700",
-        "group"
-      )}
-    >
+    <Tooltip content={getTooltipContent()} position="top" maxWidth="350px">
+      <GlassCard
+        onClick={onClick}
+        className={cn(
+          "animate-slide-in cursor-pointer",
+          "hover:border-blue-200 dark:hover:border-blue-700",
+          "group"
+        )}
+      >
       <div className="flex items-start gap-4">
         <div className={cn(
           "p-3 rounded-lg flex-shrink-0 transition-all duration-200",
@@ -72,6 +84,7 @@ export const AppCard: React.FC<AppCardProps> = ({
           </p>
         </div>
       </div>
-    </GlassCard>
+      </GlassCard>
+    </Tooltip>
   );
 };

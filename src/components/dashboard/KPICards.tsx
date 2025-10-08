@@ -8,6 +8,8 @@ import { useCRMIntegration } from '../../hooks/useCRMIntegration';
 import Avatar from '../ui/Avatar';
 import { getInitials } from '../../utils/avatars';
 import { cn } from '../../lib/utils';
+import { Tooltip } from '../ui/Tooltip';
+import { tooltipContent } from '../../data/tooltipContent';
 
 interface KPIMetric {
   title: string;
@@ -212,19 +214,23 @@ const KPICards: React.FC = () => {
       
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {kpis.map((kpi, index) => (
-        <div
-          key={index}
-          onClick={() => navigateToFeature(kpi.feature)}
-          className={cn(
-            'glass-card rounded-2xl p-6 cursor-pointer group transition-all duration-300',
-            'bg-white/80 dark:bg-gray-800/80',
-            'border border-gray-200/60 dark:border-gray-700/60',
-            'hover:shadow-xl hover:scale-[1.02]',
-            'hover:bg-white/90 dark:hover:bg-gray-800/90',
-            'backdrop-blur-md'
-          )}
-        >
+      {kpis.map((kpi, index) => {
+        const tooltipKey = kpi.title.toLowerCase().replace(/\s+/g, '') as keyof typeof tooltipContent.kpiCards;
+        const tooltipText = tooltipContent.kpiCards[tooltipKey as keyof typeof tooltipContent.kpiCards] || kpi.title;
+
+        return (
+        <Tooltip content={tooltipText} position="top" key={index}>
+          <div
+            onClick={() => navigateToFeature(kpi.feature)}
+            className={cn(
+              'glass-card rounded-2xl p-6 cursor-pointer group transition-all duration-300',
+              'bg-white/80 dark:bg-gray-800/80',
+              'border border-gray-200/60 dark:border-gray-700/60',
+              'hover:shadow-xl hover:scale-[1.02]',
+              'hover:bg-white/90 dark:hover:bg-gray-800/90',
+              'backdrop-blur-md'
+            )}
+          >
           <div className="flex items-center justify-between mb-4">
             <div className={cn(`p-3 rounded-xl bg-gradient-to-r ${kpi.color} shadow-lg`)}>
               <kpi.icon className="h-6 w-6 text-white" />
@@ -250,8 +256,10 @@ const KPICards: React.FC = () => {
               {kpi.title}
             </p>
           </div>
-        </div>
-      ))}
+          </div>
+        </Tooltip>
+        );
+      })}
       </div>
     </div>
   );

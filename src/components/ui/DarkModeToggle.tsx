@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Sun, Moon, Monitor } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { cn } from '../../lib/utils';
+import { Tooltip } from './Tooltip';
+import { tooltipContent } from '../../data/tooltipContent';
 
 export const DarkModeToggle: React.FC = () => {
   const { isDark, themeMode, setThemeMode, systemPrefersDark } = useTheme();
@@ -76,31 +78,37 @@ export const DarkModeToggle: React.FC = () => {
     setIsOpen(prev => !prev);
   };
 
+  const tooltipText = isDark
+    ? tooltipContent.features.darkModeEnabled
+    : tooltipContent.features.darkModeDisabled;
+
   return (
     <div className="relative" data-theme-toggle>
-      <button
-        onClick={toggleDropdown}
-        onKeyDown={handleKeyDown}
-        className={cn(
-          "p-2 rounded-lg glass-card hover:shadow-lg transition-all duration-200",
-          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-          "dark:focus:ring-blue-400 dark:focus:ring-offset-gray-900",
-          "bg-white/70 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-600"
-        )}
-        aria-label={`Current theme: ${currentOption.description}. Click to change theme.`}
-        aria-haspopup="menu"
-        aria-expanded={isOpen}
-        type="button"
-      >
-        <CurrentIcon 
+      <Tooltip content={tooltipText} position="bottom" disabled={isOpen}>
+        <button
+          onClick={toggleDropdown}
+          onKeyDown={handleKeyDown}
           className={cn(
-            "w-5 h-5 transition-all duration-200",
-            isDark ? "text-yellow-400 rotate-0" : "text-gray-700 rotate-0",
-            isOpen && "rotate-12"
-          )} 
-          aria-hidden="true"
-        />
-      </button>
+            "p-2 rounded-lg glass-card hover:shadow-lg transition-all duration-200",
+            "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+            "dark:focus:ring-blue-400 dark:focus:ring-offset-gray-900",
+            "bg-white/70 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-600"
+          )}
+          aria-label={`Current theme: ${currentOption.description}. Click to change theme.`}
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+          type="button"
+        >
+          <CurrentIcon
+            className={cn(
+              "w-5 h-5 transition-all duration-200",
+              isDark ? "text-yellow-400 rotate-0" : "text-gray-700 rotate-0",
+              isOpen && "rotate-12"
+            )}
+            aria-hidden="true"
+          />
+        </button>
+      </Tooltip>
 
       {isOpen && (
         <div

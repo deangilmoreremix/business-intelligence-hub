@@ -14,6 +14,8 @@ import { CRMConnectionStatus } from './ui/CRMConnectionStatus';
 import { CRMSetupModal } from './ui/CRMSetupModal';
 import { NavigationBar } from './ui/NavigationBar';
 import { AIAnalyticsDashboard } from './dashboard/AIAnalyticsDashboard';
+import { Tooltip } from './ui/Tooltip';
+import { tooltipContent } from '../data/tooltipContent';
 
 export const Dashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -65,13 +67,14 @@ export const Dashboard: React.FC = () => {
         {/* Controls */}
         <div className="flex flex-col lg:flex-row gap-4 mb-6">
           <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search AI applications..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+            <Tooltip content={tooltipContent.dashboard.search} position="bottom">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Search AI applications..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 className={cn(
                   "px-4 py-3 rounded-lg transition-all duration-200 appearance-none",
                   "border-2 border-gray-300 dark:border-gray-500",
@@ -86,51 +89,58 @@ export const Dashboard: React.FC = () => {
                   color: isDark ? '#ffffff' : '#111827',
                   borderColor: isDark ? '#64748b' : '#d1d5db'
                 }}
-              />
-            </div>
+                />
+              </div>
+            </Tooltip>
           </div>
           
           <div className="flex gap-3">
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className={cn(
-                "px-4 py-3 rounded-lg transition-all duration-200",
-                "border border-gray-200 dark:border-gray-600",
-                "bg-white dark:bg-gray-800",
-                "text-gray-900 dark:text-gray-100",
-                "focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-                "focus:outline-none"
-              )}
-            >
-              {categories.map(category => (
-                <option key={category} value={category}>{category}</option>
-              ))}
-            </select>
+            <Tooltip content={tooltipContent.dashboard.categoryFilter} position="bottom">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className={cn(
+                  "px-4 py-3 rounded-lg transition-all duration-200",
+                  "border border-gray-200 dark:border-gray-600",
+                  "bg-white dark:bg-gray-800",
+                  "text-gray-900 dark:text-gray-100",
+                  "focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+                  "focus:outline-none"
+                )}
+              >
+                {categories.map(category => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+            </Tooltip>
             
             <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={cn(
-                  'p-2 rounded transition-all duration-200',
-                  viewMode === 'grid' 
-                    ? 'bg-white dark:bg-gray-600 shadow text-blue-600 dark:text-blue-400' 
-                    : 'hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-400'
-                )}
-              >
-                <Grid className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={cn(
-                  'p-2 rounded transition-all duration-200',
-                  viewMode === 'list' 
-                    ? 'bg-white dark:bg-gray-600 shadow text-blue-600 dark:text-blue-400' 
-                    : 'hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-400'
-                )}
-              >
-                <List className="w-4 h-4" />
-              </button>
+              <Tooltip content={tooltipContent.dashboard.gridView} position="bottom">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={cn(
+                    'p-2 rounded transition-all duration-200',
+                    viewMode === 'grid'
+                      ? 'bg-white dark:bg-gray-600 shadow text-blue-600 dark:text-blue-400'
+                      : 'hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-400'
+                  )}
+                >
+                  <Grid className="w-4 h-4" />
+                </button>
+              </Tooltip>
+              <Tooltip content={tooltipContent.dashboard.listView} position="bottom">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={cn(
+                    'p-2 rounded transition-all duration-200',
+                    viewMode === 'list'
+                      ? 'bg-white dark:bg-gray-600 shadow text-blue-600 dark:text-blue-400'
+                      : 'hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-400'
+                  )}
+                >
+                  <List className="w-4 h-4" />
+                </button>
+              </Tooltip>
             </div>
           </div>
         </div>
@@ -149,6 +159,7 @@ export const Dashboard: React.FC = () => {
                 icon={app.icon}
                 category={app.category}
                 onClick={() => navigate(`/app/${app.id}`)}
+                appId={app.id}
               />
             </div>
           ))}

@@ -3,6 +3,8 @@ import { FolderSync as Sync, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { ModernButton } from './ModernButton';
 import { useCRMIntegration } from '../../hooks/useCRMIntegration';
 import { cn } from '../../lib/utils';
+import { Tooltip } from './Tooltip';
+import { tooltipContent } from '../../data/tooltipContent';
 
 interface CRMSyncButtonProps {
   onSyncComplete?: (success: boolean, data?: any) => void;
@@ -59,6 +61,13 @@ export const CRMSyncButton: React.FC<CRMSyncButtonProps> = ({
     return 'Sync CRM';
   };
 
+  const getTooltipText = () => {
+    if (isSyncing) return tooltipContent.buttons.crmSyncing;
+    if (lastSyncResult === 'success') return tooltipContent.buttons.crmSyncSuccess;
+    if (lastSyncResult === 'error') return tooltipContent.buttons.crmSyncError;
+    return tooltipContent.buttons.crmSync;
+  };
+
   const getButtonVariant = () => {
     if (lastSyncResult === 'success') return 'ghost';
     if (lastSyncResult === 'error') return 'outline';
@@ -71,20 +80,22 @@ export const CRMSyncButton: React.FC<CRMSyncButtonProps> = ({
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <ModernButton
-        onClick={handleSync}
-        variant={getButtonVariant()}
-        size={size}
-        loading={isSyncing}
-        disabled={isSyncing}
-        className={cn(
-          lastSyncResult === 'success' && 'text-green-600 border-green-300',
-          lastSyncResult === 'error' && 'text-red-600 border-red-300'
-        )}
-      >
-        {getResultIcon()}
-        {getButtonText()}
-      </ModernButton>
+      <Tooltip content={getTooltipText()} position="top">
+        <ModernButton
+          onClick={handleSync}
+          variant={getButtonVariant()}
+          size={size}
+          loading={isSyncing}
+          disabled={isSyncing}
+          className={cn(
+            lastSyncResult === 'success' && 'text-green-600 border-green-300',
+            lastSyncResult === 'error' && 'text-red-600 border-red-300'
+          )}
+        >
+          {getResultIcon()}
+          {getButtonText()}
+        </ModernButton>
+      </Tooltip>
       
       {lastSync && (
         <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">

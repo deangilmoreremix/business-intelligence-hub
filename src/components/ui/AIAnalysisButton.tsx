@@ -3,6 +3,8 @@ import { Brain, Zap, Loader2, ChevronDown } from 'lucide-react';
 import { ModernButton } from './ModernButton';
 import { cn } from '../../lib/utils';
 import type { AIProvider, AIAnalysisType } from '../../services/aiService';
+import { Tooltip } from './Tooltip';
+import { tooltipContent } from '../../data/tooltipContent';
 
 interface AIAnalysisButtonProps {
   appId: string;
@@ -102,51 +104,57 @@ export const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({
 
   if (!showProviderSelector) {
     return (
-      <ModernButton
-        onClick={handleAnalysis}
-        variant={variant}
-        size={size}
-        loading={isAnalyzing}
-        className={cn("flex items-center gap-2", className)}
-      >
-        {getAnalysisIcon()}
-        {getAnalysisButtonText()}
-      </ModernButton>
+      <Tooltip content={tooltipContent.buttons.aiAnalysis} position="top">
+        <ModernButton
+          onClick={handleAnalysis}
+          variant={variant}
+          size={size}
+          loading={isAnalyzing}
+          className={cn("flex items-center gap-2", className)}
+        >
+          {getAnalysisIcon()}
+          {getAnalysisButtonText()}
+        </ModernButton>
+      </Tooltip>
     );
   }
 
   return (
     <div className={cn("relative inline-flex", className)}>
       {/* Main Analysis Button */}
-      <ModernButton
-        onClick={handleAnalysis}
-        variant={variant}
-        size={size}
-        loading={isAnalyzing}
-        className="rounded-r-none border-r-0 flex items-center gap-2"
-      >
-        {getAnalysisIcon()}
-        {getAnalysisButtonText()}
-      </ModernButton>
+      <Tooltip content={tooltipContent.buttons.aiAnalysisWithProvider} position="top">
+        <ModernButton
+          onClick={handleAnalysis}
+          variant={variant}
+          size={size}
+          loading={isAnalyzing}
+          className="rounded-r-none border-r-0 flex items-center gap-2"
+        >
+          {getAnalysisIcon()}
+          {getAnalysisButtonText()}
+        </ModernButton>
+      </Tooltip>
 
       {/* Provider Selector Dropdown */}
       <div className="relative">
-        <button
-          onClick={() => setShowProviderMenu(!showProviderMenu)}
-          disabled={isAnalyzing}
-          className={cn(
-            "px-2 py-2 rounded-r-lg border transition-all duration-200",
-            "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-            variant === 'primary' && "bg-blue-600 hover:bg-blue-700 border-blue-600 text-white",
-            variant === 'outline' && "bg-white hover:bg-gray-50 border-gray-300 text-gray-700",
-            variant === 'glass' && "bg-white/20 backdrop-blur-md border-white/30 text-white hover:bg-white/30",
-            isAnalyzing && "opacity-50 cursor-not-allowed"
-          )}
-          aria-label="Select AI provider"
-          type="button"
-        >
-          <ChevronDown className="w-4 h-4" />
-        </button>
+        <Tooltip content="Select AI provider for analysis" position="top">
+          <button
+            onClick={() => setShowProviderMenu(!showProviderMenu)}
+            disabled={isAnalyzing}
+            className={cn(
+              "px-2 py-2 rounded-r-lg border transition-all duration-200",
+              "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+              variant === 'primary' && "bg-blue-600 hover:bg-blue-700 border-blue-600 text-white",
+              variant === 'outline' && "bg-white hover:bg-gray-50 border-gray-300 text-gray-700",
+              variant === 'glass' && "bg-white/20 backdrop-blur-md border-white/30 text-white hover:bg-white/30",
+              isAnalyzing && "opacity-50 cursor-not-allowed"
+            )}
+            aria-label="Select AI provider"
+            type="button"
+          >
+            <ChevronDown className="w-4 h-4" />
+          </button>
+        </Tooltip>
 
         {showProviderMenu && (
           <div className="absolute right-0 top-full mt-1 py-1 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
