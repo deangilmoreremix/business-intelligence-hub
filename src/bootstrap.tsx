@@ -6,6 +6,7 @@ import './index.css';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { NavigationProvider } from './contexts/NavigationContext';
 import { ContentProvider } from './contexts/ContentContext';
+import { WalkthroughProvider } from './contexts/WalkthroughContext';
 
 const isStandalone = () => {
   return window.self === window.top;
@@ -19,11 +20,13 @@ if (rootElement) {
     <StrictMode>
       <BrowserRouter>
         <ThemeProvider>
-          <NavigationProvider>
-            <ContentProvider>
-              <App />
-            </ContentProvider>
-          </NavigationProvider>
+          <WalkthroughProvider>
+            <NavigationProvider>
+              <ContentProvider>
+                <App />
+              </ContentProvider>
+            </NavigationProvider>
+          </WalkthroughProvider>
         </ThemeProvider>
       </BrowserRouter>
     </StrictMode>

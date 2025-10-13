@@ -110,6 +110,45 @@ export const tooltipContent = {
     analysisError: 'Analysis failed. Please try again or contact support if the issue persists.',
     networkError: 'Network error. Check your connection and try again.',
     permissionDenied: 'You don\'t have permission to access this feature.'
+  },
+
+  charts: {
+    pipelineValue: 'Track the total monetary value of all deals in your sales pipeline over time',
+    totalDeals: 'Monitor the number of active deals and spot trends in your pipeline volume',
+    avgDealSize: 'Analyze your average deal value to understand revenue potential per opportunity',
+    conversionRate: 'Track the percentage of leads that convert to closed deals',
+    riskAnalysis: 'AI-powered risk assessment identifies deals that may need immediate attention',
+    stageAnalysis: 'Visualize deal distribution and conversion rates across pipeline stages',
+    trendChart: 'Historical trend analysis with predictive forecasting for future performance'
+  },
+
+  appPages: {
+    generateInsights: 'Click to run AI analysis and generate actionable insights from your data',
+    backToDashboard: 'Return to the main dashboard to access other AI applications',
+    exportReport: 'Download a detailed report with all metrics and insights in PDF or CSV format',
+    refreshMetrics: 'Update all metrics with the latest data from your CRM',
+    filterByDate: 'Filter data by specific date ranges to analyze performance over time',
+    filterByStage: 'Focus on specific pipeline stages to analyze conversion patterns',
+    aiProvider: 'Select your preferred AI model for analysis. GPT-5 for depth, Gemini for speed.',
+    shareInsights: 'Share this analysis with your team via email or shareable link'
+  },
+
+  help: {
+    startTour: 'Begin an interactive tour to learn about this feature',
+    viewAllTours: 'Browse all available guided tours and help topics',
+    searchHelp: 'Search for specific help topics, tutorials, or feature explanations',
+    videoTutorials: 'Watch video tutorials for in-depth feature walkthroughs',
+    keyboardShortcuts: 'View all keyboard shortcuts to navigate faster',
+    contactSupport: 'Get help from our support team for specific questions'
+  },
+
+  settings: {
+    preferences: 'Customize your experience with theme, language, and display preferences',
+    notifications: 'Manage email and in-app notification settings',
+    integrations: 'Connect and configure third-party CRM and tool integrations',
+    dataSync: 'Configure automatic data synchronization frequency and scope',
+    resetTours: 'Reset all walkthrough progress to replay tours from the beginning',
+    exportSettings: 'Export your settings and preferences for backup or transfer'
   }
 };
 

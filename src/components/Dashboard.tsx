@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Grid2x2 as Grid, List } from 'lucide-react';
 import { AppCard } from './AppCard';
@@ -8,6 +8,7 @@ import { aiApps } from '../data/aiApps';
 import KPICards from './dashboard/KPICards';
 import { cn } from '../lib/utils';
 import { useTheme } from '../contexts/ThemeContext';
+import { useWalkthrough } from '../contexts/WalkthroughContext';
 
 import { SupabaseStatus } from './ui/SupabaseStatus';
 import { CRMConnectionStatus } from './ui/CRMConnectionStatus';
@@ -16,14 +17,27 @@ import { NavigationBar } from './ui/NavigationBar';
 import { AIAnalyticsDashboard } from './dashboard/AIAnalyticsDashboard';
 import { Tooltip } from './ui/Tooltip';
 import { tooltipContent } from '../data/tooltipContent';
+import { FloatingHelpButton } from './ui/FloatingHelpButton';
+import { HelpCenter } from './ui/HelpCenter';
 
 export const Dashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showCRMSetup, setShowCRMSetup] = useState(false);
+  const [showHelpCenter, setShowHelpCenter] = useState(false);
   const { isDark } = useTheme();
   const navigate = useNavigate();
+  const { startWalkthrough, getProgress } = useWalkthrough();
+
+  useEffect(() => {
+    const hasSeenOnboarding = getProgress('dashboard-onboarding');
+    if (!hasSeenOnboarding) {
+      setTimeout(() => {
+        startWalkthrough('dashboard-onboarding');
+      }, 1000);
+    }
+  }, [startWalkthrough, getProgress]);
 
   const categories = ['All', ...Array.from(new Set(aiApps.map(app => app.category)))];
   
@@ -54,12 +68,16 @@ export const Dashboard: React.FC = () => {
           </div>
           <div className="flex items-center gap-4">
             <NavigationBar showLabels={false} />
-            <DarkModeToggle />
+            <div data-tour="dark-mode-toggle">
+              <DarkModeToggle />
+            </div>
           </div>
         </div>
 
         {/* KPI Cards */}
-        <KPICards />
+        <div data-tour="kpi-cards">
+          <KPICards />
+        </div>
 
         {/* AI Analytics Overview */}
         <AIAnalyticsDashboard className="mb-8" />
@@ -68,7 +86,7 @@ export const Dashboard: React.FC = () => {
         <div className="flex flex-col lg:flex-row gap-4 mb-6">
           <div className="flex-1">
             <Tooltip content={tooltipContent.dashboard.search} position="bottom">
-              <div className="relative">
+              <div className="relative" data-tour="search-input">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-400 w-5 h-5" />
                 <input
                   type="text"
@@ -93,10 +111,11 @@ export const Dashboard: React.FC = () => {
               </div>
             </Tooltip>
           </div>
-          
+
           <div className="flex gap-3">
             <Tooltip content={tooltipContent.dashboard.categoryFilter} position="bottom">
               <select
+                data-tour="category-filter"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className={cn(
@@ -113,8 +132,8 @@ export const Dashboard: React.FC = () => {
                 ))}
               </select>
             </Tooltip>
-            
-            <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+
+            <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg" data-tour="view-toggle">
               <Tooltip content={tooltipContent.dashboard.gridView} position="bottom">
                 <button
                   onClick={() => setViewMode('grid')}
@@ -152,7 +171,7 @@ export const Dashboard: React.FC = () => {
             : 'grid-cols-1'
         }`}>
           {filteredApps.map((app, index) => (
-            <div key={app.id} style={{ animationDelay: `${index * 0.05}s` }}>
+            <div key={app.id} style={{ animationDelay: `${index * 0.05}s` }} data-tour={index === 0 ? 'app-card-first' : undefined}>
               <AppCard
                 title={app.title}
                 description={app.description}
@@ -179,9 +198,17 @@ export const Dashboard: React.FC = () => {
           onClose={() => setShowCRMSetup(false)}
           onSuccess={() => {
             console.log('CRM setup successful');
-            // Optionally trigger a data refresh here
           }}
         />
+
+        {/* Help Center */}
+        <HelpCenter
+          isOpen={showHelpCenter}
+          onClose={() => setShowHelpCenter(false)}
+        />
+
+        {/* Floating Help Button */}
+        <FloatingHelpButton onOpenHelp={() => setShowHelpCenter(true)} />
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { Dashboard } from './components/Dashboard';
 import { AppRoute } from './components/AppRoute';
 import { remoteCommunicator } from './utils/RemoteCommunicator';
+import { WalkthroughEngine } from './components/walkthrough/WalkthroughEngine';
 
 function App() {
   useEffect(() => {
@@ -24,10 +25,13 @@ function App() {
   }, []);
 
   return (
-    <Routes>
-      <Route path="/" element={<Dashboard />} />
-      <Route path="/app/:appId" element={<AppRoute />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/app/:appId" element={<AppRoute />} />
+      </Routes>
+      <WalkthroughEngine />
+    </>
   );
 }
 
