@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { remoteCommunicator } from '../utils/RemoteCommunicator';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -17,7 +18,6 @@ const THEME_ATTRIBUTE = 'data-theme';
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
-    // Always start in light mode
     return 'light';
   });
   
@@ -74,12 +74,24 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem(THEME_STORAGE_KEY, themeMode);
   }, [isDark, themeMode]);
 
-  // Initialize theme on mount
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Set initial system preference
     setSystemPrefersDark(window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    const handleThemeMessage = (_type: string, data: any) => {
+      console.log('🎨 Received theme change from host:', data);
+      if (data.theme) {
+        const newMode = data.theme === 'dark' ? 'dark' : 'light';
+        setThemeMode(newMode);
+      }
+    };
+
+    remoteCommunicator.on('SET_THEME', handleThemeMessage);
+
+    return () => {
+      remoteCommunicator.off('SET_THEME', handleThemeMessage);
+    };
   }, []);
 
   const toggleTheme = () => {
