@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { openai, OPENAI_MODEL, isOpenAIConfigured } from '../lib/openai';
+import { openai, OPENAI_MODEL, isOpenAIConfigured, isGPT5Model, getGPT5Config } from '../lib/openai';
 
 export type AIProvider = 'gpt-5' | 'gemini';
 export type AIAnalysisType = 'pipeline' | 'communication' | 'task' | 'integration' | 'analytics';
@@ -258,7 +258,7 @@ class AIService {
     }
 
     try {
-      const response = await openai.responses.create({
+      const requestConfig: any = {
         model: this.models['gpt-5'],
         input: [
           {
@@ -313,7 +313,15 @@ class AIService {
             strict: true
           }
         }
-      });
+      };
+
+      // Add GPT-5 specific parameters for complex business analysis
+      if (isGPT5Model(this.models['gpt-5'])) {
+        const gpt5Config = getGPT5Config('analysis');
+        Object.assign(requestConfig, gpt5Config);
+      }
+
+      const response = await openai.responses.create(requestConfig);
 
       const text = response.output
         ?.map((p: any) =>

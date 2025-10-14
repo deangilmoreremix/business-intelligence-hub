@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { openai, OPENAI_MODEL } from '../lib/openai';
+import { openai, OPENAI_MODEL, isGPT5Model, getGPT5Config } from '../lib/openai';
 import { getAllKnowledge, searchKnowledge } from '../data/chatbotKnowledge';
 import { aiApps } from '../data/aiApps';
 
@@ -169,10 +169,18 @@ Remember: Your goal is to make users successful with the platform by providing e
 
   private async callOpenAIResponses(messages: Array<{ role: string; content: string }>): Promise<string> {
     try {
-      const response = await openai.responses.create({
+      const requestConfig: any = {
         model: OPENAI_MODEL,
         input: messages,
-      });
+      };
+
+      // Add GPT-5 specific parameters if using GPT-5 model
+      if (isGPT5Model(OPENAI_MODEL)) {
+        const gpt5Config = getGPT5Config('chatbot');
+        Object.assign(requestConfig, gpt5Config);
+      }
+
+      const response = await openai.responses.create(requestConfig);
 
       const text = response.output
         ?.map((p: any) =>
