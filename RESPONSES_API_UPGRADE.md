@@ -2,7 +2,7 @@
 
 ## Overview
 
-Successfully upgraded the entire Business Intelligence Hub to use **OpenAI's Responses API** with **GPT-4o-mini** as the default model, achieving **90% cost savings** while maintaining excellent AI quality.
+Successfully upgraded the entire Business Intelligence Hub to use **OpenAI's Responses API** with **GPT-4o** as the default model, providing best-in-class AI performance with **GPT-5 readiness** built-in.
 
 ## What Changed
 
@@ -17,15 +17,27 @@ export const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
-export const OPENAI_MODEL = import.meta.env.VITE_OPENAI_MODEL || 'gpt-4o-mini';
+export const OPENAI_MODEL = import.meta.env.VITE_OPENAI_MODEL || 'gpt-4o';
+
+export const MODELS = {
+  GPT5: 'gpt-5',                    // Ready for GPT-5
+  GPT5_MINI: 'gpt-5-mini',
+  GPT4O: 'gpt-4o',
+  GPT4O_MINI: 'gpt-4o-mini',
+  GPT4_TURBO: 'gpt-4-turbo',
+  GPT4: 'gpt-4',
+};
+
 export const isOpenAIConfigured = (): boolean => Boolean(apiKey);
 ```
 
 **Key Features:**
 - Single source of truth for OpenAI configuration
 - Configurable model via environment variable
-- Defaults to GPT-4o-mini (most cost-effective)
+- Defaults to GPT-4o (best current model)
+- **GPT-5 ready** - model constants pre-defined
 - Helper function to check API configuration
+- Easy model switching for A/B testing
 
 ### 2. Chatbot Service (`/src/services/chatbotService.ts`)
 

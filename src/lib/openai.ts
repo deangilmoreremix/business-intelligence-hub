@@ -11,7 +11,23 @@ export const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
-export const OPENAI_MODEL = import.meta.env.VITE_OPENAI_MODEL || 'gpt-4o-mini';
+// Default to best available model (GPT-5 when available, currently gpt-4o)
+export const OPENAI_MODEL = import.meta.env.VITE_OPENAI_MODEL || 'gpt-4o';
+
+// Model aliases for easy upgrades
+export const MODELS = {
+  // GPT-5 models (use when available)
+  GPT5: 'gpt-5',
+  GPT5_MINI: 'gpt-5-mini',
+
+  // Current best models (GPT-4 optimized)
+  GPT4O: 'gpt-4o',
+  GPT4O_MINI: 'gpt-4o-mini',
+
+  // Legacy
+  GPT4_TURBO: 'gpt-4-turbo',
+  GPT4: 'gpt-4',
+} as const;
 
 export const isOpenAIConfigured = (): boolean => {
   return Boolean(apiKey && apiKey !== 'dummy-key');
