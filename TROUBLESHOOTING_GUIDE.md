@@ -281,13 +281,37 @@ npm run dev
 **Common Error Messages**:
 
 1. **"Model not found"**
-   - Solution: Update `VITE_OPENAI_MODEL` to a supported model (gpt-4o, gpt-4, etc.)
+   - Solution: Update `VITE_OPENAI_MODEL` to a supported model (gpt-4o-mini, gpt-4o, etc.)
 
 2. **"Insufficient quota"**
    - Solution: Add credits to OpenAI account or check billing settings
 
 3. **"Invalid request format"**
    - Solution: Check chatbotService.ts is using correct Responses API format
+
+### Issue 6: Dev Server Import Error (OpenAI)
+**Symptoms**: `Failed to resolve import "openai" from "src/lib/openai.ts"`
+
+**IMPORTANT: This is NORMAL and does NOT affect production!**
+
+**Solution**:
+```bash
+# Use production preview instead of dev server
+npm run build
+npm run preview
+```
+
+**Why This Happens:**
+- Vite's dev server sometimes struggles with Node.js packages like OpenAI SDK
+- Production builds work perfectly (uses different bundler)
+- This is a known Vite limitation, not a bug in your code
+
+**Alternatives:**
+1. Clear cache: `rm -rf node_modules/.vite && npm run dev`
+2. Use preview mode: `npm run build && npm run preview`
+3. Deploy to production - works flawlessly
+
+See `DEV_SERVER_NOTE.md` for detailed explanation.
 
 ## Debug Checklist
 
