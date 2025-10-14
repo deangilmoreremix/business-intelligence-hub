@@ -4,6 +4,8 @@ import { Dashboard } from './components/Dashboard';
 import { AppRoute } from './components/AppRoute';
 import { remoteCommunicator } from './utils/RemoteCommunicator';
 import { WalkthroughEngine } from './components/walkthrough/WalkthroughEngine';
+import { ChatWidget } from './components/chatbot/ChatWidget';
+import { ChatButton } from './components/chatbot/ChatButton';
 
 function App() {
   useEffect(() => {
@@ -31,6 +33,8 @@ function App() {
         <Route path="/app/:appId" element={<AppRoute />} />
       </Routes>
       <WalkthroughEngine />
+      <ChatButton />
+      <ChatWidget />
     </>
   );
 }

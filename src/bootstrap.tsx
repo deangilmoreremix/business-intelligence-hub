@@ -7,12 +7,15 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { NavigationProvider } from './contexts/NavigationContext';
 import { ContentProvider } from './contexts/ContentContext';
 import { WalkthroughProvider } from './contexts/WalkthroughContext';
+import { initializeKnowledgeBase } from './utils/initializeKnowledge';
 
 const isStandalone = () => {
   return window.self === window.top;
 };
 
 console.log('🚀 Analytics App bootstrap', isStandalone() ? '(Standalone Mode)' : '(Federated Mode)');
+
+initializeKnowledgeBase().catch(console.error);
 
 const rootElement = document.getElementById('root');
 if (rootElement) {
