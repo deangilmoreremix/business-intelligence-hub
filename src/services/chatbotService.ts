@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { openai, OPENAI_MODEL } from '../lib/openai';
 import { getAllKnowledge, searchKnowledge } from '../data/chatbotKnowledge';
 import { aiApps } from '../data/aiApps';
 
@@ -30,13 +31,9 @@ export interface ChatbotResponse {
 }
 
 class ChatbotService {
-  private apiKey: string;
-  private model: string;
   private sessionId: string;
 
   constructor() {
-    this.apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
-    this.model = 'gpt-4o';
     this.sessionId = this.getOrCreateSessionId();
   }
 
@@ -123,17 +120,26 @@ Remember: Your goal is to make users successful with the platform by providing e
       const contextInfo = this.buildContextInfo(context);
       const relevantKnowledge = this.findRelevantKnowledge(userMessage);
 
-      const messages = [
-        { role: 'system', content: this.buildSystemPrompt() },
-        ...(contextInfo ? [{ role: 'system', content: contextInfo }] : []),
-        ...(relevantKnowledge ? [{ role: 'system', content: relevantKnowledge }] : []),
-        ...conversationHistory.slice(-10).map(msg => ({
-          role: msg.role,
-          content: msg.content
-        }))
+      const messages: Array<{ role: string; content: string }> = [
+        { role: 'system', content: this.buildSystemPrompt() }
       ];
 
-      const aiResponse = await this.callOpenAI(messages);
+      if (contextInfo) {
+        messages.push({ role: 'system', content: contextInfo });
+      }
+
+      if (relevantKnowledge) {
+        messages.push({ role: 'system', content: relevantKnowledge });
+      }
+
+      conversationHistory.slice(-10).forEach(msg => {
+        messages.push({
+          role: msg.role,
+          content: msg.content
+        });
+      });
+
+      const aiResponse = await this.callOpenAIResponses(messages);
 
       const assistantMessage = await this.saveMessage(convId, 'assistant', aiResponse);
 
@@ -161,38 +167,33 @@ Remember: Your goal is to make users successful with the platform by providing e
     }
   }
 
-  private async callOpenAI(messages: Array<{ role: string; content: string }>): Promise<string> {
-    if (!this.apiKey) {
-      return "I'm currently unable to process your request as the AI service is not configured. Please contact support or check the application settings.";
-    }
-
+  private async callOpenAIResponses(messages: Array<{ role: string; content: string }>): Promise<string> {
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: this.model,
-          messages: messages,
-          max_tokens: 800,
-          temperature: 0.7,
-          presence_penalty: 0.1,
-          frequency_penalty: 0.1
-        })
+      const response = await openai.responses.create({
+        model: OPENAI_MODEL,
+        input: messages,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('OpenAI API error:', errorData);
-        throw new Error('AI service error');
+      const text = response.output
+        ?.map((p: any) =>
+          'content' in p
+            ? p.content?.map((c: any) => c.text || '').join('')
+            : ''
+        )
+        .join('') ?? '';
+
+      return text.trim() || "I'm here to help! Please ask me anything about the Business Intelligence Hub.";
+    } catch (error: any) {
+      console.error('Error calling OpenAI Responses API:', error);
+
+      if (error?.status === 401) {
+        return "I'm currently unable to process your request as the AI service authentication failed. Please check the API key configuration.";
       }
 
-      const data = await response.json();
-      return data.choices[0].message.content.trim();
-    } catch (error) {
-      console.error('Error calling OpenAI:', error);
+      if (error?.status === 429) {
+        return "I'm experiencing high demand right now. Please try again in a moment.";
+      }
+
       return "I apologize, but I'm having trouble connecting to the AI service right now. Please try again in a moment. In the meantime, you can explore the Help Center for guided tours and documentation.";
     }
   }

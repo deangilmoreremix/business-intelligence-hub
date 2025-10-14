@@ -225,3 +225,120 @@ If dark mode is still not working after following this guide:
 5. **Validate Theme Context** - Ensure theme provider is wrapping your app
 
 The implementation provided in this fix should resolve all common dark mode coverage issues! 🌙✨
+
+---
+
+# 🤖 AI Chatbot Troubleshooting
+
+## Common Chatbot Issues
+
+### Issue 1: Chatbot Not Responding
+**Symptoms**: Messages sent but no response from AI
+
+**Causes & Solutions**:
+1. **Missing API Key**
+   - Check `.env` file has `VITE_OPENAI_API_KEY` set
+   - Verify API key is valid and active on OpenAI platform
+   - Restart dev server after adding API key
+
+2. **API Rate Limits**
+   - Check browser console for 429 errors
+   - Wait a few moments and try again
+   - Consider upgrading OpenAI API tier
+
+3. **Network Issues**
+   - Check internet connection
+   - Look for CORS errors in console
+   - Verify firewall isn't blocking OpenAI API
+
+### Issue 2: "Authentication Failed" Error
+**Solution**:
+```bash
+# Verify API key format in .env
+VITE_OPENAI_API_KEY=sk-proj-...your-key-here
+
+# Restart development server
+npm run dev
+```
+
+### Issue 3: Database Connection Issues
+**Symptoms**: Conversations not saving, errors in console
+
+**Solution**:
+1. Check Supabase configuration in `.env`
+2. Verify database tables exist (run migrations)
+3. Check RLS policies are properly configured
+4. Look for Supabase errors in browser console
+
+### Issue 4: Chat Widget Not Appearing
+**Solution**:
+1. Clear browser cache
+2. Check ChatButton and ChatWidget are imported in App.tsx
+3. Verify z-index isn't being overridden by other elements
+4. Check browser console for React errors
+
+### Issue 5: Responses API Errors
+**Common Error Messages**:
+
+1. **"Model not found"**
+   - Solution: Update `VITE_OPENAI_MODEL` to a supported model (gpt-4o, gpt-4, etc.)
+
+2. **"Insufficient quota"**
+   - Solution: Add credits to OpenAI account or check billing settings
+
+3. **"Invalid request format"**
+   - Solution: Check chatbotService.ts is using correct Responses API format
+
+## Debug Checklist
+
+- [ ] API key is set in `.env` file
+- [ ] Supabase URL and anon key are configured
+- [ ] Database migrations have been run
+- [ ] Dev server restarted after .env changes
+- [ ] No errors in browser console
+- [ ] Network tab shows successful API calls
+- [ ] OpenAI account has sufficient credits
+
+## Testing the Chatbot
+
+```bash
+# 1. Verify environment variables
+cat .env | grep OPENAI
+
+# 2. Check database tables exist
+# Open Supabase dashboard and verify:
+# - chatbot_conversations
+# - chatbot_messages
+# - chatbot_knowledge_base
+# - chatbot_usage_analytics
+
+# 3. Test in browser
+npm run dev
+# Open http://localhost:5173
+# Click floating chat button
+# Send a test message: "What can you help me with?"
+```
+
+## Console Debugging
+
+Add to browser console to debug:
+```js
+// Check if OpenAI client is initialized
+console.log(window.localStorage.getItem('chatbot_session_id'));
+
+// Monitor chat store state
+const chatStore = window.__REACT_DEVTOOLS_GLOBAL_HOOK__;
+// Install React DevTools for full state inspection
+```
+
+## Performance Issues
+
+If chatbot is slow:
+1. Check network speed (Responses API requires good connection)
+2. Reduce conversation history (currently limited to last 10 messages)
+3. Optimize knowledge base queries
+4. Check for memory leaks in chat store
+
+---
+
+**Need More Help?** Check the CHATBOT_GUIDE.md for detailed usage instructions.

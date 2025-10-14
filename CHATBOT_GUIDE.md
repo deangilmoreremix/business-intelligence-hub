@@ -82,10 +82,20 @@ The chatbot has knowledge about:
 - AI responses are generated via OpenAI's secure API
 
 ### API Configuration
-The chatbot uses the OpenAI API key configured in your `.env` file:
+The chatbot uses OpenAI's **Responses API** with the GPT-4 model (configurable).
+
+Configuration in your `.env` file:
 ```
 VITE_OPENAI_API_KEY=your_openai_api_key_here
+VITE_OPENAI_MODEL=gpt-4o  # Optional: defaults to gpt-4o
 ```
+
+**Why Responses API?**
+- Modern OpenAI API for production use
+- Better structured outputs and response handling
+- Improved error handling and rate limit management
+- Future-ready for GPT-5 and advanced features
+- Supports streaming (ready for future implementation)
 
 If the API key is not configured, the chatbot will show a friendly error message.
 

@@ -4,6 +4,14 @@ A powerful, comprehensive AI-driven intelligence platform with 35 specialized ap
 
 ## ✨ Features
 
+### 🤖 **AI Chatbot Assistant** ⭐ NEW!
+- **Intelligent conversational AI** powered by OpenAI's Responses API (GPT-4)
+- **Context-aware assistance** - knows which page/app you're viewing
+- **35 app knowledge base** - comprehensive understanding of all platform features
+- **Smart suggestions** - relevant apps and quick-start questions
+- **Persistent conversations** - chat history saved across sessions
+- **Modern UI** - beautiful glass-morphism design with dark/light mode
+
 ### 📊 **Complete Analytics Suite**
 - **35 AI-powered applications** across 5 major categories
 - **Real-time dashboards** with live data monitoring
@@ -47,6 +55,12 @@ A powerful, comprehensive AI-driven intelligence platform with 35 specialized ap
 - **PostgreSQL** with Row Level Security
 - **Real-time subscriptions** for live data updates
 
+### AI & Intelligence
+- **OpenAI Responses API** - GPT-4 powered chatbot assistant
+- **Dynamic knowledge base** - auto-generated from application data
+- **Context-aware prompting** - intelligent conversation flow
+- **Conversation persistence** - Supabase-backed chat history
+
 ### Features
 - **Dark/Light mode** with system preference detection
 - **Responsive design** for all screen sizes
@@ -75,10 +89,12 @@ npm install
 
 3. **Configure environment variables:**
    - Copy `.env.example` to `.env`
-   - Add your Supabase project URL and anon key:
+   - Add your Supabase and OpenAI credentials:
    ```env
    VITE_SUPABASE_URL=your_supabase_project_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   VITE_OPENAI_API_KEY=your_openai_api_key
+   VITE_OPENAI_MODEL=gpt-4o  # Optional, defaults to gpt-4o
    ```
 
 4. **Start the development server:**
@@ -224,11 +240,18 @@ This project is built for educational and demonstration purposes. Feel free to u
 
 ## 🎯 **What's Included**
 
-✅ **Complete AI Analytics Suite** (35 applications)  
-✅ **Supabase Integration** with real-time data persistence  
-✅ **Modern UI/UX** with dark/light theme support  
-✅ **Mobile Responsive** design for all screen sizes  
-✅ **TypeScript** for type safety and better development experience  
-✅ **Production Ready** with proper error handling and optimization  
+✅ **Complete AI Analytics Suite** (35 applications)
+✅ **AI Chatbot Assistant** powered by OpenAI Responses API
+✅ **Supabase Integration** with real-time data persistence
+✅ **Modern UI/UX** with dark/light theme support
+✅ **Mobile Responsive** design for all screen sizes
+✅ **TypeScript** for type safety and better development experience
+✅ **Production Ready** with proper error handling and optimization
+
+## 📚 **Additional Documentation**
+
+- **[CHATBOT_GUIDE.md](./CHATBOT_GUIDE.md)** - Complete guide to using the AI chatbot
+- **[CHATBOT_TECHNICAL.md](./CHATBOT_TECHNICAL.md)** - Technical implementation details
+- **[TROUBLESHOOTING_GUIDE.md](./TROUBLESHOOTING_GUIDE.md)** - Solutions for common issues
 
 **Built with ❤️ for modern businesses seeking powerful analytics insights!**
