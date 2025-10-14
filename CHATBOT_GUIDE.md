@@ -82,12 +82,12 @@ The chatbot has knowledge about:
 - AI responses are generated via OpenAI's secure API
 
 ### API Configuration
-The chatbot uses OpenAI's **Responses API** with the GPT-4 model (configurable).
+The chatbot uses OpenAI's **Responses API** with the **GPT-4o-mini** model (configurable).
 
 Configuration in your `.env` file:
 ```
 VITE_OPENAI_API_KEY=your_openai_api_key_here
-VITE_OPENAI_MODEL=gpt-4o  # Optional: defaults to gpt-4o
+VITE_OPENAI_MODEL=gpt-4o-mini  # Optional: defaults to gpt-4o-mini (cheapest)
 ```
 
 **Why Responses API?**
@@ -96,6 +96,12 @@ VITE_OPENAI_MODEL=gpt-4o  # Optional: defaults to gpt-4o
 - Improved error handling and rate limit management
 - Future-ready for GPT-5 and advanced features
 - Supports streaming (ready for future implementation)
+
+**Why GPT-4o-mini?**
+- **90% cheaper** than GPT-4o (~$0.001 vs $0.01 per conversation)
+- Excellent quality for chatbot use cases
+- Fast response times
+- Perfect balance of cost and performance
 
 If the API key is not configured, the chatbot will show a friendly error message.
 

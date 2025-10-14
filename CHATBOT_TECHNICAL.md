@@ -15,7 +15,8 @@ The AI chatbot is built using **OpenAI's Responses API** with a modern, scalable
 
 ### API Integration
 - **API**: OpenAI Responses API (`openai.responses.create`)
-- **Model**: GPT-4o (configurable via `VITE_OPENAI_MODEL`)
+- **Model**: GPT-4o-mini (configurable via `VITE_OPENAI_MODEL`)
+- **Cost**: ~90% cheaper than GPT-4o while maintaining excellent quality
 - **Endpoint**: Client-side direct API calls with `dangerouslyAllowBrowser: true`
 
 ## Project Structure
@@ -320,18 +321,20 @@ if (error?.status === 429) {
 VITE_OPENAI_API_KEY=sk-proj-...
 
 # Optional
-VITE_OPENAI_MODEL=gpt-4o           # Default: gpt-4o
+VITE_OPENAI_MODEL=gpt-4o-mini      # Default: gpt-4o-mini (cheapest)
 VITE_SUPABASE_URL=...
 VITE_SUPABASE_ANON_KEY=...
 ```
 
 ### Model Options
 
-Supported models:
-- `gpt-4o` (default) - Latest GPT-4 optimized
-- `gpt-4` - GPT-4 base
+Supported models (in order of cost-effectiveness):
+- `gpt-4o-mini` (default) - Most cost-effective, excellent quality (~$0.15/$0.60 per 1M tokens)
+- `gpt-4o` - Latest GPT-4 optimized (~$2.50/$10.00 per 1M tokens)
 - `gpt-4-turbo` - Faster GPT-4
-- `gpt-3.5-turbo` - Cost-effective option
+- `gpt-4` - GPT-4 base
+
+**Recommendation**: Use `gpt-4o-mini` for production - it's 90% cheaper with minimal quality trade-off.
 
 ## Testing
 
@@ -384,16 +387,20 @@ npm run build
 
 ## Cost Estimation
 
-### OpenAI API Costs (GPT-4o)
-- ~$0.01 per conversation (10 messages)
-- ~$3-5 per 1000 conversations
-- Knowledge base context increases costs
+### OpenAI API Costs (GPT-4o-mini) 💰
+- ~$0.001 per conversation (10 messages) - **90% cheaper than GPT-4o!**
+- ~$0.30-0.50 per 1000 conversations
+- ~$30-50 per 100,000 conversations
+- Knowledge base context increases costs slightly
 
-### Optimization Tips
-- Reduce context window size
-- Cache common responses
-- Use cheaper models for simple queries
+**Note**: GPT-4o-mini is dramatically cheaper while maintaining excellent performance for chatbot use cases. For most applications, the quality difference is negligible.
+
+### Cost Optimization Tips
+- ✅ **Already using gpt-4o-mini** - Best bang for buck!
+- Cache common responses in database
 - Implement rate limiting per user
+- Consider upgrading to gpt-4o only for complex analysis tasks
+- Monitor usage patterns to identify optimization opportunities
 
 ## Support & Maintenance
 

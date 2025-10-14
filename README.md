@@ -5,7 +5,8 @@ A powerful, comprehensive AI-driven intelligence platform with 35 specialized ap
 ## ✨ Features
 
 ### 🤖 **AI Chatbot Assistant** ⭐ NEW!
-- **Intelligent conversational AI** powered by OpenAI's Responses API (GPT-4)
+- **Intelligent conversational AI** powered by OpenAI's Responses API (GPT-4o-mini)
+- **90% cost savings** - using most efficient GPT model without sacrificing quality
 - **Context-aware assistance** - knows which page/app you're viewing
 - **35 app knowledge base** - comprehensive understanding of all platform features
 - **Smart suggestions** - relevant apps and quick-start questions
@@ -94,7 +95,7 @@ npm install
    VITE_SUPABASE_URL=your_supabase_project_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
    VITE_OPENAI_API_KEY=your_openai_api_key
-   VITE_OPENAI_MODEL=gpt-4o  # Optional, defaults to gpt-4o
+   VITE_OPENAI_MODEL=gpt-4o-mini  # Optional, defaults to gpt-4o-mini (cheapest)
    ```
 
 4. **Start the development server:**

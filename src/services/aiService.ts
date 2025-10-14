@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { openai, OPENAI_MODEL, isOpenAIConfigured } from '../lib/openai';
 
 export type AIProvider = 'gpt-5' | 'gemini';
 export type AIAnalysisType = 'pipeline' | 'communication' | 'task' | 'integration' | 'analytics';
@@ -57,12 +58,12 @@ export interface AIAnalysisResult {
 class AIService {
   private apiKeys = {
     openai: import.meta.env.VITE_OPENAI_API_KEY,
-    gemini: import.meta.env.VITE_GEMMA_API_KEY
+    gemini: import.meta.env.VITE_GEMINI_API_KEY
   };
 
   private models = {
-    'gpt-5': import.meta.env.VITE_OPENAI_MODEL || 'gpt-4o',
-    'gemini': import.meta.env.VITE_GEMMA_MODEL || 'gemini-2.0-flash'
+    'gpt-5': OPENAI_MODEL,
+    'gemini': import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.0-flash-exp'
   };
 
   /**
@@ -249,18 +250,17 @@ class AIService {
   }
 
   /**
-   * Call OpenAI GPT-5 API
+   * Call OpenAI using Responses API
    */
   private async callOpenAI(prompt: string, request: AIAnalysisRequest): Promise<any> {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.apiKeys.openai}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
+    if (!isOpenAIConfigured()) {
+      throw new Error('OpenAI API key not configured');
+    }
+
+    try {
+      const response = await openai.responses.create({
         model: this.models['gpt-5'],
-        messages: [
+        input: [
           {
             role: 'system',
             content: 'You are an expert business intelligence AI that provides structured, actionable insights in JSON format.'
@@ -270,19 +270,64 @@ class AIService {
             content: prompt
           }
         ],
-        max_tokens: 2000,
-        temperature: 0.7,
-        response_format: { type: 'json_object' }
-      })
-    });
+        response_format: {
+          type: 'json_schema',
+          json_schema: {
+            name: 'business_insights',
+            schema: {
+              type: 'object',
+              properties: {
+                insights: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      title: { type: 'string' },
+                      description: { type: 'string' },
+                      type: { type: 'string' },
+                      priority: { type: 'string' },
+                      confidence: { type: 'number' },
+                      impact: { type: 'string' },
+                      effort: { type: 'string' },
+                      actionable: { type: 'boolean' },
+                      suggestedActions: { type: 'array', items: { type: 'string' } }
+                    },
+                    required: ['title', 'description', 'type', 'priority']
+                  }
+                },
+                summary: { type: 'string' },
+                confidence: { type: 'number' },
+                recommendations: { type: 'array', items: { type: 'string' } },
+                nextActions: { type: 'array', items: { type: 'string' } },
+                businessImpact: {
+                  type: 'object',
+                  properties: {
+                    revenue: { type: 'string' },
+                    efficiency: { type: 'string' },
+                    riskReduction: { type: 'string' }
+                  }
+                }
+              },
+              required: ['insights', 'summary', 'recommendations']
+            },
+            strict: true
+          }
+        }
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(`OpenAI API error: ${error.error?.message || response.statusText}`);
+      const text = response.output
+        ?.map((p: any) =>
+          'content' in p
+            ? p.content?.map((c: any) => c.text || '').join('')
+            : ''
+        )
+        .join('') ?? '';
+
+      return JSON.parse(text);
+    } catch (error: any) {
+      console.error('OpenAI Responses API error:', error);
+      throw new Error(`OpenAI API error: ${error?.message || 'Unknown error'}`);
     }
-
-    const data = await response.json();
-    return JSON.parse(data.choices[0].message.content);
   }
 
   /**
