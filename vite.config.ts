@@ -10,22 +10,25 @@ export default defineConfig({
       name: 'AnalyticsApp',
       filename: 'remoteEntry.js',
       exposes: {
-        './AnalyticsApp': './src/App.tsx',
+        './AnalyticsApp': './src/AnalyticsApp.tsx',
         './Dashboard': './src/components/Dashboard.tsx',
         './AnalyticsWidget': './src/components/AnalyticsWidget.tsx',
       },
       shared: {
         react: {
           singleton: true,
-          requiredVersion: '^18.3.1',
+          requiredVersion: '^18.0.0',
+          strictVersion: false,
         },
         'react-dom': {
           singleton: true,
-          requiredVersion: '^18.3.1',
+          requiredVersion: '^18.0.0',
+          strictVersion: false,
         },
         'react-router-dom': {
           singleton: true,
-          requiredVersion: '^6.28.0',
+          requiredVersion: '^6.0.0',
+          strictVersion: false,
         },
       },
     }),
@@ -46,6 +49,7 @@ export default defineConfig({
     target: 'esnext',
     minify: false,
     cssCodeSplit: false,
+    modulePreload: false,
     rollupOptions: {
       output: {
         format: 'esm',
@@ -55,21 +59,23 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3001,
+    port: 5000,
+    host: '0.0.0.0',
     cors: true,
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
     },
   },
   preview: {
-    port: 3001,
+    port: 5000,
+    host: '0.0.0.0',
     cors: true,
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
     },
   },
 });

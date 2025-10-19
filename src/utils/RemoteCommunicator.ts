@@ -5,7 +5,12 @@ type MessageType =
   | 'UPDATE_DASHBOARD_DATA'
   | 'ANALYTICS_READY'
   | 'DASHBOARD_INTERACTION'
-  | 'ANALYTICS_DATA_UPDATE';
+  | 'ANALYTICS_DATA_UPDATE'
+  | 'HOST_READY'
+  | 'SYNC_THEME'
+  | 'NAVIGATION_REQUEST'
+  | 'DATA_REQUEST'
+  | 'ERROR_REPORT';
 
 interface MessagePayload {
   type: MessageType;
@@ -13,6 +18,7 @@ interface MessagePayload {
   source?: string;
   theme?: string;
   mode?: string;
+  timestamp?: string;
 }
 
 type MessageHandler = (type: MessageType, data: any) => void;
@@ -21,9 +27,11 @@ export class RemoteCommunicator {
   private hostOrigin: string;
   private messageHandlers: Map<MessageType, MessageHandler[]> = new Map();
   private isInitialized = false;
+  private isEmbedded: boolean;
 
   constructor(hostOrigin: string = '*') {
     this.hostOrigin = hostOrigin;
+    this.isEmbedded = window.self !== window.top;
     this.initializeListener();
   }
 
@@ -94,10 +102,16 @@ export class RemoteCommunicator {
   }
 
   public notifyReady(): void {
+    if (!this.isEmbedded) {
+      console.log('📍 Running in standalone mode, skipping host notification');
+      return;
+    }
+
     this.sendToHost('ANALYTICS_READY', {
       version: '1.0.0',
       timestamp: new Date().toISOString(),
-      capabilities: ['dashboard', 'analytics', 'reports'],
+      capabilities: ['dashboard', 'analytics', 'reports', 'chatbot'],
+      embedded: true,
     });
   }
 
@@ -114,6 +128,29 @@ export class RemoteCommunicator {
       timestamp: new Date().toISOString(),
       ...data,
     });
+  }
+
+  public requestData(dataType: string): void {
+    this.sendToHost('DATA_REQUEST', {
+      dataType,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  public reportError(error: Error, context?: any): void {
+    this.sendToHost('ERROR_REPORT', {
+      error: {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      },
+      context,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  public isRunningEmbedded(): boolean {
+    return this.isEmbedded;
   }
 
   public setHostOrigin(origin: string): void {

@@ -81,16 +81,31 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const handleThemeMessage = (_type: string, data: any) => {
       console.log('🎨 Received theme change from host:', data);
-      if (data.theme) {
-        const newMode = data.theme === 'dark' ? 'dark' : 'light';
+
+      const themeValue = data.theme || data.mode || data.data?.theme || data.data?.mode;
+
+      if (themeValue) {
+        const newMode: ThemeMode = themeValue === 'dark' ? 'dark' : 'light';
         setThemeMode(newMode);
+        console.log(`✅ Theme updated to: ${newMode}`);
       }
     };
 
+    const handleSyncTheme = (_type: string, data: any) => {
+      console.log('🔄 Syncing theme with host:', data);
+      handleThemeMessage(_type, data);
+    };
+
     remoteCommunicator.on('SET_THEME', handleThemeMessage);
+    remoteCommunicator.on('SYNC_THEME', handleSyncTheme);
+
+    if (remoteCommunicator.isRunningEmbedded()) {
+      console.log('📱 Running in embedded mode, waiting for host theme...');
+    }
 
     return () => {
       remoteCommunicator.off('SET_THEME', handleThemeMessage);
+      remoteCommunicator.off('SYNC_THEME', handleSyncTheme);
     };
   }, []);
 
