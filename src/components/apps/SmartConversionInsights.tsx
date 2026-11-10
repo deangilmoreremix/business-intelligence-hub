@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Target, TrendingUp, Users, Lightbulb, Zap } from 'lucide-react';
+import { Target, TrendingUp, Users, Lightbulb, Zap } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
 import { GlassCard } from '../ui/GlassCard';
 import { AIChart } from '../AIChart';
 import { PageWrapper } from '../layout/PageWrapper';
 
 interface SmartConversionInsightsProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const SmartConversionInsights: React.FC<SmartConversionInsightsProps> = ({ onBack }) => {
@@ -46,10 +46,10 @@ export const SmartConversionInsights: React.FC<SmartConversionInsightsProps> = (
   ];
 
   const conversionMetrics = [
-    { label: "Conversion Rate", value: "23.8%", change: "+4.2%", trend: "up" },
-    { label: "Avg Time to Convert", value: "32 days", change: "-5 days", trend: "up" },
-    { label: "Revenue per Convert", value: "$28K", change: "+12%", trend: "up" },
-    { label: "Hot Prospects", value: "156", change: "+23", trend: "up" }
+    { label: "Conversion Rate", value: "23.8%", change: "+4.2%", trend: "up" as const },
+    { label: "Avg Time to Convert", value: "32 days", change: "-5 days", trend: "up" as const },
+    { label: "Revenue per Convert", value: "$28K", change: "+12%", trend: "up" as const },
+    { label: "Hot Prospects", value: "156", change: "+23", trend: "up" as const }
   ];
 
   const segmentData = {
@@ -125,7 +125,7 @@ export const SmartConversionInsights: React.FC<SmartConversionInsightsProps> = (
             <h2 className="text-xl font-semibold text-gray-900">Top Conversion Opportunities</h2>
           </div>
           
-          {conversionOpportunities.map((opportunity, index) => (
+          {conversionOpportunities.map((opportunity) => (
             <GlassCard key={opportunity.id} className="animate-slide-in">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-4">

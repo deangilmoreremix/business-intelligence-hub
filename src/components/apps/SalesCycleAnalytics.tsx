@@ -7,7 +7,7 @@ import { Avatar } from '../ui/Avatar';
 import { teamMembers } from '../../data/teamMembers';
 
 interface SalesCycleAnalyticsProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const SalesCycleAnalytics: React.FC<SalesCycleAnalyticsProps> = ({ onBack }) => {
@@ -186,7 +186,7 @@ export const SalesCycleAnalytics: React.FC<SalesCycleAnalyticsProps> = ({ onBack
             </div>
             
             <div className="space-y-4">
-              {teamMembers.map((member, index) => {
+              {teamMembers.map((member) => {
                 const cycleTime = Math.floor(Math.random() * 20) + 15;
                 const deals = Math.floor(Math.random() * 15) + 5;
                 
@@ -194,7 +194,7 @@ export const SalesCycleAnalytics: React.FC<SalesCycleAnalyticsProps> = ({ onBack
                   <div key={member.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
                     <div className="flex items-center gap-3">
                       <Avatar 
-                        name={member.name} 
+                        alt={member.name} fallback={member.name} 
                         status={member.status}
                         size="md"
                       />

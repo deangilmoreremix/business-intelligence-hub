@@ -106,19 +106,19 @@ export const useContactStore = create<ContactState>()((set, get) => ({
       
       const contactsMap: { [key: string]: Contact } = {};
       
-      data?.forEach((contactRow: any, index: number) => {
+      data?.forEach((contactRow: Record<string, string | null> & { id: string }, index: number) => {
         const fullName = `${contactRow.first_name} ${contactRow.last_name}`.trim();
         
         contactsMap[contactRow.id] = {
           id: contactRow.id,
           name: fullName,
-          firstName: contactRow.first_name,
-          lastName: contactRow.last_name,
-          email: contactRow.email,
-          phone: contactRow.phone,
-          company: contactRow.company,
+          firstName: contactRow.first_name ?? undefined,
+          lastName: contactRow.last_name ?? undefined,
+          email: contactRow.email ?? '',
+          phone: contactRow.phone ?? undefined,
+          company: contactRow.company ?? undefined,
           status: 'online', // Default status
-          crmStatus: contactRow.status,
+          crmStatus: contactRow.status as Contact['crmStatus'],
           jobTitle: contactRow.job_title ?? undefined,
           city: contactRow.city ?? undefined,
           linkedinUrl: contactRow.linkedin_url ?? undefined,
@@ -129,8 +129,8 @@ export const useContactStore = create<ContactState>()((set, get) => ({
           avatar: getAvatarByIndex(index),
           avatarSrc: getAvatarByIndex(index),
           initials: getInitials(fullName),
-          createdAt: contactRow.created_at,
-          updatedAt: contactRow.updated_at
+          createdAt: contactRow.created_at ?? undefined,
+          updatedAt: contactRow.updated_at ?? undefined
         };
       });
       set({ 

@@ -3,15 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Grid2x2 as Grid, List } from 'lucide-react';
 import { AppCard } from './AppCard';
 import { DarkModeToggle } from './ui/DarkModeToggle';
-import { ModernButton } from './ui/ModernButton';
 import { aiApps } from '../data/aiApps';
 import KPICards from './dashboard/KPICards';
 import { cn } from '../lib/utils';
 import { useTheme } from '../contexts/ThemeContext';
 import { useWalkthrough } from '../contexts/WalkthroughContext';
 
-import { SupabaseStatus } from './ui/SupabaseStatus';
-import { CRMConnectionStatus } from './ui/CRMConnectionStatus';
 import { CRMSetupModal } from './ui/CRMSetupModal';
 import { NavigationBar } from './ui/NavigationBar';
 import { AIAnalyticsDashboard } from './dashboard/AIAnalyticsDashboard';

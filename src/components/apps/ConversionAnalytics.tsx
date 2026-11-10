@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Target, TrendingUp, Users, Zap, BarChart3, PieChart } from 'lucide-react';
+import { Target, Users, Zap, BarChart3, PieChart } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
 
 interface ConversionAnalyticsProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const ConversionAnalytics: React.FC<ConversionAnalyticsProps> = ({ onBack }) => {

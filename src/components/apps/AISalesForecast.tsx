@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Zap, TrendingUp, Calendar, Target, DollarSign, BarChart3 } from 'lucide-react';
+import { Zap, TrendingUp, Calendar, Target, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
@@ -7,7 +7,7 @@ import { ModernButton } from '../ui/ModernButton';
 import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 
 interface AISalesForecastProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const AISalesForecast: React.FC<AISalesForecastProps> = ({ onBack }) => {
@@ -50,7 +50,6 @@ export const AISalesForecast: React.FC<AISalesForecastProps> = ({ onBack }) => {
       title="AI Sales Forecast"
       description="Predictive sales forecasting powered by machine learning"
       onBack={onBack}
-      backgroundGradient="from-indigo-50 via-white to-purple-50"
       headerActions={headerActions}
     >
       <div className="mb-6">

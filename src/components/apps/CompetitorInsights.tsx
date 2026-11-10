@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, TrendingDown, AlertTriangle, Target, Zap, Shield } from 'lucide-react';
+import { Users, Target, Zap, Shield } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
@@ -7,7 +7,7 @@ import { ModernButton } from '../ui/ModernButton';
 import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 
 interface CompetitorInsightsProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const CompetitorInsights: React.FC<CompetitorInsightsProps> = ({ onBack }) => {

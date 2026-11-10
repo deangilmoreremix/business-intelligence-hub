@@ -1,7 +1,6 @@
 import React from 'react';
-import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, BarChart3, Users, Target, Calendar, Settings } from 'lucide-react';
+import { Home, BarChart3, Users, Target, Calendar, type LucideIcon } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Tooltip } from './Tooltip';
@@ -10,7 +9,7 @@ import { tooltipContent } from '../../data/tooltipContent';
 interface NavItem {
   path: string;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: LucideIcon;
   description?: string;
   tooltip?: keyof typeof tooltipContent.navigation;
 }
@@ -66,7 +65,6 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
 }) => {
   const location = useLocation();
   const { isDark } = useTheme();
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   const isActiveRoute = (path: string) => {
     if (path === '/') {
@@ -167,12 +165,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                 "w-4 h-4",
                 isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-900 dark:text-white"
               )}
-              style={{
-                color: isDark ? (isActive ? '#60a5fa' : '#ffffff') : (isActive ? '#2563eb' : '#111827'),
-                stroke: 'currentColor',
-                fill: 'none',
-                strokeWidth: 2
-              }}
+              color={isDark ? (isActive ? '#60a5fa' : '#ffffff') : (isActive ? '#2563eb' : '#111827')}
+              strokeWidth={2}
               />
               {showLabels && (
                 <span className={cn(

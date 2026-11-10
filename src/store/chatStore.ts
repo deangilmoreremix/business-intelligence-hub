@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ChatMessage, ChatConversation, ChatbotResponse } from '../services/chatbotService';
+import { ChatMessage, ChatbotResponse } from '../services/chatbotService';
 
 interface ChatState {
   isOpen: boolean;

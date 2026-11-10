@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, CheckSquare, Clock, AlertCircle, Zap, Calendar, Target } from 'lucide-react';
+import { ArrowLeft, CheckSquare, AlertCircle, Zap, Calendar, Target } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
 import { GlassCard } from '../ui/GlassCard';
 import { AIChart } from '../AIChart';
@@ -9,7 +9,7 @@ import { teamMembers } from '../../data/teamMembers';
 import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 
 interface SmartFollowupsProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const SmartFollowups: React.FC<SmartFollowupsProps> = ({ onBack }) => {
@@ -156,7 +156,7 @@ export const SmartFollowups: React.FC<SmartFollowupsProps> = ({ onBack }) => {
           
           {smartFollowups
             .filter(followup => selectedPriority === 'all' || followup.priority === selectedPriority)
-            .map((followup, index) => {
+            .map((followup) => {
               const assignedMember = teamMembers.find(m => m.name === followup.assignee);
               
               return (
@@ -207,7 +207,7 @@ export const SmartFollowups: React.FC<SmartFollowupsProps> = ({ onBack }) => {
                       {assignedMember && (
                         <>
                           <Avatar 
-                            name={assignedMember.name} 
+                            alt={assignedMember.name} fallback={assignedMember.name} 
                             status={assignedMember.status}
                             size="sm"
                           />
@@ -246,7 +246,7 @@ export const SmartFollowups: React.FC<SmartFollowupsProps> = ({ onBack }) => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {teamMembers.map((member, index) => {
+            {teamMembers.map((member) => {
               const completionRate = Math.floor(Math.random() * 20) + 75;
               const responseRate = Math.floor(Math.random() * 25) + 65;
               const pending = Math.floor(Math.random() * 15) + 5;
@@ -255,7 +255,7 @@ export const SmartFollowups: React.FC<SmartFollowupsProps> = ({ onBack }) => {
                 <div key={member.id} className="p-4 border border-gray-200 rounded-lg">
                   <div className="flex items-center gap-3 mb-4">
                     <Avatar 
-                      name={member.name} 
+                      alt={member.name} fallback={member.name} 
                       status={member.status}
                       size="md"
                     />

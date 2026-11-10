@@ -7,7 +7,7 @@ import { ModernButton } from '../ui/ModernButton';
 import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 
 interface TrendIntelligenceProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const TrendIntelligence: React.FC<TrendIntelligenceProps> = ({ onBack }) => {

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Minus, Maximize2, Send, Sparkles, Loader2 } from 'lucide-react';
+import { X, Minus, Send, Sparkles, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useChatStore } from '../../store/chatStore';

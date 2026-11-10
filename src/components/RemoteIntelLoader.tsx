@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
 const RemoteIntelLoader: React.FC = () => {
-  const { isDark } = useTheme();
+  useTheme();
   const [useFallback, setUseFallback] = useState(false);
   const [IntelApp, setIntelApp] = useState<React.ComponentType | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -20,17 +20,16 @@ const RemoteIntelLoader: React.FC = () => {
           document.head.appendChild(script);
         });
 
-        // @ts-ignore
-        const container = window.IntelApp;
+        const container = (window as unknown as { IntelApp?: { init: (s: unknown) => Promise<void>; get: (m: string) => Promise<() => { default?: React.ComponentType } & React.ComponentType> } }).IntelApp;
         if (container) {
-          await container.init(__webpack_share_scopes__.default);
+          await container.init((globalThis as unknown as { __webpack_share_scopes__: { default: unknown } }).__webpack_share_scopes__.default);
           const factory = await container.get('./IntelApp');
           const Module = factory();
-          setIntelApp(() => Module.default || Module);
+          setIntelApp(() => (Module.default || Module) as React.ComponentType);
         } else {
           setUseFallback(true);
         }
-      } catch (error) {
+      } catch {
         console.log('Module Federation failed, using iframe fallback');
         setUseFallback(true);
       }

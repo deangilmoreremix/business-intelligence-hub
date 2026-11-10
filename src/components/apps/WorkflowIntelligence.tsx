@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Workflow, AlertTriangle, TrendingUp, Clock, Zap, Target } from 'lucide-react';
+import { Workflow, AlertTriangle, TrendingUp, Zap, Target } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
@@ -7,7 +7,7 @@ import { ModernButton } from '../ui/ModernButton';
 import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 
 interface WorkflowIntelligenceProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const WorkflowIntelligence: React.FC<WorkflowIntelligenceProps> = ({ onBack }) => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { DivideIcon as LucideIcon, Star } from 'lucide-react';
+import { Star, type LucideIcon } from 'lucide-react';
 import { GlassCard } from './ui/GlassCard';
 import { cn } from '../lib/utils';
 import { Tooltip } from './ui/Tooltip';

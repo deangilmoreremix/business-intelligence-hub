@@ -27,7 +27,6 @@ export const PageWrapper: React.FC<PageWrapperProps> = ({
   className,
   headerClassName,
   contentClassName,
-  appTheme = 'blue',
   headerActions
 }) => {
   const { isDark } = useTheme();

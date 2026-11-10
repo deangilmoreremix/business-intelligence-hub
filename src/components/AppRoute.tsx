@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { PipelineIntelligence } from './apps/PipelineIntelligence';
 import { DealRiskMonitor } from './apps/DealRiskMonitor';
 import { SmartConversionInsights } from './apps/SmartConversionInsights';
@@ -81,6 +81,7 @@ const appComponents: Record<string, React.ComponentType<{ onBack?: () => void }>
 
 export const AppRoute: React.FC = () => {
   const { appId } = useParams<{ appId: string }>();
+  const navigate = useNavigate();
   
   if (!appId) {
     return <ComingSoonPage />;
@@ -90,7 +91,7 @@ export const AppRoute: React.FC = () => {
   const AppComponent = appComponents[appId];
   
   if (AppComponent) {
-    return <AppComponent />;
+    return <AppComponent onBack={() => navigate('/')} />;
   }
 
   // Check if it's a valid app from aiApps but no component yet

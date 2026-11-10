@@ -8,7 +8,7 @@ import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 
 interface DataQualityProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const DataQuality: React.FC<DataQualityProps> = ({ onBack }) => {

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Zap, Play, Pause, Settings, TrendingUp, Clock } from 'lucide-react';
+import { Zap, Play, Pause, Settings, TrendingUp } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
 
 interface AutomationHubProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const AutomationHub: React.FC<AutomationHubProps> = ({ onBack }) => {

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { X, Search, Play, CheckCircle, Circle, RotateCcw, Book, Keyboard, Video } from 'lucide-react';
+import { X, Search, Play, CheckCircle, Circle, RotateCcw, Book, Keyboard } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useWalkthrough } from '../../contexts/WalkthroughContext';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Users, Target, TrendingUp, Zap, BarChart3 } from 'lucide-react';
+import { Calendar, Users, Target, Zap, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
@@ -9,7 +9,7 @@ import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 import { teamMembers } from '../../data/teamMembers';
 
 interface SmartAllocationProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const SmartAllocation: React.FC<SmartAllocationProps> = ({ onBack }) => {
@@ -139,7 +139,7 @@ export const SmartAllocation: React.FC<SmartAllocationProps> = ({ onBack }) => {
           icon={<Users className="w-6 h-6 text-teal-600" />}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {teamAllocation.map((member, index) => (
+            {teamAllocation.map((member) => (
               <div key={member.id} className="p-4 border border-gray-200 rounded-lg">
                 <div className="flex items-start gap-3 mb-4">
                   <Avatar 

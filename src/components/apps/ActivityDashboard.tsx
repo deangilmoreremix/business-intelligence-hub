@@ -3,12 +3,11 @@ import { Activity, Users, Clock, TrendingUp, Zap, BarChart3 } from 'lucide-react
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
-import { ModernButton } from '../ui/ModernButton';
 import { Avatar } from '../ui/Avatar';
 import { teamMembers } from '../../data/teamMembers';
 
 interface ActivityDashboardProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const ActivityDashboard: React.FC<ActivityDashboardProps> = ({ onBack }) => {
@@ -225,7 +224,7 @@ export const ActivityDashboard: React.FC<ActivityDashboardProps> = ({ onBack }) 
           icon={<TrendingUp className="w-6 h-6 text-purple-600" />}
         >
           <div className="space-y-4">
-            {recentActivities.map((activity, index) => {
+            {recentActivities.map((activity) => {
               const user = teamMembers.find(m => m.name === activity.user);
               
               return (

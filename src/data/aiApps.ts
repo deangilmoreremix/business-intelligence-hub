@@ -2,7 +2,7 @@ import {
   BarChart3, TrendingUp, AlertTriangle, Target, Clock, Award, 
   Zap, Brain, Users, DollarSign, MessageSquare, Clock3,
   Shuffle, Mail, Heart, TrendingDown, CheckSquare, Layers,
-  Calendar, Activity, Gauge, PieChart, LineChart, BarChart,
+  Calendar, Activity, Gauge, PieChart, LineChart, 
   Settings, Database, Workflow, Shield, Eye, FileText
 } from 'lucide-react';
 

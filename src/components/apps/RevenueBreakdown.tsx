@@ -6,7 +6,7 @@ import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
 
 interface RevenueBreakdownProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const RevenueBreakdown: React.FC<RevenueBreakdownProps> = ({ onBack }) => {

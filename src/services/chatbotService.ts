@@ -1,14 +1,20 @@
 import { supabase } from '../lib/supabase';
 import { createResponse, OPENAI_FAST_MODEL } from '../lib/openai';
-import { getAllKnowledge, searchKnowledge } from '../data/chatbotKnowledge';
+import { searchKnowledge } from '../data/chatbotKnowledge';
 import { aiApps } from '../data/aiApps';
+
+export interface ChatMetadata {
+  relatedApps?: Array<{ id: string; title: string; description: string }>;
+  suggestions?: string[];
+  [key: string]: unknown;
+}
 
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: Date;
-  metadata?: Record<string, any>;
+  metadata?: ChatMetadata;
 }
 
 export interface ChatConversation {
@@ -18,7 +24,7 @@ export interface ChatConversation {
   context: {
     currentApp?: string;
     currentRoute?: string;
-    userPreferences?: Record<string, any>;
+    userPreferences?: Record<string, unknown>;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -47,7 +53,6 @@ class ChatbotService {
   }
 
   private buildSystemPrompt(): string {
-    const knowledge = getAllKnowledge();
     const appsList = aiApps.map(app => `- ${app.title} (${app.category}): ${app.description}`).join('\n');
 
     return `You are an intelligent, helpful AI assistant for the Business Intelligence Hub application. Your role is to help users understand, navigate, and make the most of the platform.
@@ -143,7 +148,7 @@ Remember: Your goal is to make users successful with the platform by providing e
 
       const assistantMessage = await this.saveMessage(convId, 'assistant', aiResponse);
 
-      const suggestions = this.generateSuggestions(userMessage, context);
+      const suggestions = this.generateSuggestions(userMessage);
       const relatedApps = this.findRelatedApps(userMessage);
 
       await this.logUsageAnalytics(convId, 'message_sent', {
@@ -182,14 +187,19 @@ Remember: Your goal is to make users successful with the platform by providing e
       });
 
       return text.trim() || "I'm here to help! Please ask me anything about the Business Intelligence Hub.";
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error calling OpenAI Responses API:', error);
+      const status = (error as { status?: number })?.status;
 
-      if (error?.status === 401) {
+      if (status === 503) {
+        return "The AI assistant isn't configured yet. An administrator needs to set OPENAI_API_KEY for this site.";
+      }
+
+      if (status === 401) {
         return "I'm currently unable to process your request as the AI service authentication failed. Please check the API key configuration.";
       }
 
-      if (error?.status === 429) {
+      if (status === 429) {
         return "I'm experiencing high demand right now. Please try again in a moment.";
       }
 
@@ -243,7 +253,7 @@ Remember: Your goal is to make users successful with the platform by providing e
       }));
   }
 
-  private generateSuggestions(userMessage: string, context?: { currentApp?: string }): string[] {
+  private generateSuggestions(userMessage: string): string[] {
     const suggestions: string[] = [];
 
     if (userMessage.toLowerCase().includes('help') || userMessage.toLowerCase().includes('how')) {
@@ -272,7 +282,7 @@ Remember: Your goal is to make users successful with the platform by providing e
 
   private async createConversation(
     firstMessage: string,
-    context?: Record<string, any>
+    context?: Record<string, unknown>
   ): Promise<string> {
     const title = firstMessage.slice(0, 50) + (firstMessage.length > 50 ? '...' : '');
 
@@ -299,7 +309,7 @@ Remember: Your goal is to make users successful with the platform by providing e
     conversationId: string,
     role: 'user' | 'assistant' | 'system',
     content: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<string> {
     const { data, error } = await supabase
       .from('chatbot_messages')
@@ -387,7 +397,7 @@ Remember: Your goal is to make users successful with the platform by providing e
   private async logUsageAnalytics(
     conversationId: string,
     eventType: string,
-    metadata: Record<string, any>
+    metadata: Record<string, unknown>
   ): Promise<void> {
     try {
       await supabase

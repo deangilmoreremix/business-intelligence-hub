@@ -142,9 +142,9 @@ export async function enrichContact(contact: Contact): Promise<EnrichmentResult>
   let res;
   try {
     res = await createResponseFull({ ...base, jsonSchema: { name: 'contact_enrichment', schema } });
-  } catch (e: any) {
+  } catch (e) {
     // Fallback if the model/tool combo rejects structured output: ask for plain JSON.
-    if (e?.status !== 400) throw e;
+    if ((e as { status?: number })?.status !== 400) throw e;
     res = await createResponseFull({ ...base, input: `${input}\nRespond with ONLY a JSON object with keys: ${Object.keys(schema.properties).join(', ')}.` });
   }
   const json = res.text.match(/\{[\s\S]*\}/)?.[0];

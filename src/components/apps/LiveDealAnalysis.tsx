@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Brain, Activity, AlertTriangle, TrendingUp, DollarSign, Clock } from 'lucide-react';
+import { Brain, Activity, AlertTriangle, TrendingUp } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
@@ -8,7 +8,7 @@ import { Avatar } from '../ui/Avatar';
 import { teamMembers } from '../../data/teamMembers';
 
 interface LiveDealAnalysisProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const LiveDealAnalysis: React.FC<LiveDealAnalysisProps> = ({ onBack }) => {
@@ -88,7 +88,6 @@ export const LiveDealAnalysis: React.FC<LiveDealAnalysisProps> = ({ onBack }) =>
       title="Live Deal Analysis"
       description="Real-time deal intelligence with AI-powered insights"
       onBack={onBack}
-      backgroundGradient="from-cyan-50 via-white to-blue-50"
       headerActions={headerActions}
     >
       {/* Live Status */}
@@ -124,7 +123,7 @@ export const LiveDealAnalysis: React.FC<LiveDealAnalysisProps> = ({ onBack }) =>
           icon={<Brain className="w-6 h-6 text-cyan-600" />}
         >
           <div className="space-y-4 max-h-96 overflow-y-auto">
-            {liveDeals.map((deal, index) => {
+            {liveDeals.map((deal) => {
               const assignedMember = teamMembers.find(m => m.name === deal.assignee);
               
               return (

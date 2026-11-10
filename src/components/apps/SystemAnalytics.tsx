@@ -3,10 +3,9 @@ import { Gauge, TrendingUp, Server, Cpu, HardDrive, Wifi } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
-import { ModernButton } from '../ui/ModernButton';
 
 interface SystemAnalyticsProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const SystemAnalytics: React.FC<SystemAnalyticsProps> = ({ onBack }) => {

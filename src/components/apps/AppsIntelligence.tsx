@@ -8,7 +8,7 @@ import { Avatar } from '../ui/Avatar';
 import { teamMembers } from '../../data/teamMembers';
 
 interface AppsIntelligenceProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const AppsIntelligence: React.FC<AppsIntelligenceProps> = ({ onBack }) => {
@@ -201,7 +201,7 @@ export const AppsIntelligence: React.FC<AppsIntelligenceProps> = ({ onBack }) =>
           icon={<Users className="w-6 h-6 text-green-600" />}
         >
           <div className="space-y-4">
-            {teamMembers.map((member, index) => {
+            {teamMembers.map((member) => {
               const engagement = Math.floor(Math.random() * 30) + 60;
               const appsUsed = Math.floor(Math.random() * 5) + 3;
               

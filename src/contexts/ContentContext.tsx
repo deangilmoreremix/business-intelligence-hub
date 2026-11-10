@@ -53,7 +53,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
           if (savedDashboard) {
             setDashboardSettings(savedDashboard);
           }
-        } catch (error) {
+        } catch {
           console.warn('Could not load dashboard settings, using defaults');
         }
 
@@ -63,7 +63,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
           if (savedPreferences) {
             setUserPreferences(savedPreferences);
           }
-        } catch (error) {
+        } catch {
           console.warn('Could not load user preferences, using defaults');
         }
       } catch (error) {

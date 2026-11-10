@@ -34,7 +34,7 @@ export const SupabaseStatus: React.FC<SupabaseStatusProps> = ({
       }
 
       // Test connection by trying to read from app_content table
-      const { data, error: dbError, count } = await supabase
+      const { error: dbError, count } = await supabase
         .from('app_content')
         .select('*', { count: 'exact', head: true });
 

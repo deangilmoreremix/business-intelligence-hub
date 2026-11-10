@@ -8,7 +8,7 @@ import { Avatar } from '../ui/Avatar';
 import { teamMembers } from '../../data/teamMembers';
 
 interface ResponseIntelligenceProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const ResponseIntelligence: React.FC<ResponseIntelligenceProps> = ({ onBack }) => {
@@ -104,7 +104,6 @@ export const ResponseIntelligence: React.FC<ResponseIntelligenceProps> = ({ onBa
       title="Response Intelligence"
       description="Track and optimize response times across all communication channels"
       onBack={onBack}
-      backgroundGradient="from-teal-50 via-white to-cyan-50"
       headerActions={headerActions}
     >
       {/* Key Metrics */}
@@ -217,7 +216,7 @@ export const ResponseIntelligence: React.FC<ResponseIntelligenceProps> = ({ onBa
           icon={<TrendingUp className="w-6 h-6 text-cyan-600" />}
         >
           <div className="space-y-4">
-            {teamMembers.slice(0, 5).map((member, index) => {
+            {teamMembers.slice(0, 5).map((member) => {
               const avgTime = Math.floor(Math.random() * 120) + 30; // 30-150 minutes
               const responseRate = Math.floor(Math.random() * 20) + 80; // 80-100%
               

@@ -57,7 +57,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
 
   const run = async <T,>(label: string, fn: () => Promise<T>, set: (v: T) => void) => {
     setBusy(label); setAiError(null);
-    try { set(await fn()); } catch (e: any) { setAiError(e?.message || 'AI request failed'); } finally { setBusy(null); }
+    try { set(await fn()); } catch (e) { setAiError(e instanceof Error ? e.message : 'AI request failed'); } finally { setBusy(null); }
   };
 
   const open = async (c: Contact) => {
@@ -95,7 +95,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
       await applyEnrichment(selected.id, enrich, [...accept]);
       await loadContactsFromSupabase();
       setEnrich(null);
-    } catch (e: any) { setAiError(e?.message || 'Failed to save'); } finally { setBusy(null); }
+    } catch (e) { setAiError(e instanceof Error ? e.message : 'Failed to save'); } finally { setBusy(null); }
   };
 
   const onImport = async (f?: File) => {
@@ -117,7 +117,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
           <Search className="w-4 h-4 absolute left-2 top-2.5 text-gray-400" />
           <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search contacts…" className="pl-8 pr-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent text-sm" />
         </div>
-        <select value={status} onChange={e => setStatus(e.target.value as any)} className="py-2 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent text-sm">
+        <select value={status} onChange={e => setStatus(e.target.value as (typeof STATUSES)[number])} className="py-2 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent text-sm">
           {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
         <button className={btn} onClick={() => setShowNew(v => !v)}><Plus className="w-4 h-4" />New</button>
@@ -177,7 +177,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
               <b>{enrich.found ? `Public info found (${enrich.confidence} confidence)` : 'No reliable public match found'}</b>
               {enrich.found && ENRICH_FIELDS.filter(([k]) => (enrich[k] as string)?.trim()).map(([k, label]) => (
                 <label key={k} className="flex gap-2 mt-1 items-start">
-                  <input type="checkbox" checked={accept.has(k)} onChange={e => { const n = new Set(accept); e.target.checked ? n.add(k) : n.delete(k); setAccept(n); }} />
+                  <input type="checkbox" checked={accept.has(k)} onChange={e => { const n = new Set(accept); if (e.target.checked) n.add(k); else n.delete(k); setAccept(n); }} />
                   <span><b>{label}:</b> {enrich[k] as string}</span>
                 </label>
               ))}

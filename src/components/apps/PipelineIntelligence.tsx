@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, TrendingUp, Users, DollarSign, Clock, Zap, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Zap, AlertCircle } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
 import { GlassCard } from '../ui/GlassCard';
 import { AIChart } from '../AIChart';
@@ -188,7 +188,7 @@ export const PipelineIntelligence: React.FC<PipelineIntelligenceProps> = ({ onBa
             { stage: "Proposal", count: 89, value: "$690K", conversion: "78%" },
             { stage: "Negotiation", count: 45, value: "$450K", conversion: "82%" },
             { stage: "Closed Won", count: 23, value: "$340K", conversion: "100%" }
-          ].map((stage, index) => (
+          ].map((stage) => (
             <div key={stage.stage} className="p-4 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg">
               <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{stage.stage}</h3>
               <div className="space-y-1">

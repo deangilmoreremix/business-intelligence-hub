@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import { TrendingDown, BarChart3, Users, Clock, Target, MessageSquare } from 'lucide-react';
+import { TrendingDown, BarChart3, Users, Target } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
-import { ModernButton } from '../ui/ModernButton';
 import { Avatar } from '../ui/Avatar';
 import { teamMembers } from '../../data/teamMembers';
 
 interface CommPerformanceProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const CommPerformance: React.FC<CommPerformanceProps> = ({ onBack }) => {
@@ -99,7 +98,7 @@ export const CommPerformance: React.FC<CommPerformanceProps> = ({ onBack }) => {
           icon={<Users className="w-6 h-6 text-blue-600" />}
         >
           <div className="space-y-4">
-            {teamMembers.slice(0, 5).map((member, index) => {
+            {teamMembers.slice(0, 5).map((member) => {
               const roi = Math.floor(Math.random() * 200) + 250;
               const contacts = Math.floor(Math.random() * 50) + 25;
               

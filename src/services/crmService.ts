@@ -277,7 +277,7 @@ class CRMService {
     return {
       connected: this.config !== null,
       lastSync: this.config?.lastSync,
-      config: this.config
+      config: this.config ?? undefined
     };
   }
 

@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Settings, TrendingUp, CheckCircle, AlertCircle, Zap, BarChart3 } from 'lucide-react';
+import { Settings, TrendingUp, CheckCircle, AlertCircle, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
-import { ModernButton } from '../ui/ModernButton';
 
 interface IntegrationAnalyticsProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const IntegrationAnalytics: React.FC<IntegrationAnalyticsProps> = ({ onBack }) => {

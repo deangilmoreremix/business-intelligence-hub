@@ -26,18 +26,15 @@ export const AIAnalysisSection: React.FC<AIAnalysisSectionProps> = ({
   description = "Get AI-powered insights for this application",
   className,
   defaultProvider = 'openai-deep',
-  showHistory = true,
-  customData
-}) => {
+  showHistory = true}) => {
   const [showInsightsPanel, setShowInsightsPanel] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<AIProvider>(defaultProvider);
+  const [selectedProvider] = useState<AIProvider>(defaultProvider);
   
   const {
     isAnalyzing,
     result,
     error,
     history,
-    analyze,
     clearError,
     hasInsights,
     highPriorityInsights
@@ -46,7 +43,7 @@ export const AIAnalysisSection: React.FC<AIAnalysisSectionProps> = ({
     includeHistory: showHistory 
   });
 
-  const handleAnalysisComplete = (analysisResult: any) => {
+  const handleAnalysisComplete = () => {
     setShowInsightsPanel(true);
   };
 
@@ -133,7 +130,7 @@ export const AIAnalysisSection: React.FC<AIAnalysisSectionProps> = ({
             <div className="space-y-3">
               <h4 className="font-semibold text-gray-900 dark:text-gray-100">Latest AI Insights</h4>
               
-              {result?.insights.slice(0, 3).map((insight, index) => (
+              {result?.insights.slice(0, 3).map((insight) => (
                 <div 
                   key={insight.id}
                   className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"

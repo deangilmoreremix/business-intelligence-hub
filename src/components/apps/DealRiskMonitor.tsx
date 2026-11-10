@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, AlertTriangle, TrendingDown, Clock, DollarSign, Shield } from 'lucide-react';
+import { AlertTriangle, Clock, DollarSign, Shield } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
 import { GlassCard } from '../ui/GlassCard';
 import { PageWrapper } from '../layout/PageWrapper';

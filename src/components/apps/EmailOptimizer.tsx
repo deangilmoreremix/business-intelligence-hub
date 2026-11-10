@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, TrendingUp, Zap, Target, Clock, BarChart3 } from 'lucide-react';
+import { Mail, TrendingUp, Zap, Target, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
@@ -7,12 +7,11 @@ import { ModernButton } from '../ui/ModernButton';
 import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 
 interface EmailOptimizerProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const EmailOptimizer: React.FC<EmailOptimizerProps> = ({ onBack }) => {
   const [isOptimizing, setIsOptimizing] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState('open-rate');
 
   const emailMetrics = [
     { title: "Open Rate", value: "68.5%", change: 12.3, trend: "up" as const, color: "success" as const },

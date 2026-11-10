@@ -7,7 +7,7 @@ import { Avatar } from '../ui/Avatar';
 import { teamMembers } from '../../data/teamMembers';
 
 interface PerformanceReportsProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const PerformanceReports: React.FC<PerformanceReportsProps> = ({ onBack }) => {
@@ -198,7 +198,7 @@ export const PerformanceReports: React.FC<PerformanceReportsProps> = ({ onBack }
                 <div key={member.id} className="p-4 border border-gray-200 rounded-lg">
                   <div className="flex items-center gap-3 mb-4">
                     <Avatar 
-                      name={member.name} 
+                      alt={member.name} fallback={member.name} 
                       status={member.status}
                       size="md"
                     />

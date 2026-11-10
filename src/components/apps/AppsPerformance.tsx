@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Eye, TrendingUp, Clock, Zap, AlertCircle, BarChart3 } from 'lucide-react';
+import { Eye, TrendingUp, AlertCircle, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
 
 interface AppsPerformanceProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const AppsPerformance: React.FC<AppsPerformanceProps> = ({ onBack }) => {

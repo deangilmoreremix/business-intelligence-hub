@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Brain, Zap, TrendingUp, Activity, Target, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Brain, Zap, TrendingUp, Activity, Target } from 'lucide-react';
 import { aiAnalyticsEngine, type AIAnalyticsMetrics } from '../../services/aiAnalyticsEngine';
-import { GlassCard } from '../ui/GlassCard';
 import { ModernButton } from '../ui/ModernButton';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
@@ -16,11 +15,7 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({ clas
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTimeRange, setSelectedTimeRange] = useState('30d');
 
-  useEffect(() => {
-    loadAnalyticsMetrics();
-  }, [selectedTimeRange]);
-
-  const loadAnalyticsMetrics = async () => {
+  const loadAnalyticsMetrics = useCallback(async () => {
     try {
       setIsLoading(true);
       const data = await aiAnalyticsEngine.getAnalyticsMetrics(selectedTimeRange);
@@ -30,7 +25,11 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({ clas
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedTimeRange]);
+
+  useEffect(() => {
+    loadAnalyticsMetrics();
+  }, [loadAnalyticsMetrics]);
 
   const runBusinessOptimization = async () => {
     try {
@@ -131,7 +130,7 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({ clas
           icon={<Zap className="w-6 h-6 text-blue-600" />}
         >
           <div className="space-y-4">
-            {metrics.providerUsage.map((provider, index) => (
+            {metrics.providerUsage.map((provider) => (
               <div key={provider.provider} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">

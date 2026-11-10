@@ -6,7 +6,7 @@ import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
 
 interface SentimentMonitorProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const SentimentMonitor: React.FC<SentimentMonitorProps> = ({ onBack }) => {

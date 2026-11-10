@@ -161,7 +161,7 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({
                   AI-Generated Insights
                 </h3>
                 
-                {analysisResult.insights.map((insight, index) => (
+                {analysisResult.insights.map((insight) => (
                   <div
                     key={insight.id}
                     className={cn(

@@ -10,6 +10,7 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 
 export default async (req: Request, _ctx: Context) => {
+  if (req.method === 'GET') return json({ configured: Boolean(process.env.OPENAI_API_KEY) });
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
 
   const allowed = process.env.ALLOWED_ORIGIN;
@@ -43,7 +44,7 @@ export default async (req: Request, _ctx: Context) => {
     delete body.stream; // non-streaming proxy
   }
 
-  const upstream = await fetch(`https://api.openai.com/v1/${endpoint}`, {
+  const upstream = await fetch(`${process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1'}/${endpoint}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify(body),

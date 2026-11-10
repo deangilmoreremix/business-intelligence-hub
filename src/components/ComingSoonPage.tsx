@@ -1,7 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { ArrowLeft, Construction } from 'lucide-react';
-import { ModernButton } from './ui/ModernButton';
+import { Construction } from 'lucide-react';
 import { PageWrapper } from './layout/PageWrapper';
 import { aiApps } from '../data/aiApps';
 

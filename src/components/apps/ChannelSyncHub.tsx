@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Shuffle, MessageSquare, Mail, Phone, Video, Zap } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
@@ -6,11 +6,10 @@ import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
 
 interface ChannelSyncHubProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const ChannelSyncHub: React.FC<ChannelSyncHubProps> = ({ onBack }) => {
-  const [syncStatus, setSyncStatus] = useState('active');
 
   const syncMetrics = [
     { title: "Sync Accuracy", value: "98.5%", change: 2.1, trend: "up" as const, color: "success" as const },

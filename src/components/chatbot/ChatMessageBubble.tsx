@@ -60,7 +60,7 @@ export const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = ({ message })
                 Related Apps:
               </p>
               <div className="space-y-1.5">
-                {relatedApps.map((app: any) => (
+                {relatedApps.map((app) => (
                   <button
                     key={app.id}
                     onClick={() => handleAppClick(app.id)}

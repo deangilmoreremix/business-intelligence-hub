@@ -30,7 +30,7 @@ export function useAIAnalysis(
   });
 
   const analyze = useCallback(async (
-    customData?: any,
+    customData?: Record<string, unknown>,
     customProvider?: AIProvider
   ): Promise<AIAnalysisResult | null> => {
     try {

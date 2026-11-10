@@ -36,7 +36,37 @@ const USE_CASE_CONFIG: Record<UseCase, { effort: ReasoningEffort; verbosity: Ver
   complex: { effort: 'high', verbosity: 'high' },
 };
 
-export const isOpenAIConfigured = (): boolean => true; // proxy holds the key; failures surface as errors
+/** Asks the proxy whether OPENAI_API_KEY is configured (cached for the session). */
+let availability: Promise<boolean> | null = null;
+export const checkAIAvailable = (): Promise<boolean> => {
+  if (DIRECT_KEY && import.meta.env.DEV) return Promise.resolve(true);
+  availability ??= fetch(PROXY_URL)
+    .then(r => (r.ok ? r.json() : { configured: false }))
+    .then(j => Boolean(j?.configured))
+    .catch(() => false);
+  return availability;
+};
+export const AI_NOT_CONFIGURED_MESSAGE =
+  'AI is not configured. Set OPENAI_API_KEY in your Netlify environment variables (or run `netlify dev`).';
+
+/** Minimal shape of an OpenAI Responses API result (only fields we read). */
+export interface ResponsesResult {
+  status?: string;
+  output_text?: string;
+  incomplete_details?: { reason?: string };
+  output?: Array<{
+    type: string;
+    action?: { sources?: Array<{ url?: string }> };
+    content?: Array<{
+      type: string;
+      text?: string;
+      refusal?: string;
+      annotations?: Array<{ type: string; url?: string; title?: string }>;
+    }>;
+  }>;
+}
+
+interface ApiError { error?: { message?: string } | string }
 
 export class OpenAIError extends Error {
   status?: number;
@@ -47,7 +77,7 @@ export class OpenAIError extends Error {
   }
 }
 
-async function post(endpoint: 'responses' | 'images/generations' | 'images/edits', body: unknown): Promise<any> {
+async function post(endpoint: 'responses' | 'images/generations' | 'images/edits', body: unknown): Promise<Record<string, unknown>> {
   const useDirect = Boolean(DIRECT_KEY) && import.meta.env.DEV;
   const res = useDirect
     ? await fetch(`${OPENAI_BASE}/${endpoint}`, {
@@ -61,9 +91,10 @@ async function post(endpoint: 'responses' | 'images/generations' | 'images/edits
         body: JSON.stringify({ endpoint, body }),
       });
 
-  const json = await res.json().catch(() => ({}));
+  const json = (await res.json().catch(() => ({}))) as ApiError & Record<string, unknown>;
   if (!res.ok) {
-    throw new OpenAIError(json?.error?.message || json?.error || res.statusText, res.status);
+    const e = json?.error;
+    throw new OpenAIError((typeof e === 'string' ? e : e?.message) || res.statusText, res.status);
   }
   return json;
 }
@@ -96,6 +127,7 @@ export async function createResponse(opts: CreateResponseOptions): Promise<strin
 
 /** Like createResponse but also returns url_citation annotations and consulted web sources. */
 export async function createResponseFull(opts: CreateResponseOptions): Promise<FullResponse> {
+  if (!(await checkAIAvailable())) throw new OpenAIError(AI_NOT_CONFIGURED_MESSAGE, 503);
   const cfg = USE_CASE_CONFIG[opts.useCase ?? 'analysis'];
   const text: Record<string, unknown> = { verbosity: cfg.verbosity };
   if (opts.jsonSchema) {
@@ -117,11 +149,11 @@ export async function createResponseFull(opts: CreateResponseOptions): Promise<F
   if (opts.toolChoice) body.tool_choice = opts.toolChoice;
   if (opts.include?.length) body.include = opts.include;
 
-  const response = await post('responses', body);
+  const response = (await post('responses', body)) as ResponsesResult;
   return { text: extractOutputText(response), ...extractSources(response) };
 }
 
-export function extractSources(response: any): { citations: Citation[]; sources: string[] } {
+export function extractSources(response: ResponsesResult): { citations: Citation[]; sources: string[] } {
   const citations = new Map<string, Citation>();
   const sources = new Set<string>();
   for (const item of response?.output ?? []) {
@@ -140,7 +172,7 @@ export function extractSources(response: any): { citations: Citation[]; sources:
 }
 
 /** Equivalent of the SDK's `output_text` helper, with refusal/incomplete handling. */
-export function extractOutputText(response: any): string {
+export function extractOutputText(response: ResponsesResult): string {
   if (typeof response?.output_text === 'string' && response.output_text) return response.output_text;
   let out = '';
   for (const item of response?.output ?? []) {
@@ -156,7 +188,7 @@ export function extractOutputText(response: any): string {
   return out;
 }
 
-export async function createJsonResponse<T = any>(opts: CreateResponseOptions & { jsonSchema: JsonSchemaSpec }): Promise<T> {
+export async function createJsonResponse<T = unknown>(opts: CreateResponseOptions & { jsonSchema: JsonSchemaSpec }): Promise<T> {
   const text = await createResponse(opts);
   try {
     return JSON.parse(text) as T;
@@ -183,13 +215,14 @@ export async function generateImage(opts: GenerateImageOptions): Promise<string>
       size: opts.size ?? '1024x1024',
       quality: opts.quality ?? 'auto',
       output_format: format,
-    });
+    }) as Promise<{ data?: Array<{ b64_json?: string }> }>;
 
-  let result;
+  let result: { data?: Array<{ b64_json?: string }> };
   try {
     result = await run(opts.model || IMAGE_MODEL);
-  } catch (e: any) {
-    if (!opts.model && (e?.status === 404 || e?.status === 400) && /model/i.test(e.message)) {
+  } catch (e) {
+    const err = e as OpenAIError;
+    if (!opts.model && (err?.status === 404 || err?.status === 400) && /model/i.test(err.message)) {
       result = await run(IMAGE_MODEL_FALLBACK);
     } else {
       throw e;

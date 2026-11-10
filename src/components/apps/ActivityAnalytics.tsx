@@ -8,11 +8,10 @@ import { teamMembers } from '../../data/teamMembers';
 import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 
 interface ActivityAnalyticsProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const ActivityAnalytics: React.FC<ActivityAnalyticsProps> = ({ onBack }) => {
-  const [selectedChannel, setSelectedChannel] = useState('all');
   const [timeRange, setTimeRange] = useState('7d');
 
   const activityMetrics = [
@@ -189,7 +188,7 @@ export const ActivityAnalytics: React.FC<ActivityAnalyticsProps> = ({ onBack }) 
                 <div key={member.id} className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-3">
                     <Avatar 
-                      name={member.name} 
+                      alt={member.name} fallback={member.name} 
                       status={member.status}
                       size="md"
                     />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, TrendingUp, AlertTriangle, Target, Users, DollarSign, Clock } from 'lucide-react';
+import { ArrowLeft, TrendingUp, AlertTriangle, Target, Users } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
 import { GlassCard } from '../ui/GlassCard';
 import { AIChart } from '../AIChart';
@@ -8,7 +8,7 @@ import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 import { teamMembers } from '../../data/teamMembers';
 
 interface PipelineHealthDashboardProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const PipelineHealthDashboard: React.FC<PipelineHealthDashboardProps> = ({ onBack }) => {
@@ -172,11 +172,11 @@ export const PipelineHealthDashboard: React.FC<PipelineHealthDashboardProps> = (
             </div>
             
             <div className="space-y-4">
-              {teamMembers.slice(0, 5).map((member, index) => (
+              {teamMembers.slice(0, 5).map((member) => (
                 <div key={member.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
                   <div className="flex items-center gap-3">
                     <Avatar 
-                      name={member.name} 
+                      alt={member.name} fallback={member.name} 
                       status={member.status}
                       size="md"
                     />

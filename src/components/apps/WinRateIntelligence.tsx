@@ -9,7 +9,7 @@ import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 import { teamMembers } from '../../data/teamMembers';
 
 interface WinRateIntelligenceProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const WinRateIntelligence: React.FC<WinRateIntelligenceProps> = ({ onBack }) => {
@@ -59,7 +59,6 @@ export const WinRateIntelligence: React.FC<WinRateIntelligenceProps> = ({ onBack
       title="Win Rate Intelligence"
       description="Advanced win rate analysis and optimization insights"
       onBack={onBack}
-      backgroundGradient="from-emerald-50 via-white to-blue-50"
       headerActions={headerActions}
     >
       {/* AI Processing Indicator */}
@@ -137,7 +136,7 @@ export const WinRateIntelligence: React.FC<WinRateIntelligenceProps> = ({ onBack
           icon={<Users className="w-6 h-6 text-purple-600" />}
         >
           <div className="space-y-4">
-            {teamMembers.map((member, index) => {
+            {teamMembers.map((member) => {
               const winRate = Math.floor(Math.random() * 30) + 55;
               const deals = Math.floor(Math.random() * 20) + 10;
               

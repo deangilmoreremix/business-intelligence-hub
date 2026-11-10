@@ -26,6 +26,7 @@ export function useCRMIntegration() {
   // Load CRM configuration on mount
   useEffect(() => {
     loadCRMConfiguration();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only load
   }, []);
 
   const loadCRMConfiguration = async () => {

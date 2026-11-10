@@ -112,7 +112,7 @@ class AIService {
     
     // Add deal stage information if we have deals
     if (data.deals?.length) {
-      const stageData = await this.getDealStageContext(data.deals);
+      const stageData = await this.getDealStageContext();
       enrichedData.dealStages = stageData;
     }
     
@@ -153,13 +153,13 @@ class AIService {
       case 'communication':
         return this.generateCommunicationPrompt(appId, context, baseContext);
       case 'task':
-        return this.generateTaskPrompt(appId, context, baseContext);
+        return this.generateTaskPrompt(appId, baseContext);
       case 'integration':
-        return this.generateIntegrationPrompt(appId, context, baseContext);
+        return this.generateIntegrationPrompt(appId, baseContext);
       case 'analytics':
-        return this.generateAnalyticsPrompt(appId, context, baseContext);
+        return this.generateAnalyticsPrompt(appId, baseContext);
       default:
-        return this.generateGenericPrompt(appId, context, baseContext);
+        return this.generateGenericPrompt(appId, baseContext);
     }
   }
 
@@ -224,7 +224,7 @@ class AIService {
   /**
    * Generate task-specific prompts
    */
-  private generateTaskPrompt(appId: string, context: any, baseContext: string): string {
+  private generateTaskPrompt(appId: string, baseContext: string): string {
     return `${baseContext}
     
     TASK OPTIMIZATION ANALYSIS for ${appId}:
@@ -447,7 +447,7 @@ class AIService {
   /**
    * Get deal stage context
    */
-  private async getDealStageContext(deals: any[]) {
+  private async getDealStageContext() {
     try {
       const { data } = await supabase
         .from('deal_stages')
@@ -588,7 +588,7 @@ class AIService {
   /**
    * Generate integration-specific prompts
    */
-  private generateIntegrationPrompt(appId: string, context: any, baseContext: string): string {
+  private generateIntegrationPrompt(appId: string, baseContext: string): string {
     return `${baseContext}
     
     INTEGRATION ANALYSIS REQUEST for ${appId}:
@@ -602,7 +602,7 @@ class AIService {
   /**
    * Generate analytics-specific prompts
    */
-  private generateAnalyticsPrompt(appId: string, context: any, baseContext: string): string {
+  private generateAnalyticsPrompt(appId: string, baseContext: string): string {
     return `${baseContext}
     
     ANALYTICS ANALYSIS REQUEST for ${appId}:
@@ -616,7 +616,7 @@ class AIService {
   /**
    * Generate generic prompt for unknown types
    */
-  private generateGenericPrompt(appId: string, context: any, baseContext: string): string {
+  private generateGenericPrompt(appId: string, baseContext: string): string {
     return `${baseContext}
     
     GENERAL BUSINESS ANALYSIS for ${appId}:

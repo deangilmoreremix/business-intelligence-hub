@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DollarSign, TrendingUp, BarChart3, Target, Zap, PieChart } from 'lucide-react';
+import { DollarSign, TrendingUp, Target, Zap, PieChart } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
@@ -7,7 +7,7 @@ import { ModernButton } from '../ui/ModernButton';
 import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 
 interface RevenueIntelligenceProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const RevenueIntelligence: React.FC<RevenueIntelligenceProps> = ({ onBack }) => {

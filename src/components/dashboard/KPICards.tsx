@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { TrendingUp, TrendingDown, DollarSign, Target, Award, BarChart3, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { DollarSign, Target, Award, BarChart3, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { useNavigation } from '../../contexts/NavigationContext';
 import { useDealStore } from '../../store/dealStore';
 import { useContactStore } from '../../store/contactStore';
@@ -11,15 +11,6 @@ import { cn } from '../../lib/utils';
 import { Tooltip } from '../ui/Tooltip';
 import { tooltipContent } from '../../data/tooltipContent';
 
-interface KPIMetric {
-  title: string;
-  value: string;
-  change: number;
-  changeType: 'increase' | 'decrease';
-  icon: React.ComponentType<{ className?: string }>;
-  description: string;
-  relatedContacts?: Array<{ id: string; name: string; avatar?: string; avatarSrc?: string }>;
-}
 
 const KPICards: React.FC = () => {
   const { isDark } = useTheme();
@@ -70,16 +61,11 @@ const KPICards: React.FC = () => {
     const dealsArray = Object.values(deals);
     let totalActiveDeals = 0;
     let totalValue = 0;
-    let wonValue = 0;
 
     dealsArray.forEach(deal => {
       if (deal.stage !== 'closed-won' && deal.stage !== 'closed-lost') {
         totalActiveDeals++;
         totalValue += deal.value;
-      }
-
-      if (deal.stage === 'closed-won') {
-        wonValue += deal.value;
       }
     });
 

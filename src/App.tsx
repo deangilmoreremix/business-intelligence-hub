@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Dashboard } from './components/Dashboard';
 import { AppRoute } from './components/AppRoute';
@@ -17,7 +17,7 @@ function App() {
     };
 
     remoteCommunicator.on('INITIAL_DATA_SYNC', handleDataSync);
-    remoteCommunicator.on('CRM_READY', (_type: string) => {
+    remoteCommunicator.on('CRM_READY', () => {
       console.log('✅ Host CRM is ready for communication');
     });
 

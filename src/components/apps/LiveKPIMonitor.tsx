@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Gauge, Activity, TrendingUp, AlertCircle, Zap, Target } from 'lucide-react';
+import { Gauge, Activity, TrendingUp, AlertCircle, Zap } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
@@ -7,7 +7,7 @@ import { ModernButton } from '../ui/ModernButton';
 import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 
 interface LiveKPIMonitorProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const LiveKPIMonitor: React.FC<LiveKPIMonitorProps> = ({ onBack }) => {

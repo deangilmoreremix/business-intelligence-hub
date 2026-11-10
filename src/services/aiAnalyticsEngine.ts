@@ -159,14 +159,14 @@ class AIAnalyticsEngine {
       .channel('ai_auto_analysis')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'deals' },
-        async (payload) => {
+        async () => {
           console.log('Deals data changed, triggering auto-analysis');
           await this.triggerAutoAnalysis(appIds, provider);
         }
       )
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'contacts' },
-        async (payload) => {
+        async () => {
           console.log('Contacts data changed, triggering auto-analysis');
           await this.triggerAutoAnalysis(appIds, provider);
         }

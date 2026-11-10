@@ -9,7 +9,7 @@ import { Avatar } from '../ui/Avatar';
 import { teamMembers } from '../../data/teamMembers';
 
 interface PriorityIntelligenceProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const PriorityIntelligence: React.FC<PriorityIntelligenceProps> = ({ onBack }) => {
@@ -127,7 +127,7 @@ export const PriorityIntelligence: React.FC<PriorityIntelligenceProps> = ({ onBa
           <h2 className="text-xl font-semibold text-gray-900">AI-Prioritized Task Queue</h2>
         </div>
         
-        {priorityTasks.map((task, index) => {
+        {priorityTasks.map((task) => {
           const assignedMember = teamMembers.find(m => m.name === task.assignee);
           
           return (

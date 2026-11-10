@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
-import { Activity, Target, TrendingUp, Clock, BarChart3, Zap } from 'lucide-react';
+import { Activity, Target, BarChart3, Zap } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
-import { ModernButton } from '../ui/ModernButton';
-import { Avatar } from '../ui/Avatar';
-import { teamMembers } from '../../data/teamMembers';
 
 interface TaskImpactAnalyticsProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const TaskImpactAnalytics: React.FC<TaskImpactAnalyticsProps> = ({ onBack }) => {

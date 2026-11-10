@@ -9,7 +9,7 @@ interface AIChartProps {
   data: number[];
 }
 
-export const AIChart: React.FC<AIChartProps> = ({ title, value, change, trend, data }) => {
+export const AIChart: React.FC<AIChartProps> = ({ title, value, change, trend }) => {
   return (
     <div className="glass-card rounded-xl p-6 hover:scale-[1.02] hover:shadow-lg transition-all duration-200">
       <div className="flex items-center justify-between mb-4">

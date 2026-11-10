@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Shield, AlertTriangle, Clock, TrendingDown, Zap, Target } from 'lucide-react';
+import { Shield, AlertTriangle, Clock, TrendingDown, Target } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
@@ -8,7 +8,7 @@ import { Avatar } from '../ui/Avatar';
 import { teamMembers } from '../../data/teamMembers';
 
 interface RiskMonitorProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export const RiskMonitor: React.FC<RiskMonitorProps> = ({ onBack }) => {
@@ -152,7 +152,7 @@ export const RiskMonitor: React.FC<RiskMonitorProps> = ({ onBack }) => {
           icon={<TrendingDown className="w-6 h-6 text-orange-600" />}
         >
           <div className="space-y-4">
-            {teamMembers.slice(0, 5).map((member, index) => {
+            {teamMembers.slice(0, 5).map((member) => {
               const riskTasks = Math.floor(Math.random() * 8) + 2;
               const riskScore = Math.floor(Math.random() * 40) + 30;
               
@@ -193,7 +193,7 @@ export const RiskMonitor: React.FC<RiskMonitorProps> = ({ onBack }) => {
           <h2 className="text-xl font-semibold text-gray-900">Critical Tasks Requiring Attention</h2>
         </div>
         
-        {criticalTasks.map((task, index) => {
+        {criticalTasks.map((task) => {
           const assignedMember = teamMembers.find(m => m.name === task.assignee);
           
           return (

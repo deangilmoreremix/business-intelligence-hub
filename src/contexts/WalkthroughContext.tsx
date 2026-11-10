@@ -89,6 +89,7 @@ export const WalkthroughProvider: React.FC<{ children: React.ReactNode }> = ({ c
     if (step.action) {
       step.action();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- completeWalkthrough is declared below and stable
   }, [activeWalkthrough, currentStep]);
 
   const prevStep = useCallback(async () => {

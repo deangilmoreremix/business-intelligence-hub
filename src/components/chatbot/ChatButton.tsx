@@ -5,7 +5,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useChatStore } from '../../store/chatStore';
 
 export const ChatButton: React.FC = () => {
-  const { isDark } = useTheme();
+  useTheme();
   const { isOpen, unreadCount, toggleChat } = useChatStore();
 
   return (
