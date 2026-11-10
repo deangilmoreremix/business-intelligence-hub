@@ -4,6 +4,7 @@ import { ModernButton } from '../ui/ModernButton';
 import { GlassCard } from '../ui/GlassCard';
 import { AIChart } from '../AIChart';
 import { PageWrapper } from '../layout/PageWrapper';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 
 interface SmartConversionInsightsProps {
   onBack?: () => void;
@@ -65,6 +66,14 @@ export const SmartConversionInsights: React.FC<SmartConversionInsightsProps> = (
       onBack={onBack}
       appTheme="green"
     >
+      <AIAnalysisSection
+        appId="conversion-insights"
+        analysisType="pipeline"
+        title="AI Smart Conversion Insights Analysis"
+        description="Identify conversion opportunities with AI-driven recommendations."
+        className="mb-8"
+      />
+
       {/* Update all text colors for dark mode */}
         {/* Conversion Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

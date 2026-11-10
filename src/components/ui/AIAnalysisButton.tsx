@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Brain, Zap, Loader2, ChevronDown } from 'lucide-react';
 import { ModernButton } from './ModernButton';
 import { cn } from '../../lib/utils';
-import type { AIProvider, AIAnalysisType } from '../../services/aiService';
+import type { AIProvider, AIAnalysisType, AIAnalysisResult } from '../../services/aiService';
 import { Tooltip } from './Tooltip';
 import { tooltipContent } from '../../data/tooltipContent';
 
@@ -10,7 +10,9 @@ interface AIAnalysisButtonProps {
   appId: string;
   analysisType: AIAnalysisType;
   onAnalysisStart?: () => void;
-  onAnalysisComplete?: (result: any) => void;
+  onAnalysisComplete?: (result: AIAnalysisResult) => void;
+  /** Increment to start an analysis programmatically (used by AIAnalysisSection). */
+  runSignal?: number;
   onAnalysisError?: (error: string) => void;
   className?: string;
   variant?: 'primary' | 'glass' | 'outline';
@@ -29,9 +31,11 @@ export const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({
   variant = 'primary',
   size = 'md',
   showProviderSelector = true,
-  defaultProvider = 'openai-deep'
+  defaultProvider = 'openai-deep',
+  runSignal = 0
 }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const analysisRef = useRef<() => Promise<void>>(async () => undefined);
   const [selectedProvider, setSelectedProvider] = useState<AIProvider>(defaultProvider);
   const [showProviderMenu, setShowProviderMenu] = useState(false);
   const [lastAnalysis, setLastAnalysis] = useState<Date | null>(null);
@@ -90,6 +94,11 @@ export const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({
       setIsAnalyzing(false);
     }
   };
+
+  analysisRef.current = handleAnalysis;
+  useEffect(() => {
+    if (runSignal > 0) void analysisRef.current();
+  }, [runSignal]);
 
   const getAnalysisButtonText = () => {
     if (isAnalyzing) return 'Analyzing...';

@@ -1,3 +1,4 @@
+import { runAIAnalysis } from '../../lib/aiBus';
 import React, { useState } from 'react';
 import { Database, CheckCircle, AlertTriangle, XCircle, TrendingUp, Zap } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -90,7 +91,7 @@ export const DataQuality: React.FC<DataQualityProps> = ({ onBack }) => {
 
   const runQualityScan = async () => {
     setIsScanning(true);
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await runAIAnalysis('data-quality');
     setIsScanning(false);
   };
 

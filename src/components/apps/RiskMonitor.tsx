@@ -4,6 +4,7 @@ import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import { Avatar } from '../ui/Avatar';
 import { teamMembers } from '../../data/teamMembers';
 
@@ -92,6 +93,14 @@ export const RiskMonitor: React.FC<RiskMonitorProps> = ({ onBack }) => {
           onChange={(e) => setAlertLevel(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         >
+      <AIAnalysisSection
+          appId="risk-monitor"
+          analysisType="task"
+          title="AI Risk Monitor Analysis"
+          description="Deadline risk assessment and mitigation strategies."
+          className="mb-8"
+        />
+
           <option value="all">All Risks</option>
           <option value="critical">Critical Only</option>
           <option value="overdue">Overdue Tasks</option>

@@ -1,9 +1,11 @@
+import { runAIAnalysis } from '../../lib/aiBus';
 import React, { useState } from 'react';
 import { Layers, Target, AlertCircle, TrendingUp, Zap, Clock } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 import { Avatar } from '../ui/Avatar';
 import { teamMembers } from '../../data/teamMembers';
@@ -58,7 +60,7 @@ export const PriorityIntelligence: React.FC<PriorityIntelligenceProps> = ({ onBa
 
   const optimizePriorities = async () => {
     setIsOptimizing(true);
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await runAIAnalysis('priority-intelligence');
     setIsOptimizing(false);
   };
 
@@ -99,6 +101,14 @@ export const PriorityIntelligence: React.FC<PriorityIntelligenceProps> = ({ onBa
       appTheme="orange"
       headerActions={headerActions}
     >
+      <AIAnalysisSection
+          appId="priority-intelligence"
+          analysisType="task"
+          title="AI Priority Intelligence Analysis"
+          description="Task priority optimization using AI algorithms."
+          className="mb-8"
+        />
+
       <div className="mb-6">
         <AIProcessingIndicator 
           isProcessing={isOptimizing} 

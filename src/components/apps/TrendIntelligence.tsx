@@ -1,9 +1,11 @@
+import { runAIAnalysis } from '../../lib/aiBus';
 import React, { useState } from 'react';
 import { TrendingUp, BarChart3, LineChart, PieChart, Zap, Target } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 
 interface TrendIntelligenceProps {
@@ -88,7 +90,7 @@ export const TrendIntelligence: React.FC<TrendIntelligenceProps> = ({ onBack }) 
 
   const runTrendAnalysis = async () => {
     setIsAnalyzing(true);
-    await new Promise(resolve => setTimeout(resolve, 3500));
+    await runAIAnalysis('trend-intelligence');
     setIsAnalyzing(false);
   };
 
@@ -155,6 +157,14 @@ export const TrendIntelligence: React.FC<TrendIntelligenceProps> = ({ onBack }) 
       appTheme="indigo"
       headerActions={headerActions}
     >
+      <AIAnalysisSection
+          appId="trend-intelligence"
+          analysisType="analytics"
+          title="AI Trend Intelligence Analysis"
+          description="Advanced trend analysis with predictive insights."
+          className="mb-8"
+        />
+
       <div className="mb-6">
         <AIProcessingIndicator 
           isProcessing={isAnalyzing} 

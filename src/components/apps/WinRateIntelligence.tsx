@@ -1,9 +1,11 @@
+import { runAIAnalysis } from '../../lib/aiBus';
 import React, { useState } from 'react';
 import { Award, TrendingUp, Users, Target, Zap, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import { Avatar } from '../ui/Avatar';
 import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 import { teamMembers } from '../../data/teamMembers';
@@ -31,7 +33,7 @@ export const WinRateIntelligence: React.FC<WinRateIntelligenceProps> = ({ onBack
 
   const runWinRateAnalysis = async () => {
     setIsAnalyzing(true);
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await runAIAnalysis('win-rate-intelligence');
     setIsAnalyzing(false);
   };
 
@@ -61,6 +63,14 @@ export const WinRateIntelligence: React.FC<WinRateIntelligenceProps> = ({ onBack
       onBack={onBack}
       headerActions={headerActions}
     >
+      <AIAnalysisSection
+          appId="win-rate-intelligence"
+          analysisType="pipeline"
+          title="AI Win Rate Intelligence Analysis"
+          description="Analyze win rates and identify factors that drive success."
+          className="mb-8"
+        />
+
       {/* AI Processing Indicator */}
       <div className="mb-6">
         <AIProcessingIndicator 

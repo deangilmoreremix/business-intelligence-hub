@@ -1,9 +1,11 @@
+import { runAIAnalysis } from '../../lib/aiBus';
 import React, { useState } from 'react';
 import { Zap, TrendingUp, Calendar, Target, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 
 interface AISalesForecastProps {
@@ -23,7 +25,7 @@ export const AISalesForecast: React.FC<AISalesForecastProps> = ({ onBack }) => {
 
   const generateForecast = async () => {
     setIsGenerating(true);
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await runAIAnalysis('ai-sales-forecast');
     setIsGenerating(false);
   };
 
@@ -52,6 +54,14 @@ export const AISalesForecast: React.FC<AISalesForecastProps> = ({ onBack }) => {
       onBack={onBack}
       headerActions={headerActions}
     >
+      <AIAnalysisSection
+          appId="ai-sales-forecast"
+          analysisType="pipeline"
+          title="AI AI Sales Forecast Analysis"
+          description="Predictive sales forecasting powered by machine learning."
+          className="mb-8"
+        />
+
       <div className="mb-6">
         <AIProcessingIndicator 
           isProcessing={isGenerating} 

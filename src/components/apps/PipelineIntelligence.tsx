@@ -4,6 +4,7 @@ import { ModernButton } from '../ui/ModernButton';
 import { GlassCard } from '../ui/GlassCard';
 import { AIChart } from '../AIChart';
 import { PageWrapper } from '../layout/PageWrapper';
+import { runAIAnalysis } from '../../lib/aiBus';
 import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 
 interface PipelineIntelligenceProps {
@@ -16,17 +17,9 @@ export const PipelineIntelligence: React.FC<PipelineIntelligenceProps> = ({ onBa
 
   const generateAIInsights = async () => {
     setLoading(true);
-    // Simulate AI processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    const aiResult = await runAIAnalysis('pipeline-intelligence');
     
-    const insights = [
-      "Deals in Enterprise segment show 34% higher conversion probability",
-      "Q4 pipeline velocity has increased by 23% compared to Q3",
-      "Deals with 3+ stakeholders involved have 67% higher close rates",
-      "Geographic analysis shows untapped potential in West Coast market",
-      "AI recommends prioritizing deals worth $50K+ for maximum ROI"
-    ];
-    
+    const insights = (aiResult?.insights ?? []).map(i => `${i.title}: ${i.description}`);
     setAIInsights(insights);
     setLoading(false);
   };

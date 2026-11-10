@@ -1,9 +1,11 @@
+import { runAIAnalysis } from '../../lib/aiBus';
 import React, { useState } from 'react';
 import { Users, Target, Zap, Shield } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 
 interface CompetitorInsightsProps {
@@ -29,7 +31,7 @@ export const CompetitorInsights: React.FC<CompetitorInsightsProps> = ({ onBack }
 
   const runCompetitiveAnalysis = async () => {
     setIsAnalyzing(true);
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await runAIAnalysis('competitor-insights');
     setIsAnalyzing(false);
   };
 
@@ -60,6 +62,14 @@ export const CompetitorInsights: React.FC<CompetitorInsightsProps> = ({ onBack }
       appTheme="red"
       headerActions={headerActions}
     >
+      <AIAnalysisSection
+          appId="competitor-insights"
+          analysisType="pipeline"
+          title="AI Competitor Insights Analysis"
+          description="Market intelligence and competitive analysis dashboard."
+          className="mb-8"
+        />
+
       <div className="mb-6">
         <AIProcessingIndicator 
           isProcessing={isAnalyzing} 

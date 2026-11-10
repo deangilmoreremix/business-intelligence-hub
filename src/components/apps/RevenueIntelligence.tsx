@@ -1,9 +1,11 @@
+import { runAIAnalysis } from '../../lib/aiBus';
 import React, { useState } from 'react';
 import { DollarSign, TrendingUp, Target, Zap, PieChart } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 
 interface RevenueIntelligenceProps {
@@ -29,7 +31,7 @@ export const RevenueIntelligence: React.FC<RevenueIntelligenceProps> = ({ onBack
 
   const runRevenueAnalysis = async () => {
     setIsAnalyzing(true);
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await runAIAnalysis('revenue-intelligence');
     setIsAnalyzing(false);
   };
 
@@ -59,6 +61,14 @@ export const RevenueIntelligence: React.FC<RevenueIntelligenceProps> = ({ onBack
       appTheme="green"
       headerActions={headerActions}
     >
+      <AIAnalysisSection
+          appId="revenue-intelligence"
+          analysisType="pipeline"
+          title="AI Revenue Intelligence Analysis"
+          description="Advanced revenue analytics and optimization insights."
+          className="mb-8"
+        />
+
       <div className="mb-6">
         <AIProcessingIndicator 
           isProcessing={isAnalyzing} 

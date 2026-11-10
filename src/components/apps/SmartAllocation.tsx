@@ -1,9 +1,11 @@
+import { runAIAnalysis } from '../../lib/aiBus';
 import React, { useState } from 'react';
 import { Calendar, Users, Target, Zap, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import { Avatar } from '../ui/Avatar';
 import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 import { teamMembers } from '../../data/teamMembers';
@@ -60,7 +62,7 @@ export const SmartAllocation: React.FC<SmartAllocationProps> = ({ onBack }) => {
 
   const optimizeAllocation = async () => {
     setIsOptimizing(true);
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await runAIAnalysis('smart-allocation');
     setIsOptimizing(false);
   };
 
@@ -110,6 +112,14 @@ export const SmartAllocation: React.FC<SmartAllocationProps> = ({ onBack }) => {
       appTheme="teal"
       headerActions={headerActions}
     >
+      <AIAnalysisSection
+          appId="smart-allocation"
+          analysisType="task"
+          title="AI Smart Allocation Analysis"
+          description="AI-driven resource allocation and optimization."
+          className="mb-8"
+        />
+
       <div className="mb-6">
         <AIProcessingIndicator 
           isProcessing={isOptimizing} 

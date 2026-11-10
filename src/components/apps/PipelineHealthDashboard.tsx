@@ -1,6 +1,8 @@
+import { runAIAnalysis } from '../../lib/aiBus';
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, TrendingUp, AlertTriangle, Target, Users } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import { GlassCard } from '../ui/GlassCard';
 import { AIChart } from '../AIChart';
 import { Avatar } from '../ui/Avatar';
@@ -23,8 +25,8 @@ export const PipelineHealthDashboard: React.FC<PipelineHealthDashboardProps> = (
 
   const runHealthAnalysis = async () => {
     setIsAnalyzing(true);
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    setHealthScore(89);
+    const aiResult = await runAIAnalysis('pipeline-health');
+    if (aiResult) setHealthScore(Math.round(aiResult.confidence));
     setIsAnalyzing(false);
   };
 
@@ -77,6 +79,16 @@ export const PipelineHealthDashboard: React.FC<PipelineHealthDashboardProps> = (
             </ModernButton>
           </div>
         </div>
+
+        <AIAnalysisSection
+          appId="pipeline-health"
+          analysisType="pipeline"
+          title="AI Pipeline Health Dashboard Analysis"
+          description="Comprehensive health analysis of your sales pipeline."
+          className="mb-8"
+        />
+
+
 
         {/* AI Processing */}
         <div className="mb-6">

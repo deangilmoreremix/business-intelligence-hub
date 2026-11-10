@@ -44,17 +44,45 @@ export async function scoreContact(contact: Contact, notes: string[] = []): Prom
 
 export interface DuplicateGroup { ids: string[]; reason: string }
 
-/** Finds likely duplicates (cheap local pass on email/phone, AI pass on fuzzy name+company). */
-export async function findDuplicates(contacts: Contact[]): Promise<DuplicateGroup[]> {
+/**
+ * Finds likely duplicates: exact email/phone locally, then an AI pass on fuzzy name+company
+ * matches (nicknames, typos, "Bob"/"Robert") for contacts not already grouped.
+ */
+export async function findDuplicates(contacts: Contact[], useAI = true): Promise<DuplicateGroup[]> {
   const groups: DuplicateGroup[] = [];
+  const grouped = new Set<string>();
   const byKey = new Map<string, string[]>();
   for (const c of contacts) {
-    for (const k of [c.email && `e:${c.email.toLowerCase()}`, c.phone && `p:${c.phone.replace(/\D/g, '')}`]) {
+    for (const k of [c.email && `e:${c.email.toLowerCase()}`, c.phone && c.phone.replace(/\D/g, '').length >= 7 && `p:${c.phone.replace(/\D/g, '')}`]) {
       if (!k) continue;
       byKey.set(k, [...(byKey.get(k) ?? []), c.id]);
     }
   }
-  byKey.forEach((ids, k) => ids.length > 1 && groups.push({ ids, reason: k.startsWith('e:') ? 'Same email' : 'Same phone' }));
+  byKey.forEach((ids, k) => {
+    const fresh = ids.filter(i => !grouped.has(i));
+    if (fresh.length > 1) { groups.push({ ids: fresh, reason: k.startsWith('e:') ? 'Same email' : 'Same phone' }); fresh.forEach(i => grouped.add(i)); }
+  });
+  if (!useAI) return groups;
+
+  const rest = contacts.filter(c => !grouped.has(c.id)).slice(0, 150);
+  if (rest.length < 2) return groups;
+  const ai = await createJsonResponse<{ groups: Array<{ ids: string[]; reason: string }> }>({
+    instructions: 'Find groups of CRM contacts that are very likely the SAME person (typos, nicknames, same name at same company). Only group when confident. Use only the ids provided.',
+    input: JSON.stringify(rest.map(c => ({ id: c.id, name: c.name, email: c.email, company: c.company, phone: c.phone }))),
+    useCase: 'analysis',
+    jsonSchema: {
+      name: 'duplicate_groups',
+      schema: {
+        type: 'object', additionalProperties: false, required: ['groups'],
+        properties: { groups: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['ids', 'reason'], properties: { ids: { type: 'array', items: str }, reason: str } } } },
+      },
+    },
+  });
+  const valid = new Set(rest.map(c => c.id));
+  for (const g of ai.groups ?? []) {
+    const ids = Array.from(new Set(g.ids)).filter(i => valid.has(i) && !grouped.has(i));
+    if (ids.length > 1) { groups.push({ ids, reason: `AI: ${g.reason}` }); ids.forEach(i => grouped.add(i)); }
+  }
   return groups;
 }
 

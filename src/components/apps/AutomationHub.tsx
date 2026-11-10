@@ -4,6 +4,7 @@ import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 
 interface AutomationHubProps {
   onBack?: () => void;
@@ -112,6 +113,14 @@ export const AutomationHub: React.FC<AutomationHubProps> = ({ onBack }) => {
           onChange={(e) => setSelectedCategory(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         >
+      <AIAnalysisSection
+          appId="automation-hub"
+          analysisType="integration"
+          title="AI Smart Automation Hub Analysis"
+          description="Identify and implement automation opportunities."
+          className="mb-8"
+        />
+
           <option value="all">All Categories</option>
           <option value="sales">Sales</option>
           <option value="marketing">Marketing</option>

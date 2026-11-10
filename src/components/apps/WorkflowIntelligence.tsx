@@ -1,9 +1,11 @@
+import { runAIAnalysis } from '../../lib/aiBus';
 import React, { useState } from 'react';
 import { Workflow, AlertTriangle, TrendingUp, Zap, Target } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 
 interface WorkflowIntelligenceProps {
@@ -56,7 +58,7 @@ export const WorkflowIntelligence: React.FC<WorkflowIntelligenceProps> = ({ onBa
 
   const runWorkflowAnalysis = async () => {
     setIsAnalyzing(true);
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await runAIAnalysis('workflow-intelligence');
     setIsAnalyzing(false);
   };
 
@@ -96,6 +98,14 @@ export const WorkflowIntelligence: React.FC<WorkflowIntelligenceProps> = ({ onBa
       appTheme="indigo"
       headerActions={headerActions}
     >
+      <AIAnalysisSection
+          appId="workflow-intelligence"
+          analysisType="task"
+          title="AI Workflow Intelligence Analysis"
+          description="Detect bottlenecks and optimize workflow efficiency."
+          className="mb-8"
+        />
+
       <div className="mb-6">
         <AIProcessingIndicator 
           isProcessing={isAnalyzing} 

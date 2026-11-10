@@ -1,8 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Search, Plus, Download, Upload, Sparkles, Mail, Trash2, X, Copy, ImageIcon, Globe } from 'lucide-react';
+import { Search, Plus, Download, Upload, Sparkles, Mail, Trash2, X, Copy, ImageIcon, Globe, Bookmark, Tag, GitMerge } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { useContactStore, type Contact } from '../../store/contactStore';
 import { supabase } from '../../lib/supabase';
+import { CompaniesPanel } from './CompaniesPanel';
+import {
+  addActivity, bulkDelete, bulkSetStatus, bulkTag, getContactCompanyId, linkContactToCompany, listActivities,
+  listCompanies, loadViews, mergeContacts, saveViews, type Activity, type Company, type SavedView,
+} from '../../services/contactService';
 import {
   scoreContact, draftEmail, enrichContact, applyEnrichment, type EnrichmentResult, findDuplicates, askAboutContacts, generateContactAvatar,
   type LeadScore, type DuplicateGroup,
@@ -44,8 +49,16 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const [showNew, setShowNew] = useState(false);
   const [draft, setDraft] = useState({ firstName: '', lastName: '', email: '', company: '' });
   const fileRef = useRef<HTMLInputElement>(null);
+  const [tab, setTab] = useState<'contacts' | 'companies'>('contacts');
+  const [checked, setChecked] = useState<Set<string>>(new Set());
+  const [views, setViews] = useState<SavedView[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [companyOptions, setCompanyOptions] = useState<Company[]>([]);
+  const [companyId, setCompanyId] = useState<string>('');
+  const [info, setInfo] = useState<string | null>(null);
 
   useEffect(() => { loadContactsFromSupabase(); }, [loadContactsFromSupabase]);
+  useEffect(() => { loadViews().then(setViews).catch(() => undefined); }, []);
 
   const rows = useMemo(() => {
     const q = query.toLowerCase();
@@ -64,18 +77,27 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
     setSelected(c); setEnrich(null); setScore(null); setEmail(null); setAvatar(null);
     const { data } = await supabase.from('contact_notes').select('*').eq('contact_id', c.id).order('created_at', { ascending: false });
     setNotes(data ?? []);
+    listActivities(c.id).then(setActivities).catch(() => setActivities([]));
+    listCompanies().then(setCompanyOptions).catch(() => setCompanyOptions([]));
+    getContactCompanyId(c.id).then(id => setCompanyId(id ?? '')).catch(() => setCompanyId(''));
   };
+
+  const refreshActivities = () => selected && listActivities(selected.id).then(setActivities).catch(() => undefined);
 
   const addNote = async () => {
     if (!selected || !noteText.trim()) return;
     const { data } = await supabase.from('contact_notes').insert({ contact_id: selected.id, body: noteText.trim() }).select().single();
-    if (data) setNotes([data, ...notes]);
+    if (data) { setNotes([data, ...notes]); await addActivity(selected.id, 'note', noteText.trim()); refreshActivities(); }
     setNoteText('');
   };
 
   const persistScore = async (s: LeadScore) => {
     setScore(s);
-    if (selected) await supabase.from('contacts').update({ lead_score: s.score, ai_summary: s.summary, ai_next_action: s.nextAction }).eq('id', selected.id);
+    if (selected) {
+      await supabase.from('contacts').update({ lead_score: s.score, ai_summary: s.summary, ai_next_action: s.nextAction }).eq('id', selected.id);
+      await addActivity(selected.id, 'scored', `${s.score}/100 (${s.tier})`);
+      refreshActivities();
+    }
   };
 
   const ENRICH_FIELDS: Array<[keyof EnrichmentResult, string]> = [
@@ -95,8 +117,50 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
       await applyEnrichment(selected.id, enrich, [...accept]);
       await loadContactsFromSupabase();
       setEnrich(null);
+      refreshActivities();
     } catch (e) { setAiError(e instanceof Error ? e.message : 'Failed to save'); } finally { setBusy(null); }
   };
+
+  const flash = (m: string) => { setInfo(m); setTimeout(() => setInfo(null), 4000); };
+  const ids = [...checked];
+  const afterBulk = async (msg: string) => { await loadContactsFromSupabase(); setChecked(new Set()); flash(msg); };
+  const guard = async (fn: () => Promise<void>) => { setAiError(null); try { await fn(); } catch (e) { setAiError(e instanceof Error ? e.message : 'Action failed'); } };
+
+  const applyView = (v: SavedView) => { setQuery(v.query); setStatus(v.status as (typeof STATUSES)[number]); setSort({ key: v.sortKey as SortKey, dir: v.sortDir }); };
+  const saveCurrentView = () => guard(async () => {
+    const name = window.prompt('Name this view');
+    if (!name) return;
+    const next = [...views.filter(v => v.name !== name), { name, query, status, sortKey: sort.key, sortDir: sort.dir }];
+    await saveViews(next); setViews(next); flash(`Saved view "${name}"`);
+  });
+  const deleteView = (name: string) => guard(async () => { const next = views.filter(v => v.name !== name); await saveViews(next); setViews(next); });
+
+  const bulkEnrich = () => guard(async () => {
+    if (!window.confirm(`Search the web for ${ids.length} contact(s)? This uses one web-search AI call per contact. Only high-confidence results are saved.`)) return;
+    setBusy('bulk-enrich');
+    let saved = 0;
+    try {
+      for (const id of ids) {
+        const c = contacts[id];
+        if (!c) continue;
+        const r = await enrichContact(c);
+        if (r.found && r.confidence === 'high') {
+          await applyEnrichment(id, r, ENRICH_FIELDS.map(([k]) => k).filter(k => (r[k] as string)?.trim()));
+          saved++;
+        }
+      }
+    } finally { setBusy(null); }
+    await afterBulk(`Enriched ${saved} of ${ids.length} contact(s)`);
+  });
+
+  const mergeGroup = (g: DuplicateGroup) => guard(async () => {
+    const [primary, ...rest] = g.ids;
+    if (!window.confirm(`Merge ${g.ids.length} contacts into "${contacts[primary]?.name}"? The others will be deleted.`)) return;
+    await mergeContacts(primary, rest);
+    setDupes(d => d && d.filter(x => x !== g));
+    await loadContactsFromSupabase();
+    flash('Merged');
+  });
 
   const onImport = async (f?: File) => {
     if (!f) return;
@@ -112,6 +176,24 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
 
   return (
     <PageWrapper title="Advanced Contacts" description="Search, score and engage contacts with AI (OpenAI Responses API)" onBack={onBack} appTheme="indigo">
+      <div className="flex gap-2 mb-4" role="tablist">
+        {(['contacts', 'companies'] as const).map(t => (
+          <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`${btn} ${tab === t ? 'ring-2 ring-indigo-500' : ''}`}>{t === 'contacts' ? 'Contacts' : 'Companies'}</button>
+        ))}
+      </div>
+      {tab === 'companies' ? <CompaniesPanel btn={btn} /> : (<>
+      {info && <p role="status" className="mb-3 text-sm text-emerald-600">{info}</p>}
+      {!!views.length && (
+        <div className="flex flex-wrap gap-2 mb-3 items-center text-sm" aria-label="Saved views">
+          <Bookmark className="w-4 h-4 text-gray-400" />
+          {views.map(v => (
+            <span key={v.name} className="inline-flex items-center rounded-full border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <button className="px-3 py-1 hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => applyView(v)}>{v.name}</button>
+              <button className="px-2 py-1 text-gray-400 hover:text-red-600" aria-label={`Delete view ${v.name}`} onClick={() => deleteView(v.name)}>×</button>
+            </span>
+          ))}
+        </div>
+      )}
       <div className="flex flex-wrap gap-2 mb-4 items-center">
         <div className="relative">
           <Search className="w-4 h-4 absolute left-2 top-2.5 text-gray-400" />
@@ -120,12 +202,26 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
         <select value={status} onChange={e => setStatus(e.target.value as (typeof STATUSES)[number])} className="py-2 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent text-sm">
           {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
+        <button className={btn} onClick={saveCurrentView}><Bookmark className="w-4 h-4" />Save view</button>
         <button className={btn} onClick={() => setShowNew(v => !v)}><Plus className="w-4 h-4" />New</button>
         <button className={btn} onClick={() => fileRef.current?.click()}><Upload className="w-4 h-4" />Import CSV</button>
         <input ref={fileRef} type="file" accept=".csv" hidden onChange={e => onImport(e.target.files?.[0])} />
         <button className={btn} onClick={() => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([toCSV(rows)], { type: 'text/csv' })); a.download = 'contacts.csv'; a.click(); }}><Download className="w-4 h-4" />Export</button>
         <button className={btn} disabled={busy === 'dupes'} onClick={() => run('dupes', () => findDuplicates(Object.values(contacts)), setDupes)}><Copy className="w-4 h-4" />Find duplicates</button>
       </div>
+
+      {!!checked.size && (
+        <div className="flex flex-wrap gap-2 mb-4 items-center p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-sm" role="toolbar" aria-label="Bulk actions">
+          <b>{checked.size} selected</b>
+          <select aria-label="Set status" defaultValue="" onChange={e => { const v = e.target.value as 'lead' | 'prospect' | 'customer' | 'inactive'; if (v) guard(async () => { await bulkSetStatus(ids, v); await afterBulk(`Status set to ${v}`); }); e.target.value = ''; }} className="py-1.5 px-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent">
+            <option value="" disabled>Set status…</option>{['lead', 'prospect', 'customer', 'inactive'].map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <button className={btn} onClick={() => { const t = window.prompt('Tag to add'); if (t) guard(async () => { await bulkTag(ids, t.trim()); await afterBulk(`Tagged "${t.trim()}"`); }); }}><Tag className="w-4 h-4" />Tag</button>
+          <button className={btn} disabled={busy === 'bulk-enrich'} onClick={bulkEnrich}><Globe className="w-4 h-4" />{busy === 'bulk-enrich' ? 'Enriching…' : 'Enrich selected'}</button>
+          <button className={btn} onClick={() => { if (window.confirm(`Delete ${ids.length} contact(s)?`)) guard(async () => { await bulkDelete(ids); await afterBulk('Deleted'); }); }}><Trash2 className="w-4 h-4" />Delete</button>
+          <button className={btn} onClick={() => setChecked(new Set())}>Clear</button>
+        </div>
+      )}
 
       {showNew && (
         <form className="flex flex-wrap gap-2 mb-4" onSubmit={async e => { e.preventDefault(); await createContact(draft); setDraft({ firstName: '', lastName: '', email: '', company: '' }); setShowNew(false); }}>
@@ -142,19 +238,29 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
       </div>
       {answer && <p className="mb-4 p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-sm whitespace-pre-wrap">{answer}</p>}
       {(aiError || error) && <p className="mb-4 text-sm text-red-600">{aiError || error}</p>}
-      {dupes && <p className="mb-4 text-sm">{dupes.length ? dupes.map(d => `${d.reason}: ${d.ids.map(i => contacts[i]?.name).join(', ')}`).join(' · ') : 'No duplicates found.'}</p>}
+      {dupes && (dupes.length ? (
+        <ul className="mb-4 space-y-2 text-sm" aria-label="Duplicate groups">
+          {dupes.map((d, i) => (
+            <li key={i} className="flex items-center gap-3 p-2 rounded-lg border border-amber-300 dark:border-amber-700">
+              <span className="flex-1"><b>{d.reason}:</b> {d.ids.map(id => contacts[id]?.name).join(', ')}</span>
+              <button className={btn} onClick={() => mergeGroup(d)}><GitMerge className="w-4 h-4" />Merge</button>
+            </li>
+          ))}
+        </ul>
+      ) : <p className="mb-4 text-sm">No duplicates found.</p>)}
 
       <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 dark:bg-gray-800/50"><tr>{th('Name', 'name')}<th className="px-3 py-2 text-left">Email</th>{th('Company', 'company')}{th('Status', 'crmStatus')}{th('Created', 'createdAt')}</tr></thead>
+          <thead className="bg-gray-50 dark:bg-gray-800/50"><tr><th className="px-3 py-2 w-8"><input type="checkbox" aria-label="Select all" checked={!!rows.length && rows.every(r => checked.has(r.id))} onChange={e => setChecked(e.target.checked ? new Set(rows.map(r => r.id)) : new Set())} /></th>{th('Name', 'name')}<th className="px-3 py-2 text-left">Email</th>{th('Company', 'company')}{th('Status', 'crmStatus')}{th('Created', 'createdAt')}</tr></thead>
           <tbody>
             {rows.map(c => (
               <tr key={c.id} onClick={() => open(c)} className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/40 cursor-pointer">
+                <td className="px-3 py-2" onClick={e => e.stopPropagation()}><input type="checkbox" aria-label={`Select ${c.name}`} checked={checked.has(c.id)} onChange={e => { const n = new Set(checked); if (e.target.checked) n.add(c.id); else n.delete(c.id); setChecked(n); }} /></td>
                 <td className="px-3 py-2">{c.name}</td><td className="px-3 py-2">{c.email}</td><td className="px-3 py-2">{c.company}</td>
                 <td className="px-3 py-2">{c.crmStatus}</td><td className="px-3 py-2">{c.createdAt?.slice(0, 10)}</td>
               </tr>
             ))}
-            {!rows.length && <tr><td colSpan={5} className="px-3 py-8 text-center text-gray-500">{isLoading ? 'Loading…' : 'No contacts'}</td></tr>}
+            {!rows.length && <tr><td colSpan={6} className="px-3 py-8 text-center text-gray-500">{isLoading ? 'Loading…' : 'No contacts'}</td></tr>}
           </tbody>
         </table>
       </div>
@@ -165,10 +271,15 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
           {avatar && <img src={avatar} alt="" className="w-20 h-20 rounded-full mb-3" />}
           <h2 className="text-xl font-semibold">{selected.name}</h2>
           <p className="text-sm text-gray-500">{selected.email} · {selected.company}</p>
+          <label className="block text-sm mt-3">Company
+            <select aria-label="Company" value={companyId} onChange={e => { const v = e.target.value; setCompanyId(v); guard(async () => { await linkContactToCompany(selected.id, companyOptions.find(c => c.id === v) ?? null); await loadContactsFromSupabase(); }); }} className="block mt-1 w-full py-1.5 px-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent">
+              <option value="">— none —</option>{companyOptions.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </label>
           <div className="flex flex-wrap gap-2 my-4">
             <button className={btn} disabled={busy === 'score'} onClick={() => run('score', () => scoreContact(selected, notes.map(n => n.body)), persistScore)}><Sparkles className="w-4 h-4" />{busy === 'score' ? 'Scoring…' : 'AI score'}</button>
             <button className={btn} disabled={busy === 'enrich'} onClick={() => run('enrich', () => enrichContact(selected), showEnrichment)}><Globe className="w-4 h-4" />{busy === 'enrich' ? 'Searching web…' : 'Enrich from web'}</button>
-            <button className={btn} disabled={busy === 'email'} onClick={() => run('email', () => draftEmail(selected, 'Follow up and book a call'), setEmail)}><Mail className="w-4 h-4" />Draft email</button>
+            <button className={btn} disabled={busy === 'email'} onClick={() => run('email', async () => { const d = await draftEmail(selected, 'Follow up and book a call'); await addActivity(selected.id, 'email drafted', d.subject); refreshActivities(); return d; }, setEmail)}><Mail className="w-4 h-4" />Draft email</button>
             <button className={btn} disabled={busy === 'avatar'} onClick={() => run('avatar', () => generateContactAvatar(selected), setAvatar)}><ImageIcon className="w-4 h-4" />Avatar</button>
             <button className={btn} onClick={async () => { await deleteContact(selected.id); setSelected(null); }}><Trash2 className="w-4 h-4" />Delete</button>
           </div>
@@ -202,8 +313,14 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
           <h3 className="font-medium mt-4 mb-2">Notes</h3>
           <div className="flex gap-2 mb-2"><input value={noteText} onChange={e => setNoteText(e.target.value)} className="flex-1 py-1.5 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent text-sm" placeholder="Add a note" /><button className={btn} onClick={addNote}>Add</button></div>
           <ul className="space-y-2 text-sm">{notes.map(n => <li key={n.id} className="p-2 rounded bg-gray-50 dark:bg-gray-800">{n.body}<div className="text-xs text-gray-400">{n.created_at.slice(0, 16).replace('T', ' ')}</div></li>)}</ul>
+          <h3 className="font-medium mt-5 mb-2">Timeline</h3>
+          <ol className="space-y-1 text-sm border-l border-gray-200 dark:border-gray-700 pl-3" aria-label="Timeline">
+            {activities.map(a => <li key={a.id}><b>{a.kind}</b>{a.detail ? ` — ${a.detail}` : ''}<span className="block text-xs text-gray-400">{a.created_at.slice(0, 16).replace('T', ' ')}</span></li>)}
+            {!activities.length && <li className="text-gray-400">No activity yet</li>}
+          </ol>
         </aside>
       )}
+      </>)}
     </PageWrapper>
   );
 };

@@ -1,3 +1,4 @@
+import { runAIAnalysis } from '../../lib/aiBus';
 import React, { useState } from 'react';
 import { ArrowLeft, CheckSquare, AlertCircle, Zap, Calendar, Target } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
@@ -64,7 +65,7 @@ export const SmartFollowups: React.FC<SmartFollowupsProps> = ({ onBack }) => {
 
   const optimizeFollowups = async () => {
     setIsOptimizing(true);
-    await new Promise(resolve => setTimeout(resolve, 2500));
+    await runAIAnalysis('smart-followups');
     setIsOptimizing(false);
   };
 

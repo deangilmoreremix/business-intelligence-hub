@@ -4,6 +4,7 @@ import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 
 interface ConversionAnalyticsProps {
   onBack?: () => void;
@@ -112,6 +113,14 @@ export const ConversionAnalytics: React.FC<ConversionAnalyticsProps> = ({ onBack
       appTheme="orange"
       headerActions={headerActions}
     >
+      <AIAnalysisSection
+          appId="conversion-analytics"
+          analysisType="analytics"
+          title="AI Conversion Analytics Analysis"
+          description="Conversion rate metrics and optimization insights."
+          className="mb-8"
+        />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {conversionMetrics.map((metric, index) => (
           <KPICard

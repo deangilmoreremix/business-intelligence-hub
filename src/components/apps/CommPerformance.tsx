@@ -1,3 +1,4 @@
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import React, { useState } from 'react';
 import { TrendingDown, BarChart3, Users, Target } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -39,6 +40,14 @@ export const CommPerformance: React.FC<CommPerformanceProps> = ({ onBack }) => {
           onChange={(e) => setSelectedPeriod(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         >
+      <AIAnalysisSection
+          appId="comm-performance"
+          analysisType="communication"
+          title="AI Comm Performance Analysis"
+          description="Communication ROI and performance analytics dashboard."
+          className="mb-8"
+        />
+
           <option value="7d">Last 7 days</option>
           <option value="30d">Last 30 days</option>
           <option value="90d">Last 90 days</option>

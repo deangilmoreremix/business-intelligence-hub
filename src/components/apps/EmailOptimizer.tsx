@@ -1,9 +1,11 @@
+import { runAIAnalysis } from '../../lib/aiBus';
 import React, { useState } from 'react';
 import { Mail, TrendingUp, Zap, Target, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import { AIProcessingIndicator } from '../ui/AIProcessingIndicator';
 
 interface EmailOptimizerProps {
@@ -46,7 +48,7 @@ export const EmailOptimizer: React.FC<EmailOptimizerProps> = ({ onBack }) => {
 
   const runOptimization = async () => {
     setIsOptimizing(true);
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await runAIAnalysis('email-optimizer');
     setIsOptimizing(false);
   };
 
@@ -65,6 +67,14 @@ export const EmailOptimizer: React.FC<EmailOptimizerProps> = ({ onBack }) => {
       appTheme="blue"
       headerActions={headerActions}
     >
+      <AIAnalysisSection
+          appId="email-optimizer"
+          analysisType="communication"
+          title="AI Smart Email Optimizer Analysis"
+          description="AI-powered email response optimization and insights."
+          className="mb-8"
+        />
+
       <div className="mb-6">
         <AIProcessingIndicator 
           isProcessing={isOptimizing} 

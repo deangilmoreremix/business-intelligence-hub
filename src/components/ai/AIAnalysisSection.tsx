@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Brain, Zap, History, Settings, AlertTriangle } from 'lucide-react';
 import { AIAnalysisButton } from '../ui/AIAnalysisButton';
 import { AIInsightsPanel } from '../ui/AIInsightsPanel';
-import { useAIAnalysis } from '../../hooks/useAIAnalysis';
 import { Section } from '../ui/Section';
 import { ModernButton } from '../ui/ModernButton';
-import type { AIAnalysisType, AIProvider } from '../../services/aiService';
+import type { AIAnalysisResult, AIAnalysisType, AIProvider } from '../../services/aiService';
 import { cn } from '../../lib/utils';
+import { AI_RUN_EVENT, type AIRunDetail } from '../../lib/aiBus';
 
 interface AIAnalysisSectionProps {
   appId: string;
@@ -16,7 +16,7 @@ interface AIAnalysisSectionProps {
   className?: string;
   defaultProvider?: AIProvider;
   showHistory?: boolean;
-  customData?: any;
+  customData?: Record<string, unknown>;
 }
 
 export const AIAnalysisSection: React.FC<AIAnalysisSectionProps> = ({
@@ -30,25 +30,46 @@ export const AIAnalysisSection: React.FC<AIAnalysisSectionProps> = ({
   const [showInsightsPanel, setShowInsightsPanel] = useState(false);
   const [selectedProvider] = useState<AIProvider>(defaultProvider);
   
-  const {
-    isAnalyzing,
-    result,
-    error,
-    history,
-    clearError,
-    hasInsights,
-    highPriorityInsights
-  } = useAIAnalysis(appId, analysisType, { 
-    provider: selectedProvider,
-    includeHistory: showHistory 
-  });
+  // The AIAnalysisButton runs the analysis and reports back through these callbacks.
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [result, setResult] = useState<AIAnalysisResult | null>(null);
+  const [history, setHistory] = useState<AIAnalysisResult[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleAnalysisComplete = () => {
+  const [runSignal, setRunSignal] = useState(0);
+  const waiters = useRef<Array<(r: AIAnalysisResult | null) => void>>([]);
+  const settle = (r: AIAnalysisResult | null) => { waiters.current.splice(0).forEach(w => w(r)); };
+
+  // Allows the host page's own buttons to trigger this section's analysis (see lib/aiBus).
+  useEffect(() => {
+    const onRun = (e: Event) => {
+      const d = (e as CustomEvent<AIRunDetail>).detail;
+      if (d.appId !== appId || d.handled) return;
+      d.handled = true;
+      waiters.current.push(d.done);
+      setRunSignal(n => n + 1);
+    };
+    window.addEventListener(AI_RUN_EVENT, onRun);
+    return () => window.removeEventListener(AI_RUN_EVENT, onRun);
+  }, [appId]);
+
+  const hasInsights = (result?.insights?.length ?? 0) > 0;
+  const highPriorityInsights = result?.insights?.filter(i => i.priority === 'high' || i.priority === 'critical').length ?? 0;
+
+  const handleAnalysisStart = () => { setError(null); setIsAnalyzing(true); };
+
+  const handleAnalysisComplete = (r: AIAnalysisResult) => {
+    setIsAnalyzing(false);
+    setResult(r);
+    if (showHistory) setHistory(h => [r, ...h].slice(0, 10));
     setShowInsightsPanel(true);
+    settle(r);
   };
 
   const handleAnalysisError = (errorMessage: string) => {
-    console.error('Analysis error:', errorMessage);
+    setIsAnalyzing(false);
+    setError(errorMessage);
+    settle(null);
   };
 
   const getAnalysisTypeIcon = () => {
@@ -77,7 +98,8 @@ export const AIAnalysisSection: React.FC<AIAnalysisSectionProps> = ({
               <AIAnalysisButton
                 appId={appId}
                 analysisType={analysisType}
-                onAnalysisStart={() => clearError()}
+                runSignal={runSignal}
+                onAnalysisStart={handleAnalysisStart}
                 onAnalysisComplete={handleAnalysisComplete}
                 onAnalysisError={handleAnalysisError}
                 defaultProvider={selectedProvider}

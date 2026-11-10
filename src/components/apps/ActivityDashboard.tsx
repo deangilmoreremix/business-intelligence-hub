@@ -1,3 +1,4 @@
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import React, { useState } from 'react';
 import { Activity, Users, Clock, TrendingUp, Zap, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -134,6 +135,14 @@ export const ActivityDashboard: React.FC<ActivityDashboardProps> = ({ onBack }) 
       appTheme="blue"
       headerActions={headerActions}
     >
+      <AIAnalysisSection
+          appId="activity-dashboard"
+          analysisType="analytics"
+          title="AI Activity Dashboard Analysis"
+          description="Comprehensive activity metrics and trends."
+          className="mb-8"
+        />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {activityMetrics.map((metric, index) => (
           <KPICard

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Clock, TrendingUp, Users, Calendar, Zap } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import { GlassCard } from '../ui/GlassCard';
 import { AIChart } from '../AIChart';
 import { Avatar } from '../ui/Avatar';
@@ -58,6 +59,16 @@ export const SalesCycleAnalytics: React.FC<SalesCycleAnalyticsProps> = ({ onBack
             </select>
           </div>
         </div>
+
+        <AIAnalysisSection
+          appId="sales-cycle-analytics"
+          analysisType="pipeline"
+          title="AI Sales Cycle Analytics Analysis"
+          description="Track and optimize your sales cycle with advanced analytics."
+          className="mb-8"
+        />
+
+
 
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

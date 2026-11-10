@@ -4,6 +4,7 @@ import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import { Avatar } from '../ui/Avatar';
 import { teamMembers } from '../../data/teamMembers';
 
@@ -96,6 +97,14 @@ export const AppsIntelligence: React.FC<AppsIntelligenceProps> = ({ onBack }) =>
           onChange={(e) => setSelectedTimeRange(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         >
+      <AIAnalysisSection
+          appId="apps-intelligence"
+          analysisType="integration"
+          title="AI Apps Intelligence Analysis"
+          description="Tool usage optimization and intelligence insights."
+          className="mb-8"
+        />
+
           <option value="7d">Last 7 days</option>
           <option value="30d">Last 30 days</option>
           <option value="90d">Last 90 days</option>

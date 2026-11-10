@@ -4,6 +4,7 @@ import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import { Avatar } from '../ui/Avatar';
 import { teamMembers } from '../../data/teamMembers';
 
@@ -90,6 +91,14 @@ export const LiveDealAnalysis: React.FC<LiveDealAnalysisProps> = ({ onBack }) =>
       onBack={onBack}
       headerActions={headerActions}
     >
+      <AIAnalysisSection
+          appId="live-deal-analysis"
+          analysisType="pipeline"
+          title="AI Live Deal Analysis Analysis"
+          description="Real-time deal intelligence with AI-powered insights."
+          className="mb-8"
+        />
+
       {/* Live Status */}
       <div className="mb-6">
         <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">

@@ -4,6 +4,7 @@ import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 
 interface ChannelSyncHubProps {
   onBack?: () => void;
@@ -42,6 +43,14 @@ export const ChannelSyncHub: React.FC<ChannelSyncHubProps> = ({ onBack }) => {
       appTheme="cyan"
       headerActions={
         <ModernButton>
+      <AIAnalysisSection
+          appId="channel-sync-hub"
+          analysisType="communication"
+          title="AI Channel Sync Hub Analysis"
+          description="Multi-channel coordination and synchronization dashboard."
+          className="mb-8"
+        />
+
           <Zap className="w-4 h-4" />
           Force Sync All
         </ModernButton>

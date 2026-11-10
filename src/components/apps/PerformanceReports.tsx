@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, FileText, TrendingUp, Users, DollarSign, Target, Download } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import { GlassCard } from '../ui/GlassCard';
 import { AIChart } from '../AIChart';
 import { Avatar } from '../ui/Avatar';
@@ -76,6 +77,16 @@ export const PerformanceReports: React.FC<PerformanceReportsProps> = ({ onBack }
             </ModernButton>
           </div>
         </div>
+
+        <AIAnalysisSection
+          appId="performance-reports"
+          analysisType="analytics"
+          title="AI Performance Reports Analysis"
+          description="Comprehensive performance analytics and reporting."
+          className="mb-8"
+        />
+
+
 
         {/* Report Type Selector */}
         <div className="flex gap-2 mb-8 overflow-x-auto">

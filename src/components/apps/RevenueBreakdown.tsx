@@ -4,6 +4,7 @@ import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
 import KPICard from '../ui/KPICard';
 import { ModernButton } from '../ui/ModernButton';
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 
 interface RevenueBreakdownProps {
   onBack?: () => void;
@@ -103,6 +104,14 @@ export const RevenueBreakdown: React.FC<RevenueBreakdownProps> = ({ onBack }) =>
       appTheme="green"
       headerActions={headerActions}
     >
+      <AIAnalysisSection
+          appId="revenue-breakdown"
+          analysisType="analytics"
+          title="AI Revenue Breakdown Analysis"
+          description="Detailed revenue breakdown and analysis dashboard."
+          className="mb-8"
+        />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {revenueMetrics.map((metric, index) => (
           <KPICard

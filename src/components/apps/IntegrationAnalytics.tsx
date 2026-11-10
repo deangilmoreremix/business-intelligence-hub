@@ -1,3 +1,4 @@
+import { AIAnalysisSection } from '../ai/AIAnalysisSection';
 import React, { useState } from 'react';
 import { Settings, TrendingUp, CheckCircle, AlertCircle, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -65,6 +66,14 @@ export const IntegrationAnalytics: React.FC<IntegrationAnalyticsProps> = ({ onBa
           onChange={(e) => setSelectedTimeRange(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         >
+      <AIAnalysisSection
+          appId="integration-analytics"
+          analysisType="integration"
+          title="AI Integration Analytics Analysis"
+          description="Cross-platform activity sync and integration insights."
+          className="mb-8"
+        />
+
           <option value="24h">Last 24 hours</option>
           <option value="7d">Last 7 days</option>
           <option value="30d">Last 30 days</option>
