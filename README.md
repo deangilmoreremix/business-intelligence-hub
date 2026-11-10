@@ -5,8 +5,8 @@ A powerful, comprehensive AI-driven intelligence platform with 35 specialized ap
 ## ✨ Features
 
 ### 🤖 **AI Chatbot Assistant** ⭐ NEW!
-- **Intelligent conversational AI** powered by OpenAI's Responses API (GPT-4o)
-- **GPT-5 Ready** - automatically upgrades when GPT-5 becomes available
+- **Intelligent conversational AI** powered by OpenAI's Responses API (GPT-6 Astra)
+- **Web-search contact enrichment** and **GPT Image** support
 - **Latest AI models** - Uses best available GPT models via simple config
 - **Context-aware assistance** - knows which page/app you're viewing
 - **35 app knowledge base** - comprehensive understanding of all platform features
@@ -58,8 +58,8 @@ A powerful, comprehensive AI-driven intelligence platform with 35 specialized ap
 - **Real-time subscriptions** for live data updates
 
 ### AI & Intelligence
-- **OpenAI Responses API** - Latest GPT models (GPT-4o, ready for GPT-5)
-- **Model flexibility** - Switch models via environment variable (gpt-5, gpt-4o, gpt-4o-mini)
+- **OpenAI Responses API** - GPT-6 Astra / GPT-6.1 Terra, web search, GPT Image
+- **Netlify Functions + Supabase** - server-side OpenAI proxy and data layer
 - **Dynamic knowledge base** - auto-generated from application data
 - **Context-aware prompting** - intelligent conversation flow
 - **Conversation persistence** - Supabase-backed chat history
@@ -97,8 +97,10 @@ npm install
    ```env
    VITE_SUPABASE_URL=your_supabase_project_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   VITE_OPENAI_API_KEY=your_openai_api_key
-   VITE_OPENAI_MODEL=gpt-4o  # Options: gpt-5 (when available), gpt-4o, gpt-4o-mini
+   VITE_OPENAI_MODEL=gpt-6-astra  # optional; see .env.example
+   ```
+   Set `OPENAI_API_KEY` in Netlify (site env vars) - it is used only by `netlify/functions/openai-proxy`. For local dev run `netlify dev`.
+   ```env
    ```
 
 4. **Start the development server:**

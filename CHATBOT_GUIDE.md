@@ -7,7 +7,7 @@ The Business Intelligence Hub now includes an intelligent AI-powered chatbot ass
 ## Features
 
 ### Core Capabilities
-- **Conversational AI**: Powered by OpenAI GPT-4, the chatbot understands natural language queries
+- **Conversational AI**: Powered by OpenAI (GPT-6 family), the chatbot understands natural language queries
 - **Context-Aware**: Knows which app you're currently viewing and provides relevant assistance
 - **Knowledge Base**: Has comprehensive knowledge about all 35 applications, features, and capabilities
 - **Smart Suggestions**: Provides suggested questions and related apps based on your queries
@@ -82,23 +82,22 @@ The chatbot has knowledge about:
 - AI responses are generated via OpenAI's secure API
 
 ### API Configuration
-The chatbot uses OpenAI's **Responses API** with the **GPT-4o-mini** model (configurable).
+The chatbot uses OpenAI's **Responses API** with the **GPT-6.1 Terra** model (configurable).
 
 Configuration in your `.env` file:
 ```
-VITE_OPENAI_API_KEY=your_openai_api_key_here
-VITE_OPENAI_MODEL=gpt-4o-mini  # Optional: defaults to gpt-4o-mini (cheapest)
+OPENAI_API_KEY (Netlify env var; VITE_OPENAI_API_KEY for local dev only)=your_openai_api_key_here
+VITE_OPENAI_MODEL=gpt-6.1-terra  # Optional: defaults to gpt-6.1-terra (cheapest)
 ```
 
 **Why Responses API?**
 - Modern OpenAI API for production use
 - Better structured outputs and response handling
 - Improved error handling and rate limit management
-- Future-ready for GPT-5 and advanced features
+- Web search, structured outputs and image generation available
 - Supports streaming (ready for future implementation)
 
-**Why GPT-4o-mini?**
-- **90% cheaper** than GPT-4o (~$0.001 vs $0.01 per conversation)
+**Why GPT-6.1 Terra?**
 - Excellent quality for chatbot use cases
 - Fast response times
 - Perfect balance of cost and performance
@@ -119,7 +118,7 @@ If the API key is not configured, the chatbot will show a friendly error message
 - Voice input support
 - Multi-language support
 - Advanced analytics dashboard for chat insights
-- Integration with other AI models (Gemini, Claude)
+- Integration with other AI models (other providers are out of scope; OpenAI only)
 
 ## Support
 

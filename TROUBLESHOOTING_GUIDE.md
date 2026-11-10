@@ -237,7 +237,7 @@ The implementation provided in this fix should resolve all common dark mode cove
 
 **Causes & Solutions**:
 1. **Missing API Key**
-   - Check `.env` file has `VITE_OPENAI_API_KEY` set
+   - Check `.env` file has `OPENAI_API_KEY (Netlify env var; VITE_OPENAI_API_KEY for local dev only)` set
    - Verify API key is valid and active on OpenAI platform
    - Restart dev server after adding API key
 
@@ -255,7 +255,7 @@ The implementation provided in this fix should resolve all common dark mode cove
 **Solution**:
 ```bash
 # Verify API key format in .env
-VITE_OPENAI_API_KEY=sk-proj-...your-key-here
+OPENAI_API_KEY (Netlify env var; VITE_OPENAI_API_KEY for local dev only)=sk-proj-...your-key-here
 
 # Restart development server
 npm run dev
@@ -281,7 +281,7 @@ npm run dev
 **Common Error Messages**:
 
 1. **"Model not found"**
-   - Solution: Update `VITE_OPENAI_MODEL` to a supported model (gpt-4o-mini, gpt-4o, etc.)
+   - Solution: Update `VITE_OPENAI_MODEL` to a supported model (gpt-6.1-terra, gpt-6-astra, etc.)
 
 2. **"Insufficient quota"**
    - Solution: Add credits to OpenAI account or check billing settings

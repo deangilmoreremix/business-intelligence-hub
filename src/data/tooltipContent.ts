@@ -65,7 +65,7 @@ export const tooltipContent = {
 
   buttons: {
     aiAnalysis: 'Run AI-powered analysis on your data to get instant insights and recommendations',
-    aiAnalysisWithProvider: 'Choose your AI provider and run advanced analysis. GPT-5 offers deeper reasoning while Gemini provides faster results.',
+    aiAnalysisWithProvider: 'Choose your AI provider and run advanced analysis. GPT-6 Astra offers deeper reasoning while GPT-6.1 Terra provides faster results.',
     crmSync: 'Manually sync data from your connected CRM system',
     crmSyncing: 'Synchronization in progress. Your data is being updated.',
     crmSyncSuccess: 'Data successfully synchronized with your CRM',
@@ -77,8 +77,8 @@ export const tooltipContent = {
   },
 
   features: {
-    aiProviderGPT5: 'GPT-5 - Advanced reasoning and deep analysis with premium AI capabilities',
-    aiProviderGemini: 'Gemini - Fast processing and instant insights with optimized performance',
+    aiProviderGPT5: 'GPT-6 Astra - Advanced reasoning and deep analysis with premium AI capabilities',
+    aiProviderGemini: 'GPT-6.1 Terra - Fast processing and instant insights with optimized performance',
     darkModeEnabled: 'Dark mode is currently enabled. Click to switch to light mode.',
     darkModeDisabled: 'Light mode is currently enabled. Click to switch to dark mode.',
     searchActive: 'Currently searching across all applications',
@@ -129,7 +129,7 @@ export const tooltipContent = {
     refreshMetrics: 'Update all metrics with the latest data from your CRM',
     filterByDate: 'Filter data by specific date ranges to analyze performance over time',
     filterByStage: 'Focus on specific pipeline stages to analyze conversion patterns',
-    aiProvider: 'Select your preferred AI model for analysis. GPT-5 for depth, Gemini for speed.',
+    aiProvider: 'Select your preferred AI model for analysis. GPT-6 Astra for depth, GPT-6.1 Terra for speed.',
     shareInsights: 'Share this analysis with your team via email or shareable link'
   },
 

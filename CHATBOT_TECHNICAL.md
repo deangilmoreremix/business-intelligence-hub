@@ -15,8 +15,7 @@ The AI chatbot is built using **OpenAI's Responses API** with a modern, scalable
 
 ### API Integration
 - **API**: OpenAI Responses API (`openai.responses.create`)
-- **Model**: GPT-4o-mini (configurable via `VITE_OPENAI_MODEL`)
-- **Cost**: ~90% cheaper than GPT-4o while maintaining excellent quality
+- **Model**: GPT-6.1 Terra (configurable via `VITE_OPENAI_MODEL`)
 - **Endpoint**: Client-side direct API calls with `dangerouslyAllowBrowser: true`
 
 ## Project Structure
@@ -120,16 +119,14 @@ CREATE TABLE chatbot_usage_analytics (
 ### Responses API Implementation
 
 ```typescript
-// lib/openai.ts
-import OpenAI from 'openai';
-
-export const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
+// services/chatbotService.ts -> lib/openai.ts
+const text = await createResponse({
+  instructions: systemPrompt,        // top-level instructions
+  input: messages,                   // user/assistant turns
+  useCase: 'chatbot',                // reasoning.effort=low, text.verbosity=medium
 });
-
-export const OPENAI_MODEL = import.meta.env.VITE_OPENAI_MODEL || 'gpt-4o';
 ```
+Requests go through the Netlify Function `/.netlify/functions/openai-proxy` (key stays server-side).
 
 ### Request Flow
 
@@ -318,10 +315,10 @@ if (error?.status === 429) {
 
 ```env
 # Required
-VITE_OPENAI_API_KEY=sk-proj-...
+OPENAI_API_KEY (Netlify env var; VITE_OPENAI_API_KEY for local dev only)=sk-proj-...
 
 # Optional
-VITE_OPENAI_MODEL=gpt-4o-mini      # Default: gpt-4o-mini (cheapest)
+VITE_OPENAI_MODEL=gpt-6.1-terra      # Default: gpt-6.1-terra (cheapest)
 VITE_SUPABASE_URL=...
 VITE_SUPABASE_ANON_KEY=...
 ```
@@ -329,12 +326,10 @@ VITE_SUPABASE_ANON_KEY=...
 ### Model Options
 
 Supported models (in order of cost-effectiveness):
-- `gpt-4o-mini` (default) - Most cost-effective, excellent quality (~$0.15/$0.60 per 1M tokens)
-- `gpt-4o` - Latest GPT-4 optimized (~$2.50/$10.00 per 1M tokens)
-- `gpt-4-turbo` - Faster GPT-4
-- `gpt-4` - GPT-4 base
+- `gpt-6.1-terra` (default) - Most cost-effective, excellent quality (~$0.15/$0.60 per 1M tokens)
+- `gpt-6.1-terra` (default for chat) - faster and cheaper
+- `gpt-6-astra` - highest intelligence (default for analysis)
 
-**Recommendation**: Use `gpt-4o-mini` for production - it's 90% cheaper with minimal quality trade-off.
 
 ## Testing
 
@@ -387,19 +382,17 @@ npm run build
 
 ## Cost Estimation
 
-### OpenAI API Costs (GPT-4o-mini) 💰
-- ~$0.001 per conversation (10 messages) - **90% cheaper than GPT-4o!**
+### OpenAI API Costs (GPT-6.1 Terra) 💰
 - ~$0.30-0.50 per 1000 conversations
 - ~$30-50 per 100,000 conversations
 - Knowledge base context increases costs slightly
 
-**Note**: GPT-4o-mini is dramatically cheaper while maintaining excellent performance for chatbot use cases. For most applications, the quality difference is negligible.
+**Note**: GPT-6.1 Terra is dramatically cheaper while maintaining excellent performance for chatbot use cases. For most applications, the quality difference is negligible.
 
 ### Cost Optimization Tips
-- ✅ **Already using gpt-4o-mini** - Best bang for buck!
 - Cache common responses in database
 - Implement rate limiting per user
-- Consider upgrading to gpt-4o only for complex analysis tasks
+- Consider upgrading to gpt-6-astra only for complex analysis tasks
 - Monitor usage patterns to identify optimization opportunities
 
 ## Support & Maintenance

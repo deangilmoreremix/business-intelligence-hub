@@ -81,7 +81,7 @@ export const walkthroughs: Record<string, Walkthrough> = {
       {
         id: 'ai-analysis',
         title: 'AI-Powered Analysis',
-        description: 'Click this button to run AI analysis on your pipeline data. You can choose between GPT-5 for deep reasoning or Gemini for fast results.',
+        description: 'Click this button to run AI analysis on your pipeline data. You can choose GPT-6 Astra for deep reasoning or GPT-6.1 Terra for fast results.',
         targetElement: '[data-tour="ai-analysis-button"]',
         position: 'bottom'
       },
@@ -131,7 +131,7 @@ export const walkthroughs: Record<string, Walkthrough> = {
       {
         id: 'provider-selection',
         title: 'Choose Your AI Provider',
-        description: 'Select between different AI models. GPT-5 offers advanced reasoning for complex analysis, while Gemini provides faster results for quick insights.',
+        description: 'Select between different AI models. GPT-6 Astra offers advanced reasoning for complex analysis, while GPT-6.1 Terra provides faster results for quick insights.',
         targetElement: '[data-tour="ai-provider"]',
         position: 'bottom'
       },

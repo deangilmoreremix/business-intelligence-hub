@@ -47,7 +47,7 @@ export const generateKnowledgeBase = (): KnowledgeEntry[] => {
     category: 'features',
     key: 'ai-analysis',
     title: 'AI-Powered Analysis',
-    content: `Many applications include AI analysis capabilities powered by OpenAI GPT-4 or Google Gemini. These features provide predictive insights, identify trends, suggest optimizations, and offer actionable recommendations. AI analysis considers your CRM data, pipeline health, communication patterns, and business context to generate personalized insights.`,
+    content: `Many applications include AI analysis capabilities powered by OpenAI (GPT-6 Astra or GPT-6.1 Terra) via the Responses API. These features provide predictive insights, identify trends, suggest optimizations, and offer actionable recommendations. AI analysis considers your CRM data, pipeline health, communication patterns, and business context to generate personalized insights.`,
     metadata: { importance: 'high', type: 'features' }
   });
 

@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { createResponse } from '../lib/openai';
+import { createResponse, OPENAI_FAST_MODEL } from '../lib/openai';
 import { getAllKnowledge, searchKnowledge } from '../data/chatbotKnowledge';
 import { aiApps } from '../data/aiApps';
 
@@ -177,7 +177,8 @@ Remember: Your goal is to make users successful with the platform by providing e
       const text = await createResponse({
         instructions: system || undefined,
         input,
-        useCase: 'chatbot'
+        useCase: 'chatbot',
+        model: OPENAI_FAST_MODEL
       });
 
       return text.trim() || "I'm here to help! Please ask me anything about the Business Intelligence Hub.";
