@@ -34,6 +34,11 @@ export default async (req: Request, _ctx: Context) => {
     return json({ error: 'Model not allowed' }, 400);
   }
   if (endpoint === 'responses') {
+    // Only OpenAI-hosted web search is allowed as a tool (no function/MCP/code tools via this proxy).
+    if (body.tools !== undefined) {
+      const ok = Array.isArray(body.tools) && body.tools.every((t: any) => t?.type === 'web_search');
+      if (!ok) return json({ error: 'Tool not allowed' }, 400);
+    }
     body.max_output_tokens = Math.min(Number(body.max_output_tokens) || MAX_OUTPUT_TOKENS, MAX_OUTPUT_TOKENS);
     delete body.stream; // non-streaming proxy
   }

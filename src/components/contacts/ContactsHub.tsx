@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Search, Plus, Download, Upload, Sparkles, Mail, Trash2, X, Copy, ImageIcon } from 'lucide-react';
+import { Search, Plus, Download, Upload, Sparkles, Mail, Trash2, X, Copy, ImageIcon, Globe } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { useContactStore, type Contact } from '../../store/contactStore';
 import { supabase } from '../../lib/supabase';
 import {
-  scoreContact, draftEmail, findDuplicates, askAboutContacts, generateContactAvatar,
+  scoreContact, draftEmail, enrichContact, applyEnrichment, type EnrichmentResult, findDuplicates, askAboutContacts, generateContactAvatar,
   type LeadScore, type DuplicateGroup,
 } from '../../services/contactAIService';
 
@@ -34,6 +34,8 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const [score, setScore] = useState<LeadScore | null>(null);
   const [email, setEmail] = useState<{ subject: string; body: string } | null>(null);
   const [avatar, setAvatar] = useState<string | null>(null);
+  const [enrich, setEnrich] = useState<EnrichmentResult | null>(null);
+  const [accept, setAccept] = useState<Set<keyof EnrichmentResult>>(new Set());
   const [dupes, setDupes] = useState<DuplicateGroup[] | null>(null);
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
@@ -59,7 +61,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   };
 
   const open = async (c: Contact) => {
-    setSelected(c); setScore(null); setEmail(null); setAvatar(null);
+    setSelected(c); setEnrich(null); setScore(null); setEmail(null); setAvatar(null);
     const { data } = await supabase.from('contact_notes').select('*').eq('contact_id', c.id).order('created_at', { ascending: false });
     setNotes(data ?? []);
   };
@@ -74,6 +76,26 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const persistScore = async (s: LeadScore) => {
     setScore(s);
     if (selected) await supabase.from('contacts').update({ lead_score: s.score, ai_summary: s.summary, ai_next_action: s.nextAction }).eq('id', selected.id);
+  };
+
+  const ENRICH_FIELDS: Array<[keyof EnrichmentResult, string]> = [
+    ['jobTitle', 'Job title'], ['company', 'Company'], ['city', 'City'], ['linkedinUrl', 'LinkedIn'],
+    ['twitterUrl', 'X / Twitter'], ['website', 'Website'], ['bio', 'Bio'],
+  ];
+
+  const showEnrichment = (r: EnrichmentResult) => {
+    setEnrich(r);
+    setAccept(new Set(ENRICH_FIELDS.map(([k]) => k).filter(k => (r[k] as string)?.trim() && r.confidence !== 'low')));
+  };
+
+  const saveEnrichment = async () => {
+    if (!selected || !enrich) return;
+    setBusy('apply'); setAiError(null);
+    try {
+      await applyEnrichment(selected.id, enrich, [...accept]);
+      await loadContactsFromSupabase();
+      setEnrich(null);
+    } catch (e: any) { setAiError(e?.message || 'Failed to save'); } finally { setBusy(null); }
   };
 
   const onImport = async (f?: File) => {
@@ -145,10 +167,36 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
           <p className="text-sm text-gray-500">{selected.email} · {selected.company}</p>
           <div className="flex flex-wrap gap-2 my-4">
             <button className={btn} disabled={busy === 'score'} onClick={() => run('score', () => scoreContact(selected, notes.map(n => n.body)), persistScore)}><Sparkles className="w-4 h-4" />{busy === 'score' ? 'Scoring…' : 'AI score'}</button>
+            <button className={btn} disabled={busy === 'enrich'} onClick={() => run('enrich', () => enrichContact(selected), showEnrichment)}><Globe className="w-4 h-4" />{busy === 'enrich' ? 'Searching web…' : 'Enrich from web'}</button>
             <button className={btn} disabled={busy === 'email'} onClick={() => run('email', () => draftEmail(selected, 'Follow up and book a call'), setEmail)}><Mail className="w-4 h-4" />Draft email</button>
             <button className={btn} disabled={busy === 'avatar'} onClick={() => run('avatar', () => generateContactAvatar(selected), setAvatar)}><ImageIcon className="w-4 h-4" />Avatar</button>
             <button className={btn} onClick={async () => { await deleteContact(selected.id); setSelected(null); }}><Trash2 className="w-4 h-4" />Delete</button>
           </div>
+          {enrich && (
+            <div className="p-3 mb-3 rounded-lg border border-emerald-300 dark:border-emerald-700 text-sm">
+              <b>{enrich.found ? `Public info found (${enrich.confidence} confidence)` : 'No reliable public match found'}</b>
+              {enrich.found && ENRICH_FIELDS.filter(([k]) => (enrich[k] as string)?.trim()).map(([k, label]) => (
+                <label key={k} className="flex gap-2 mt-1 items-start">
+                  <input type="checkbox" checked={accept.has(k)} onChange={e => { const n = new Set(accept); e.target.checked ? n.add(k) : n.delete(k); setAccept(n); }} />
+                  <span><b>{label}:</b> {enrich[k] as string}</span>
+                </label>
+              ))}
+              {enrich.notes && <p className="mt-2 text-gray-500">{enrich.notes}</p>}
+              {!!enrich.sources.length && <details className="mt-2"><summary className="cursor-pointer">Sources ({enrich.sources.length})</summary><ul className="list-disc pl-5 break-all">{enrich.sources.map(u => <li key={u}><a className="underline" href={u} target="_blank" rel="noreferrer noopener">{u}</a></li>)}</ul></details>}
+              <div className="flex gap-2 mt-3">
+                {enrich.found && <button className={btn} disabled={!accept.size || busy === 'apply'} onClick={saveEnrichment}>Save selected</button>}
+                <button className={btn} onClick={() => setEnrich(null)}>Dismiss</button>
+              </div>
+            </div>
+          )}
+          {(selected.jobTitle || selected.linkedinUrl || selected.website || selected.bio) && (
+            <div className="text-sm mb-3 space-y-0.5">
+              {selected.jobTitle && <p>{selected.jobTitle}{selected.city ? ` · ${selected.city}` : ''}</p>}
+              {selected.bio && <p className="text-gray-500">{selected.bio}</p>}
+              {[selected.linkedinUrl, selected.twitterUrl, selected.website].filter(Boolean).map(u => <a key={u} className="block underline break-all" href={u} target="_blank" rel="noreferrer noopener">{u}</a>)}
+              {selected.enrichedAt && <p className="text-xs text-gray-400">Enriched {selected.enrichedAt.slice(0, 10)}</p>}
+            </div>
+          )}
           {score && <div className="p-3 mb-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-sm"><b>{score.score}/100 ({score.tier})</b><p>{score.summary}</p><ul className="list-disc pl-5">{score.reasons.map((r, i) => <li key={i}>{r}</li>)}</ul><p className="mt-1"><b>Next:</b> {score.nextAction}</p></div>}
           {email && <div className="p-3 mb-3 rounded-lg border border-gray-200 dark:border-gray-700 text-sm"><b>{email.subject}</b><p className="whitespace-pre-wrap mt-1">{email.body}</p></div>}
           <h3 className="font-medium mt-4 mb-2">Notes</h3>

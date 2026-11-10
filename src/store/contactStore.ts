@@ -16,6 +16,13 @@ export interface Contact {
   initials?: string;
   status?: 'online' | 'offline' | 'busy' | 'away';
   crmStatus?: 'lead' | 'prospect' | 'customer' | 'inactive';
+  jobTitle?: string;
+  city?: string;
+  linkedinUrl?: string;
+  twitterUrl?: string;
+  website?: string;
+  bio?: string;
+  enrichedAt?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -112,6 +119,13 @@ export const useContactStore = create<ContactState>()((set, get) => ({
           company: contactRow.company,
           status: 'online', // Default status
           crmStatus: contactRow.status,
+          jobTitle: contactRow.job_title ?? undefined,
+          city: contactRow.city ?? undefined,
+          linkedinUrl: contactRow.linkedin_url ?? undefined,
+          twitterUrl: contactRow.twitter_url ?? undefined,
+          website: contactRow.website ?? undefined,
+          bio: contactRow.bio ?? undefined,
+          enrichedAt: contactRow.enriched_at ?? undefined,
           avatar: getAvatarByIndex(index),
           avatarSrc: getAvatarByIndex(index),
           initials: getInitials(fullName),

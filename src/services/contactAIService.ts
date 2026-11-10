@@ -1,4 +1,5 @@
-import { createJsonResponse, createResponse, generateImage } from '../lib/openai';
+import { createJsonResponse, createResponse, createResponseFull, generateImage } from '../lib/openai';
+import { supabase } from '../lib/supabase';
 import type { Contact } from '../store/contactStore';
 
 const str = { type: 'string' };
@@ -85,4 +86,91 @@ export async function generateContactAvatar(contact: Contact): Promise<string> {
     quality: 'low',
     model: undefined,
   });
+}
+
+export interface EnrichmentResult {
+  found: boolean;
+  confidence: 'high' | 'medium' | 'low';
+  jobTitle: string;
+  company: string;
+  companyWebsite: string;
+  industry: string;
+  city: string;
+  linkedinUrl: string;
+  twitterUrl: string;
+  website: string;
+  bio: string;
+  notes: string;
+  sources: string[];
+}
+
+const nullableStr = { type: 'string' };
+
+/**
+ * Enrich a contact from PUBLIC web information using the Responses API `web_search` tool.
+ * Returns proposed values (empty string = not found) plus the source URLs; nothing is saved here.
+ */
+export async function enrichContact(contact: Contact): Promise<EnrichmentResult> {
+  const schema = {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      found: { type: 'boolean' },
+      confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
+      jobTitle: nullableStr, company: nullableStr, companyWebsite: nullableStr, industry: nullableStr,
+      city: nullableStr, linkedinUrl: nullableStr, twitterUrl: nullableStr, website: nullableStr,
+      bio: nullableStr, notes: nullableStr,
+    },
+    required: ['found', 'confidence', 'jobTitle', 'company', 'companyWebsite', 'industry', 'city', 'linkedinUrl', 'twitterUrl', 'website', 'bio', 'notes'],
+  };
+
+  const instructions =
+    'You enrich CRM contacts using ONLY public, professional information found via web search. ' +
+    'Never include home addresses, personal phone numbers, family, health, or other private details. ' +
+    'Only report facts you can attribute to a source and that clearly refer to THIS person (match name AND company/email domain). ' +
+    'If unsure, set found=false or leave fields as empty strings. Do not guess URLs.';
+  const input = `Find public professional information for this contact and return JSON.\n${describe(contact)}\nEmail domain: ${contact.email?.split('@')[1] ?? 'unknown'}`;
+  const base = {
+    instructions,
+    input,
+    useCase: 'analysis' as const,
+    tools: [{ type: 'web_search', search_context_size: 'medium' }],
+    toolChoice: 'required' as const,
+    include: ['web_search_call.action.sources'],
+  };
+
+  let res;
+  try {
+    res = await createResponseFull({ ...base, jsonSchema: { name: 'contact_enrichment', schema } });
+  } catch (e: any) {
+    // Fallback if the model/tool combo rejects structured output: ask for plain JSON.
+    if (e?.status !== 400) throw e;
+    res = await createResponseFull({ ...base, input: `${input}\nRespond with ONLY a JSON object with keys: ${Object.keys(schema.properties).join(', ')}.` });
+  }
+  const json = res.text.match(/\{[\s\S]*\}/)?.[0];
+  if (!json) throw new Error('Enrichment returned no data');
+  const parsed = JSON.parse(json) as Omit<EnrichmentResult, 'sources'>;
+  const sources = [...new Set([...res.citations.map(c => c.url), ...res.sources])].slice(0, 15);
+  return { ...parsed, sources };
+}
+
+const clean = (v?: string) => (v && v.trim() ? v.trim() : undefined);
+const isHttp = (v?: string) => !!v && /^https?:\/\//i.test(v);
+
+/** Persists accepted enrichment fields. Only fills values you pass in `accept`. */
+export async function applyEnrichment(contactId: string, r: EnrichmentResult, accept: Array<keyof EnrichmentResult>) {
+  const map: Record<string, [string, string | undefined]> = {
+    jobTitle: ['job_title', clean(r.jobTitle)],
+    company: ['company', clean(r.company)],
+    city: ['city', clean(r.city)],
+    linkedinUrl: ['linkedin_url', isHttp(r.linkedinUrl) ? r.linkedinUrl : undefined],
+    twitterUrl: ['twitter_url', isHttp(r.twitterUrl) ? r.twitterUrl : undefined],
+    website: ['website', isHttp(r.website) ? r.website : undefined],
+    bio: ['bio', clean(r.bio)],
+  };
+  const patch: Record<string, unknown> = { enrichment: r, enriched_at: new Date().toISOString() };
+  for (const k of accept) { const m = map[k as string]; if (m?.[1]) patch[m[0]] = m[1]; }
+  const { error } = await supabase.from('contacts').update(patch).eq('id', contactId);
+  if (error) throw new Error(error.message);
+  await supabase.from('contact_activities').insert({ contact_id: contactId, kind: 'enriched', detail: `Sources: ${r.sources.join(', ')}` });
 }

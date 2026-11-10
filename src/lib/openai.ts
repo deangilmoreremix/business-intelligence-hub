@@ -80,10 +80,22 @@ export interface CreateResponseOptions {
   useCase?: UseCase;
   model?: string;
   maxOutputTokens?: number;
+  /** Responses API tools, e.g. [{ type: 'web_search' }]. */
+  tools?: Array<Record<string, unknown>>;
+  toolChoice?: 'auto' | 'required' | 'none';
+  include?: string[];
 }
+
+export interface Citation { url: string; title?: string }
+export interface FullResponse { text: string; citations: Citation[]; sources: string[] }
 
 /** Calls the Responses API and returns the aggregated output text. */
 export async function createResponse(opts: CreateResponseOptions): Promise<string> {
+  return (await createResponseFull(opts)).text;
+}
+
+/** Like createResponse but also returns url_citation annotations and consulted web sources. */
+export async function createResponseFull(opts: CreateResponseOptions): Promise<FullResponse> {
   const cfg = USE_CASE_CONFIG[opts.useCase ?? 'analysis'];
   const text: Record<string, unknown> = { verbosity: cfg.verbosity };
   if (opts.jsonSchema) {
@@ -101,8 +113,30 @@ export async function createResponse(opts: CreateResponseOptions): Promise<strin
   if (opts.instructions) body.instructions = opts.instructions;
   if (opts.maxOutputTokens) body.max_output_tokens = opts.maxOutputTokens;
 
+  if (opts.tools?.length) body.tools = opts.tools;
+  if (opts.toolChoice) body.tool_choice = opts.toolChoice;
+  if (opts.include?.length) body.include = opts.include;
+
   const response = await post('responses', body);
-  return extractOutputText(response);
+  return { text: extractOutputText(response), ...extractSources(response) };
+}
+
+export function extractSources(response: any): { citations: Citation[]; sources: string[] } {
+  const citations = new Map<string, Citation>();
+  const sources = new Set<string>();
+  for (const item of response?.output ?? []) {
+    if (item?.type === 'web_search_call') {
+      for (const src of item.action?.sources ?? []) if (src?.url) sources.add(src.url);
+    }
+    if (item?.type === 'message') {
+      for (const c of item.content ?? []) {
+        for (const a of c.annotations ?? []) {
+          if (a?.type === 'url_citation' && a.url) citations.set(a.url, { url: a.url, title: a.title });
+        }
+      }
+    }
+  }
+  return { citations: [...citations.values()], sources: [...sources] };
 }
 
 /** Equivalent of the SDK's `output_text` helper, with refusal/incomplete handling. */
