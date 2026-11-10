@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { supabase, getSessionId } from '../lib/supabase';
 import { createResponse, OPENAI_FAST_MODEL } from '../lib/openai';
 import { searchKnowledge } from '../data/chatbotKnowledge';
 import { aiApps } from '../data/aiApps';
@@ -44,12 +44,7 @@ class ChatbotService {
   }
 
   private getOrCreateSessionId(): string {
-    let sessionId = localStorage.getItem('chatbot_session_id');
-    if (!sessionId) {
-      sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem('chatbot_session_id', sessionId);
-    }
-    return sessionId;
+    return getSessionId();
   }
 
   private buildSystemPrompt(): string {
