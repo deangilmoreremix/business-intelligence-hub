@@ -104,7 +104,7 @@ export const SmartFollowups: React.FC<SmartFollowupsProps> = ({ onBack }) => {
           title="AI Follow-up Optimization"
           description="Get AI recommendations for follow-up timing and content optimization"
           className="mb-8"
-          defaultProvider="gpt-5"
+          defaultProvider="openai-deep"
         />
 
         {/* AI Processing */}

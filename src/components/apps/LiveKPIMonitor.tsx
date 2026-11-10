@@ -137,7 +137,7 @@ export const LiveKPIMonitor: React.FC<LiveKPIMonitorProps> = ({ onBack }) => {
         title="AI KPI Intelligence"
         description="Real-time AI analysis of KPI performance and optimization opportunities"
         className="mb-8"
-        defaultProvider="gemini"
+        defaultProvider="openai-fast"
       />
 
       {/* Live KPIs */}

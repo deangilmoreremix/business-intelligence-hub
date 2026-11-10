@@ -33,14 +33,8 @@ export default defineConfig({
       },
     }),
   ],
-  resolve: {
-    alias: {
-      'openai': 'openai/index.mjs'
-    }
-  },
   optimizeDeps: {
     exclude: ['lucide-react'],
-    include: ['openai'],
     esbuildOptions: {
       target: 'esnext'
     }

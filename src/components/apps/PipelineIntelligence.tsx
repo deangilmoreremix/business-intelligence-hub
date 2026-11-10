@@ -68,7 +68,7 @@ export const PipelineIntelligence: React.FC<PipelineIntelligenceProps> = ({ onBa
         title="AI Pipeline Analysis"
         description="Get AI-powered insights on your sales pipeline performance"
         className="mb-8"
-        defaultProvider="gpt-5"
+        defaultProvider="openai-deep"
       />
 
       {/* Key Metrics */}

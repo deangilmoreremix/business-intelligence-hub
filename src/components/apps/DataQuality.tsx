@@ -164,7 +164,7 @@ export const DataQuality: React.FC<DataQualityProps> = ({ onBack }) => {
         title="AI Data Quality Analysis"
         description="AI-powered data quality assessment and improvement recommendations"
         className="mb-8"
-        defaultProvider="gemini"
+        defaultProvider="openai-fast"
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

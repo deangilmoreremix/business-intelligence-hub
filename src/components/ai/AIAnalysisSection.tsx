@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Brain, Zap, History, Settings } from 'lucide-react';
+import { Brain, Zap, History, Settings, AlertTriangle } from 'lucide-react';
 import { AIAnalysisButton } from '../ui/AIAnalysisButton';
 import { AIInsightsPanel } from '../ui/AIInsightsPanel';
 import { useAIAnalysis } from '../../hooks/useAIAnalysis';
@@ -25,7 +25,7 @@ export const AIAnalysisSection: React.FC<AIAnalysisSectionProps> = ({
   title = "AI Analysis",
   description = "Get AI-powered insights for this application",
   className,
-  defaultProvider = 'gpt-5',
+  defaultProvider = 'openai-deep',
   showHistory = true,
   customData
 }) => {

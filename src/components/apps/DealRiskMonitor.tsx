@@ -75,7 +75,7 @@ export const DealRiskMonitor: React.FC<DealRiskMonitorProps> = ({ onBack }) => {
         title="AI Risk Assessment"
         description="AI-powered deal risk analysis and mitigation strategies"
         className="mb-8"
-        defaultProvider="gpt-5"
+        defaultProvider="openai-deep"
       />
 
         {/* Risk Metrics */}

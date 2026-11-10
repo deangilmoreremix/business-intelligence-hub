@@ -135,13 +135,13 @@ export const AIAnalyticsDashboard: React.FC<AIAnalyticsDashboardProps> = ({ clas
               <div key={provider.provider} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    {provider.provider === 'gpt-5' ? (
+                    {provider.provider === 'openai-deep' ? (
                       <Brain className="w-5 h-5 text-purple-600" />
                     ) : (
                       <Zap className="w-5 h-5 text-green-600" />
                     )}
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                      {provider.provider.toUpperCase()}
+                      {provider.provider === "openai-deep" ? "GPT-6 ASTRA" : "GPT-6.1 TERRA"}
                     </h3>
                   </div>
                   <span className="text-sm text-gray-600 dark:text-gray-400">

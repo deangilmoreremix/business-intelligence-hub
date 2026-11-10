@@ -1,7 +1,12 @@
 import { supabase } from '../lib/supabase';
-import { openai, OPENAI_MODEL, isOpenAIConfigured, isGPT5Model, getGPT5Config } from '../lib/openai';
+import { createJsonResponse, OPENAI_MODEL, OPENAI_FAST_MODEL } from '../lib/openai';
 
-export type AIProvider = 'gpt-5' | 'gemini';
+/** OpenAI-only: 'openai-deep' = flagship reasoning model, 'openai-fast' = faster/cheaper model. */
+export type AIProvider = 'openai-deep' | 'openai-fast';
+
+/** Maps legacy provider ids (saved settings, old call sites) onto current ones. */
+export const normalizeProvider = (p: string | undefined): AIProvider =>
+  p === 'openai-fast' || p === 'gemini' ? 'openai-fast' : 'openai-deep';
 export type AIAnalysisType = 'pipeline' | 'communication' | 'task' | 'integration' | 'analytics';
 
 export interface AIAnalysisRequest {
@@ -14,6 +19,7 @@ export interface AIAnalysisRequest {
     activities?: any[];
     timeRange?: string;
     customContext?: Record<string, any>;
+    [key: string]: any;
   };
   userId?: string;
   customerId?: string;
@@ -56,14 +62,9 @@ export interface AIAnalysisResult {
 }
 
 class AIService {
-  private apiKeys = {
-    openai: import.meta.env.VITE_OPENAI_API_KEY,
-    gemini: import.meta.env.VITE_GEMINI_API_KEY
-  };
-
-  private models = {
-    'gpt-5': OPENAI_MODEL,
-    'gemini': import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.0-flash-exp'
+  private models: Record<AIProvider, string> = {
+    'openai-deep': OPENAI_MODEL,
+    'openai-fast': OPENAI_FAST_MODEL
   };
 
   /**
@@ -73,10 +74,7 @@ class AIService {
     const startTime = Date.now();
     
     try {
-      // Validate API keys
-      if (!this.apiKeys[request.provider === 'gpt-5' ? 'openai' : 'gemini']) {
-        throw new Error(`${request.provider} API key not configured`);
-      }
+      request = { ...request, provider: normalizeProvider(request.provider) };
 
       // Prepare context data
       const context = await this.prepareAnalysisContext(request);
@@ -85,9 +83,7 @@ class AIService {
       const prompt = this.generatePrompt(request.analysisType, request.appId, context);
       
       // Call appropriate AI provider
-      const result = request.provider === 'gpt-5' 
-        ? await this.callOpenAI(prompt, request)
-        : await this.callGemini(prompt, request);
+      const result = await this.callOpenAI(prompt, request);
 
       // Process and structure the response
       const analysisResult = await this.processAIResponse(result, request, startTime);
@@ -250,129 +246,60 @@ class AIService {
   }
 
   /**
-   * Call OpenAI using Responses API
+   * Call OpenAI using the Responses API (structured output via text.format)
    */
   private async callOpenAI(prompt: string, request: AIAnalysisRequest): Promise<any> {
-    if (!isOpenAIConfigured()) {
-      throw new Error('OpenAI API key not configured');
-    }
+    const str = { type: 'string' };
+    const strList = { type: 'array', items: str };
+    const schema = {
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        insights: {
+          type: 'array',
+          items: {
+            type: 'object',
+            additionalProperties: false,
+            properties: {
+              title: str,
+              description: str,
+              type: { type: 'string', enum: ['opportunity', 'risk', 'trend', 'recommendation', 'optimization'] },
+              priority: { type: 'string', enum: ['low', 'medium', 'high', 'critical'] },
+              confidence: { type: 'number' },
+              impact: { type: 'string', enum: ['low', 'medium', 'high'] },
+              effort: { type: 'string', enum: ['low', 'medium', 'high'] },
+              actionable: { type: 'boolean' },
+              suggestedActions: strList
+            },
+            required: ['title', 'description', 'type', 'priority', 'confidence', 'impact', 'effort', 'actionable', 'suggestedActions']
+          }
+        },
+        summary: str,
+        confidence: { type: 'number' },
+        recommendations: strList,
+        nextActions: strList,
+        businessImpact: {
+          type: 'object',
+          additionalProperties: false,
+          properties: { revenue: str, efficiency: str, riskReduction: str },
+          required: ['revenue', 'efficiency', 'riskReduction']
+        }
+      },
+      required: ['insights', 'summary', 'confidence', 'recommendations', 'nextActions', 'businessImpact']
+    };
 
     try {
-      const requestConfig: any = {
-        model: this.models['gpt-5'],
-        input: [
-          {
-            role: 'system',
-            content: 'You are an expert business intelligence AI that provides structured, actionable insights in JSON format.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        response_format: {
-          type: 'json_schema',
-          json_schema: {
-            name: 'business_insights',
-            schema: {
-              type: 'object',
-              properties: {
-                insights: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      title: { type: 'string' },
-                      description: { type: 'string' },
-                      type: { type: 'string' },
-                      priority: { type: 'string' },
-                      confidence: { type: 'number' },
-                      impact: { type: 'string' },
-                      effort: { type: 'string' },
-                      actionable: { type: 'boolean' },
-                      suggestedActions: { type: 'array', items: { type: 'string' } }
-                    },
-                    required: ['title', 'description', 'type', 'priority']
-                  }
-                },
-                summary: { type: 'string' },
-                confidence: { type: 'number' },
-                recommendations: { type: 'array', items: { type: 'string' } },
-                nextActions: { type: 'array', items: { type: 'string' } },
-                businessImpact: {
-                  type: 'object',
-                  properties: {
-                    revenue: { type: 'string' },
-                    efficiency: { type: 'string' },
-                    riskReduction: { type: 'string' }
-                  }
-                }
-              },
-              required: ['insights', 'summary', 'recommendations']
-            },
-            strict: true
-          }
-        }
-      };
-
-      // Add GPT-5 specific parameters for complex business analysis
-      if (isGPT5Model(this.models['gpt-5'])) {
-        const gpt5Config = getGPT5Config('analysis');
-        Object.assign(requestConfig, gpt5Config);
-      }
-
-      const response = await openai.responses.create(requestConfig);
-
-      const text = response.output
-        ?.map((p: any) =>
-          'content' in p
-            ? p.content?.map((c: any) => c.text || '').join('')
-            : ''
-        )
-        .join('') ?? '';
-
-      return JSON.parse(text);
+      return await createJsonResponse({
+        model: this.models[request.provider],
+        instructions: 'You are an expert business intelligence AI that provides structured, actionable insights. Confidence values are 0-100.',
+        input: prompt,
+        useCase: request.provider === 'openai-fast' ? 'chatbot' : 'analysis',
+        jsonSchema: { name: 'business_insights', schema }
+      });
     } catch (error: any) {
       console.error('OpenAI Responses API error:', error);
       throw new Error(`OpenAI API error: ${error?.message || 'Unknown error'}`);
     }
-  }
-
-  /**
-   * Call Google Gemini API
-   */
-  private async callGemini(prompt: string, request: AIAnalysisRequest): Promise<any> {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${this.models.gemini}:generateContent?key=${this.apiKeys.gemini}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: `${prompt}\n\nPlease respond with valid JSON only.`
-              }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 2000,
-          responseMimeType: 'application/json'
-        }
-      })
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(`Gemini API error: ${error.error?.message || response.statusText}`);
-    }
-
-    const data = await response.json();
-    const content = data.candidates[0].content.parts[0].text;
-    return JSON.parse(content);
   }
 
   /**

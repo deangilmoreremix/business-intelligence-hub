@@ -24,8 +24,8 @@ interface AIProviderSelectorProps {
 
 const providerOptions: AIProviderOption[] = [
   {
-    id: 'gpt-5',
-    name: 'GPT-5',
+    id: 'openai-deep',
+    name: 'GPT-6 Astra',
     icon: Brain,
     description: 'Advanced reasoning and comprehensive analysis',
     features: [
@@ -40,8 +40,8 @@ const providerOptions: AIProviderOption[] = [
     accuracy: 'high'
   },
   {
-    id: 'gemini',
-    name: 'Gemini',
+    id: 'openai-fast',
+    name: 'GPT-6.1 Terra',
     icon: Zap,
     description: 'Fast processing with practical insights',
     features: [
@@ -250,8 +250,8 @@ export const AIProviderSelector: React.FC<AIProviderSelectorProps> = ({
       <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
         <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Provider Comparison</h4>
         <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-          <p>• <strong>GPT-5:</strong> Best for complex analysis, strategic insights, and detailed recommendations</p>
-          <p>• <strong>Gemini:</strong> Ideal for quick insights, real-time analysis, and rapid decision-making</p>
+          <p>• <strong>GPT-6 Astra:</strong> Best for complex analysis, strategic insights, and detailed recommendations</p>
+          <p>• <strong>GPT-6.1 Terra:</strong> Ideal for quick insights, real-time analysis, and rapid decision-making</p>
         </div>
       </div>
     </div>

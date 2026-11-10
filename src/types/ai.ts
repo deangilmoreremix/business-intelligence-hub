@@ -1,5 +1,5 @@
 export interface AIConfiguration {
-  defaultProvider: 'gpt-5' | 'gemini';
+  defaultProvider: 'openai-deep' | 'openai-fast';
   enableAutoAnalysis: boolean;
   analysisFrequency: 'realtime' | 'hourly' | 'daily' | 'manual';
   maxTokensPerAnalysis: number;

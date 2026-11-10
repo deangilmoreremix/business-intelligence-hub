@@ -29,7 +29,7 @@ export const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({
   variant = 'primary',
   size = 'md',
   showProviderSelector = true,
-  defaultProvider = 'gpt-5'
+  defaultProvider = 'openai-deep'
 }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<AIProvider>(defaultProvider);
@@ -38,15 +38,15 @@ export const AIAnalysisButton: React.FC<AIAnalysisButtonProps> = ({
 
   const providers = [
     { 
-      id: 'gpt-5' as const, 
-      name: 'GPT-5', 
+      id: 'openai-deep' as const, 
+      name: 'GPT-6 Astra', 
       icon: Brain,
       description: 'Advanced reasoning and analysis',
       badge: 'PREMIUM'
     },
     { 
-      id: 'gemini' as const, 
-      name: 'Gemini', 
+      id: 'openai-fast' as const, 
+      name: 'GPT-6.1 Terra', 
       icon: Zap,
       description: 'Fast processing and insights',
       badge: 'FAST'

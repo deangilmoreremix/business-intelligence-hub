@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { openai, OPENAI_MODEL, isGPT5Model, getGPT5Config } from '../lib/openai';
+import { createResponse } from '../lib/openai';
 import { getAllKnowledge, searchKnowledge } from '../data/chatbotKnowledge';
 import { aiApps } from '../data/aiApps';
 
@@ -169,26 +169,16 @@ Remember: Your goal is to make users successful with the platform by providing e
 
   private async callOpenAIResponses(messages: Array<{ role: string; content: string }>): Promise<string> {
     try {
-      const requestConfig: any = {
-        model: OPENAI_MODEL,
-        input: messages,
-      };
+      const system = messages.filter(m => m.role === 'system').map(m => m.content).join('\n\n');
+      const input = messages
+        .filter(m => m.role !== 'system')
+        .map(m => ({ role: (m.role === 'assistant' ? 'assistant' : 'user') as 'user' | 'assistant', content: m.content }));
 
-      // Add GPT-5 specific parameters if using GPT-5 model
-      if (isGPT5Model(OPENAI_MODEL)) {
-        const gpt5Config = getGPT5Config('chatbot');
-        Object.assign(requestConfig, gpt5Config);
-      }
-
-      const response = await openai.responses.create(requestConfig);
-
-      const text = response.output
-        ?.map((p: any) =>
-          'content' in p
-            ? p.content?.map((c: any) => c.text || '').join('')
-            : ''
-        )
-        .join('') ?? '';
+      const text = await createResponse({
+        instructions: system || undefined,
+        input,
+        useCase: 'chatbot'
+      });
 
       return text.trim() || "I'm here to help! Please ask me anything about the Business Intelligence Hub.";
     } catch (error: any) {

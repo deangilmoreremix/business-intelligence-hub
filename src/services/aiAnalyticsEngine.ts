@@ -32,7 +32,7 @@ export interface AIAnalyticsMetrics {
 
 class AIAnalyticsEngine {
   private config: AIAnalyticsConfig = {
-    defaultProvider: 'gpt-5',
+    defaultProvider: 'openai-deep',
     enableBatchAnalysis: true,
     maxConcurrentAnalyses: 3,
     cacheResults: true,
@@ -149,7 +149,7 @@ class AIAnalyticsEngine {
   /**
    * Schedule automatic analysis based on data changes
    */
-  setupAutoAnalysis(appIds: string[], provider: AIProvider = 'gemini') {
+  setupAutoAnalysis(appIds: string[], provider: AIProvider = 'openai-fast') {
     if (!this.config.autoAnalyzeOnDataChange) {
       return;
     }
@@ -183,7 +183,7 @@ class AIAnalyticsEngine {
    */
   async getBusinessOptimizationPlan(
     customerId?: string,
-    provider: AIProvider = 'gpt-5'
+    provider: AIProvider = 'openai-deep'
   ): Promise<{
     overallScore: number;
     priorityActions: string[];

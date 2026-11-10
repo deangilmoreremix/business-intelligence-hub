@@ -70,7 +70,7 @@ export const ActivityAnalytics: React.FC<ActivityAnalyticsProps> = ({ onBack }) 
           title="AI Activity Intelligence"
           description="AI-powered analysis of communication patterns and optimization opportunities"
           className="mb-8"
-          defaultProvider="gemini"
+          defaultProvider="openai-fast"
         />
 
         {/* Key Metrics */}

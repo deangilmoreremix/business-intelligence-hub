@@ -55,7 +55,7 @@ export function useAIAnalysis(
       const request: AIAnalysisRequest = {
         appId,
         analysisType,
-        provider: customProvider || options.provider || 'gpt-5',
+        provider: customProvider || options.provider || 'openai-deep',
         data: {
           ...analysisData,
           timeRange: '30d'
@@ -124,7 +124,7 @@ export function useAIAnalysis(
     loadHistory,
     
     // Computed properties
-    hasInsights: state.result?.insights.length > 0,
+    hasInsights: (state.result?.insights?.length ?? 0) > 0,
     highPriorityInsights: state.result?.insights.filter(i => 
       i.priority === 'high' || i.priority === 'critical'
     ).length || 0,

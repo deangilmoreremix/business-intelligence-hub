@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Brain, TrendingUp, Target, AlertTriangle, CheckCircle, Clock, DollarSign } from 'lucide-react';
+import { X, Brain, TrendingUp, Target, AlertTriangle, CheckCircle, Clock, DollarSign, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { ModernButton } from './ModernButton';
 import type { AIAnalysisResult, AIInsight } from '../../services/aiService';
