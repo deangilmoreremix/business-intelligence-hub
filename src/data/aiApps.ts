@@ -304,5 +304,13 @@ export const aiApps: AIApp[] = [
     icon: TrendingUp,
     category: 'Analytics',
     path: '/app/trend-intelligence'
+  },
+  {
+    id: 'contacts-hub',
+    title: 'Advanced Contacts',
+    description: 'Searchable contacts with AI lead scoring, email drafting, duplicate detection and notes.',
+    icon: Users,
+    category: 'Contacts',
+    path: '/app/contacts-hub'
   }
 ];

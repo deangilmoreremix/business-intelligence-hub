@@ -35,6 +35,7 @@ import { ConversionAnalytics } from './apps/ConversionAnalytics';
 import { LiveKPIMonitor } from './apps/LiveKPIMonitor';
 import { ActivityDashboard } from './apps/ActivityDashboard';
 import { TrendIntelligence } from './apps/TrendIntelligence';
+import { ContactsHub } from './contacts/ContactsHub';
 import { ComingSoonPage } from './ComingSoonPage';
 import { aiApps } from '../data/aiApps';
 
@@ -74,7 +75,8 @@ const appComponents: Record<string, React.ComponentType<{ onBack?: () => void }>
   'conversion-analytics': ConversionAnalytics,
   'live-kpi-monitor': LiveKPIMonitor,
   'activity-dashboard': ActivityDashboard,
-  'trend-intelligence': TrendIntelligence
+  'trend-intelligence': TrendIntelligence,
+  'contacts-hub': ContactsHub
 };
 
 export const AppRoute: React.FC = () => {

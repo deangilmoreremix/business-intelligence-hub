@@ -29,7 +29,7 @@ interface DealState {
   setError: (error: string | null) => void;
 }
 
-export const useDealStore = create<DealState>((set, get) => ({
+export const useDealStore = create<DealState>()((set, get) => ({
   deals: {},
   isLoading: false,
   error: null,

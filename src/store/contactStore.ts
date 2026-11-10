@@ -28,13 +28,15 @@ interface ContactState {
   addContact: (contact: Contact) => void;
   updateContact: (contact: Contact) => void;
   removeContact: (contactId: string) => void;
+  createContact: (input: Partial<Contact> & { firstName: string }) => Promise<Contact | null>;
+  deleteContact: (id: string) => Promise<void>;
   loadContactsFromSupabase: () => Promise<void>;
   syncFromCRM: () => Promise<void>;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
 }
 
-export const useContactStore = create<ContactState>((set, get) => ({
+export const useContactStore = create<ContactState>()((set, get) => ({
   contacts: {},
   isLoading: false,
   error: null,
@@ -54,6 +56,30 @@ export const useContactStore = create<ContactState>((set, get) => ({
     return { contacts: newContacts };
   }),
   
+  createContact: async (input) => {
+    const row = {
+      first_name: input.firstName,
+      last_name: input.lastName ?? '',
+      email: input.email ?? null,
+      phone: input.phone ?? null,
+      company: input.company ?? null,
+      status: input.crmStatus ?? 'lead',
+    };
+    const { data, error } = await supabase.from('contacts').insert(row).select().single();
+    if (error || !data) {
+      set({ error: error?.message ?? 'Failed to create contact' });
+      return null;
+    }
+    await get().loadContactsFromSupabase();
+    return get().contacts[data.id] ?? null;
+  },
+
+  deleteContact: async (id) => {
+    const { error } = await supabase.from('contacts').delete().eq('id', id);
+    if (error) { set({ error: error.message }); return; }
+    get().removeContact(id);
+  },
+
   setLoading: (loading) => set({ isLoading: loading }),
   
   setError: (error) => set({ error }),
