@@ -68,12 +68,12 @@ export const EmailOptimizer: React.FC<EmailOptimizerProps> = ({ onBack }) => {
       headerActions={headerActions}
     >
       <AIAnalysisSection
-          appId="email-optimizer"
-          analysisType="communication"
-          title="AI Smart Email Optimizer Analysis"
-          description="AI-powered email response optimization and insights."
-          className="mb-8"
-        />
+        appId="email-optimizer"
+        analysisType="communication"
+        title="AI Smart Email Optimizer Analysis"
+        description="AI-powered email response optimization and insights."
+        className="mb-8"
+      />
 
       <div className="mb-6">
         <AIProcessingIndicator 

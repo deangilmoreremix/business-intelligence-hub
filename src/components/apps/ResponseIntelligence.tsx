@@ -108,12 +108,12 @@ export const ResponseIntelligence: React.FC<ResponseIntelligenceProps> = ({ onBa
       headerActions={headerActions}
     >
       <AIAnalysisSection
-          appId="response-intelligence"
-          analysisType="communication"
-          title="AI Response Intelligence Analysis"
-          description="Track and optimize response times across all communication channels."
-          className="mb-8"
-        />
+        appId="response-intelligence"
+        analysisType="communication"
+        title="AI Response Intelligence Analysis"
+        description="Track and optimize response times across all communication channels."
+        className="mb-8"
+      />
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

@@ -158,12 +158,12 @@ export const TrendIntelligence: React.FC<TrendIntelligenceProps> = ({ onBack }) 
       headerActions={headerActions}
     >
       <AIAnalysisSection
-          appId="trend-intelligence"
-          analysisType="analytics"
-          title="AI Trend Intelligence Analysis"
-          description="Advanced trend analysis with predictive insights."
-          className="mb-8"
-        />
+        appId="trend-intelligence"
+        analysisType="analytics"
+        title="AI Trend Intelligence Analysis"
+        description="Advanced trend analysis with predictive insights."
+        className="mb-8"
+      />
 
       <div className="mb-6">
         <AIProcessingIndicator 

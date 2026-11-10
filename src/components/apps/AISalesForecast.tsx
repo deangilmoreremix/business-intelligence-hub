@@ -55,12 +55,12 @@ export const AISalesForecast: React.FC<AISalesForecastProps> = ({ onBack }) => {
       headerActions={headerActions}
     >
       <AIAnalysisSection
-          appId="ai-sales-forecast"
-          analysisType="pipeline"
-          title="AI AI Sales Forecast Analysis"
-          description="Predictive sales forecasting powered by machine learning."
-          className="mb-8"
-        />
+        appId="ai-sales-forecast"
+        analysisType="pipeline"
+        title="AI AI Sales Forecast Analysis"
+        description="Predictive sales forecasting powered by machine learning."
+        className="mb-8"
+      />
 
       <div className="mb-6">
         <AIProcessingIndicator 

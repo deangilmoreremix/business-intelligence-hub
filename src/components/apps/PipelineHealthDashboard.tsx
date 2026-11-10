@@ -79,7 +79,6 @@ export const PipelineHealthDashboard: React.FC<PipelineHealthDashboardProps> = (
             </ModernButton>
           </div>
         </div>
-
         <AIAnalysisSection
           appId="pipeline-health"
           analysisType="pipeline"
@@ -87,7 +86,6 @@ export const PipelineHealthDashboard: React.FC<PipelineHealthDashboardProps> = (
           description="Comprehensive health analysis of your sales pipeline."
           className="mb-8"
         />
-
 
 
         {/* AI Processing */}

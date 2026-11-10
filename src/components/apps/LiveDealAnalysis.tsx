@@ -92,12 +92,12 @@ export const LiveDealAnalysis: React.FC<LiveDealAnalysisProps> = ({ onBack }) =>
       headerActions={headerActions}
     >
       <AIAnalysisSection
-          appId="live-deal-analysis"
-          analysisType="pipeline"
-          title="AI Live Deal Analysis Analysis"
-          description="Real-time deal intelligence with AI-powered insights."
-          className="mb-8"
-        />
+        appId="live-deal-analysis"
+        analysisType="pipeline"
+        title="AI Live Deal Analysis Analysis"
+        description="Real-time deal intelligence with AI-powered insights."
+        className="mb-8"
+      />
 
       {/* Live Status */}
       <div className="mb-6">

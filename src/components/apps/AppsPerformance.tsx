@@ -84,14 +84,6 @@ export const AppsPerformance: React.FC<AppsPerformanceProps> = ({ onBack }) => {
           onChange={(e) => setSelectedMetric(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         >
-      <AIAnalysisSection
-          appId="apps-performance"
-          analysisType="integration"
-          title="AI Apps Performance Monitor Analysis"
-          description="Monitor and optimize app integration performance."
-          className="mb-8"
-        />
-
           <option value="response-time">Response Time</option>
           <option value="uptime">Uptime</option>
           <option value="load">Server Load</option>
@@ -99,6 +91,14 @@ export const AppsPerformance: React.FC<AppsPerformanceProps> = ({ onBack }) => {
         </select>
       }
     >
+      <AIAnalysisSection
+        appId="apps-performance"
+        analysisType="integration"
+        title="AI Apps Performance Monitor Analysis"
+        description="Monitor and optimize app integration performance."
+        className="mb-8"
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {performanceMetrics.map((metric, index) => (
           <KPICard

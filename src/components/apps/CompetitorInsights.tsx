@@ -63,12 +63,12 @@ export const CompetitorInsights: React.FC<CompetitorInsightsProps> = ({ onBack }
       headerActions={headerActions}
     >
       <AIAnalysisSection
-          appId="competitor-insights"
-          analysisType="pipeline"
-          title="AI Competitor Insights Analysis"
-          description="Market intelligence and competitive analysis dashboard."
-          className="mb-8"
-        />
+        appId="competitor-insights"
+        analysisType="pipeline"
+        title="AI Competitor Insights Analysis"
+        description="Market intelligence and competitive analysis dashboard."
+        className="mb-8"
+      />
 
       <div className="mb-6">
         <AIProcessingIndicator 

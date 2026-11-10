@@ -84,14 +84,6 @@ export const SystemAnalytics: React.FC<SystemAnalyticsProps> = ({ onBack }) => {
           onChange={(e) => setSelectedTimeRange(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         >
-      <AIAnalysisSection
-          appId="system-analytics"
-          analysisType="integration"
-          title="AI System Analytics Analysis"
-          description="System activity insights and performance monitoring."
-          className="mb-8"
-        />
-
           <option value="1h">Last Hour</option>
           <option value="24h">Last 24 Hours</option>
           <option value="7d">Last 7 Days</option>
@@ -99,6 +91,14 @@ export const SystemAnalytics: React.FC<SystemAnalyticsProps> = ({ onBack }) => {
         </select>
       }
     >
+      <AIAnalysisSection
+        appId="system-analytics"
+        analysisType="integration"
+        title="AI System Analytics Analysis"
+        description="System activity insights and performance monitoring."
+        className="mb-8"
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {systemMetrics.map((metric, index) => (
           <KPICard

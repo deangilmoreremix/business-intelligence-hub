@@ -113,14 +113,6 @@ export const AutomationHub: React.FC<AutomationHubProps> = ({ onBack }) => {
           onChange={(e) => setSelectedCategory(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         >
-      <AIAnalysisSection
-          appId="automation-hub"
-          analysisType="integration"
-          title="AI Smart Automation Hub Analysis"
-          description="Identify and implement automation opportunities."
-          className="mb-8"
-        />
-
           <option value="all">All Categories</option>
           <option value="sales">Sales</option>
           <option value="marketing">Marketing</option>
@@ -128,6 +120,14 @@ export const AutomationHub: React.FC<AutomationHubProps> = ({ onBack }) => {
         </select>
       }
     >
+      <AIAnalysisSection
+        appId="automation-hub"
+        analysisType="integration"
+        title="AI Smart Automation Hub Analysis"
+        description="Identify and implement automation opportunities."
+        className="mb-8"
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {automationMetrics.map((metric, index) => (
           <KPICard

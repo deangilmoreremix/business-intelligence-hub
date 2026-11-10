@@ -113,12 +113,12 @@ export const SmartAllocation: React.FC<SmartAllocationProps> = ({ onBack }) => {
       headerActions={headerActions}
     >
       <AIAnalysisSection
-          appId="smart-allocation"
-          analysisType="task"
-          title="AI Smart Allocation Analysis"
-          description="AI-driven resource allocation and optimization."
-          className="mb-8"
-        />
+        appId="smart-allocation"
+        analysisType="task"
+        title="AI Smart Allocation Analysis"
+        description="AI-driven resource allocation and optimization."
+        className="mb-8"
+      />
 
       <div className="mb-6">
         <AIProcessingIndicator 

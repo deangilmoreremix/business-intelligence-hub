@@ -77,7 +77,6 @@ export const PerformanceReports: React.FC<PerformanceReportsProps> = ({ onBack }
             </ModernButton>
           </div>
         </div>
-
         <AIAnalysisSection
           appId="performance-reports"
           analysisType="analytics"
@@ -85,7 +84,6 @@ export const PerformanceReports: React.FC<PerformanceReportsProps> = ({ onBack }
           description="Comprehensive performance analytics and reporting."
           className="mb-8"
         />
-
 
 
         {/* Report Type Selector */}

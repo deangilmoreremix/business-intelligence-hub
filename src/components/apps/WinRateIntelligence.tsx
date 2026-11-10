@@ -64,12 +64,12 @@ export const WinRateIntelligence: React.FC<WinRateIntelligenceProps> = ({ onBack
       headerActions={headerActions}
     >
       <AIAnalysisSection
-          appId="win-rate-intelligence"
-          analysisType="pipeline"
-          title="AI Win Rate Intelligence Analysis"
-          description="Analyze win rates and identify factors that drive success."
-          className="mb-8"
-        />
+        appId="win-rate-intelligence"
+        analysisType="pipeline"
+        title="AI Win Rate Intelligence Analysis"
+        description="Analyze win rates and identify factors that drive success."
+        className="mb-8"
+      />
 
       {/* AI Processing Indicator */}
       <div className="mb-6">

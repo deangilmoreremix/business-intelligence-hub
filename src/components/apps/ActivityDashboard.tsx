@@ -136,12 +136,12 @@ export const ActivityDashboard: React.FC<ActivityDashboardProps> = ({ onBack }) 
       headerActions={headerActions}
     >
       <AIAnalysisSection
-          appId="activity-dashboard"
-          analysisType="analytics"
-          title="AI Activity Dashboard Analysis"
-          description="Comprehensive activity metrics and trends."
-          className="mb-8"
-        />
+        appId="activity-dashboard"
+        analysisType="analytics"
+        title="AI Activity Dashboard Analysis"
+        description="Comprehensive activity metrics and trends."
+        className="mb-8"
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {activityMetrics.map((metric, index) => (

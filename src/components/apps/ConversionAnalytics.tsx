@@ -114,12 +114,12 @@ export const ConversionAnalytics: React.FC<ConversionAnalyticsProps> = ({ onBack
       headerActions={headerActions}
     >
       <AIAnalysisSection
-          appId="conversion-analytics"
-          analysisType="analytics"
-          title="AI Conversion Analytics Analysis"
-          description="Conversion rate metrics and optimization insights."
-          className="mb-8"
-        />
+        appId="conversion-analytics"
+        analysisType="analytics"
+        title="AI Conversion Analytics Analysis"
+        description="Conversion rate metrics and optimization insights."
+        className="mb-8"
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {conversionMetrics.map((metric, index) => (

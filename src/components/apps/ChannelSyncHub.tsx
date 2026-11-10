@@ -43,19 +43,19 @@ export const ChannelSyncHub: React.FC<ChannelSyncHubProps> = ({ onBack }) => {
       appTheme="cyan"
       headerActions={
         <ModernButton>
-      <AIAnalysisSection
-          appId="channel-sync-hub"
-          analysisType="communication"
-          title="AI Channel Sync Hub Analysis"
-          description="Multi-channel coordination and synchronization dashboard."
-          className="mb-8"
-        />
-
           <Zap className="w-4 h-4" />
           Force Sync All
         </ModernButton>
       }
     >
+      <AIAnalysisSection
+        appId="channel-sync-hub"
+        analysisType="communication"
+        title="AI Channel Sync Hub Analysis"
+        description="Multi-channel coordination and synchronization dashboard."
+        className="mb-8"
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {syncMetrics.map((metric, index) => (
           <KPICard

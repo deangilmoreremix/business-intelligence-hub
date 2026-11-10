@@ -102,12 +102,12 @@ export const PriorityIntelligence: React.FC<PriorityIntelligenceProps> = ({ onBa
       headerActions={headerActions}
     >
       <AIAnalysisSection
-          appId="priority-intelligence"
-          analysisType="task"
-          title="AI Priority Intelligence Analysis"
-          description="Task priority optimization using AI algorithms."
-          className="mb-8"
-        />
+        appId="priority-intelligence"
+        analysisType="task"
+        title="AI Priority Intelligence Analysis"
+        description="Task priority optimization using AI algorithms."
+        className="mb-8"
+      />
 
       <div className="mb-6">
         <AIProcessingIndicator 

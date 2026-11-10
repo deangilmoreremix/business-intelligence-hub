@@ -90,12 +90,12 @@ export const PipelineVisualization: React.FC<PipelineVisualizationProps> = ({ on
       headerActions={headerActions}
     >
       <AIAnalysisSection
-          appId="pipeline-visualization"
-          analysisType="analytics"
-          title="AI Pipeline Visualization Analysis"
-          description="Advanced pipeline charts and visual analytics."
-          className="mb-8"
-        />
+        appId="pipeline-visualization"
+        analysisType="analytics"
+        title="AI Pipeline Visualization Analysis"
+        description="Advanced pipeline charts and visual analytics."
+        className="mb-8"
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {visualizationMetrics.map((metric, index) => (

@@ -62,12 +62,12 @@ export const RevenueIntelligence: React.FC<RevenueIntelligenceProps> = ({ onBack
       headerActions={headerActions}
     >
       <AIAnalysisSection
-          appId="revenue-intelligence"
-          analysisType="pipeline"
-          title="AI Revenue Intelligence Analysis"
-          description="Advanced revenue analytics and optimization insights."
-          className="mb-8"
-        />
+        appId="revenue-intelligence"
+        analysisType="pipeline"
+        title="AI Revenue Intelligence Analysis"
+        description="Advanced revenue analytics and optimization insights."
+        className="mb-8"
+      />
 
       <div className="mb-6">
         <AIProcessingIndicator 

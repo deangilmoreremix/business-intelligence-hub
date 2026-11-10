@@ -93,20 +93,20 @@ export const RiskMonitor: React.FC<RiskMonitorProps> = ({ onBack }) => {
           onChange={(e) => setAlertLevel(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         >
-      <AIAnalysisSection
-          appId="risk-monitor"
-          analysisType="task"
-          title="AI Risk Monitor Analysis"
-          description="Deadline risk assessment and mitigation strategies."
-          className="mb-8"
-        />
-
           <option value="all">All Risks</option>
           <option value="critical">Critical Only</option>
           <option value="overdue">Overdue Tasks</option>
         </select>
       }
     >
+      <AIAnalysisSection
+        appId="risk-monitor"
+        analysisType="task"
+        title="AI Risk Monitor Analysis"
+        description="Deadline risk assessment and mitigation strategies."
+        className="mb-8"
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {riskMetrics.map((metric, index) => (
           <KPICard

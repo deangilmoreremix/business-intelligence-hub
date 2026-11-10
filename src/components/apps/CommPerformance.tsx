@@ -40,20 +40,20 @@ export const CommPerformance: React.FC<CommPerformanceProps> = ({ onBack }) => {
           onChange={(e) => setSelectedPeriod(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         >
-      <AIAnalysisSection
-          appId="comm-performance"
-          analysisType="communication"
-          title="AI Comm Performance Analysis"
-          description="Communication ROI and performance analytics dashboard."
-          className="mb-8"
-        />
-
           <option value="7d">Last 7 days</option>
           <option value="30d">Last 30 days</option>
           <option value="90d">Last 90 days</option>
         </select>
       }
     >
+      <AIAnalysisSection
+        appId="comm-performance"
+        analysisType="communication"
+        title="AI Comm Performance Analysis"
+        description="Communication ROI and performance analytics dashboard."
+        className="mb-8"
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {performanceMetrics.map((metric, index) => (
           <KPICard

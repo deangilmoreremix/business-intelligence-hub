@@ -71,20 +71,20 @@ export const TaskImpactAnalytics: React.FC<TaskImpactAnalyticsProps> = ({ onBack
           onChange={(e) => setTimeRange(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         >
-      <AIAnalysisSection
-          appId="task-impact-analytics"
-          analysisType="task"
-          title="AI Task Impact Analytics Analysis"
-          description="Measure and analyze the impact of your activities."
-          className="mb-8"
-        />
-
           <option value="7d">Last 7 days</option>
           <option value="30d">Last 30 days</option>
           <option value="90d">Last 90 days</option>
         </select>
       }
     >
+      <AIAnalysisSection
+        appId="task-impact-analytics"
+        analysisType="task"
+        title="AI Task Impact Analytics Analysis"
+        description="Measure and analyze the impact of your activities."
+        className="mb-8"
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {impactMetrics.map((metric, index) => (
           <KPICard

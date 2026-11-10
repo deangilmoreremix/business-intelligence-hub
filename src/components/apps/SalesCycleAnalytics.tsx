@@ -59,7 +59,6 @@ export const SalesCycleAnalytics: React.FC<SalesCycleAnalyticsProps> = ({ onBack
             </select>
           </div>
         </div>
-
         <AIAnalysisSection
           appId="sales-cycle-analytics"
           analysisType="pipeline"
@@ -67,7 +66,6 @@ export const SalesCycleAnalytics: React.FC<SalesCycleAnalyticsProps> = ({ onBack
           description="Track and optimize your sales cycle with advanced analytics."
           className="mb-8"
         />
-
 
 
         {/* Key Metrics */}

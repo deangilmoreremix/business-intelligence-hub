@@ -99,12 +99,12 @@ export const WorkflowIntelligence: React.FC<WorkflowIntelligenceProps> = ({ onBa
       headerActions={headerActions}
     >
       <AIAnalysisSection
-          appId="workflow-intelligence"
-          analysisType="task"
-          title="AI Workflow Intelligence Analysis"
-          description="Detect bottlenecks and optimize workflow efficiency."
-          className="mb-8"
-        />
+        appId="workflow-intelligence"
+        analysisType="task"
+        title="AI Workflow Intelligence Analysis"
+        description="Detect bottlenecks and optimize workflow efficiency."
+        className="mb-8"
+      />
 
       <div className="mb-6">
         <AIProcessingIndicator 
