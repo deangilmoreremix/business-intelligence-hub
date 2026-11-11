@@ -1,0 +1,3 @@
+/* Maps Twenty's tokens (used by the vendored image input) onto this app's look. */
+.people-image-upload { --t-font-color-primary: #111827; --t-font-color-secondary: #4b5563; --t-font-color-tertiary: #6b7280; --t-background-primary: transparent; --t-border-color-medium: #e5e7eb; }
+.dark-mode .people-image-upload { --t-font-color-primary: #f3f4f6; --t-font-color-secondary: #d1d5db; --t-font-color-tertiary: #9ca3af; --t-border-color-medium: #374151; }

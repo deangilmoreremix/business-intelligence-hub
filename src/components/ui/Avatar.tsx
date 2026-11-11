@@ -1,4 +1,5 @@
 import React from 'react';
+import { usePhotoFor } from '../../store/peoplePhotos';
 
 interface AvatarProps {
   src?: string;
@@ -18,6 +19,11 @@ const Avatar: React.FC<AvatarProps> = React.memo(({
   status, 
   className = '' 
 }) => {
+  // An uploaded photo (matched by person name) wins over the stock photo passed as `src`.
+  const byName = usePhotoFor(alt || fallback);
+  const byStock = usePhotoFor(src ? `src:${src}` : undefined);
+  const uploaded = byName ?? byStock;
+  src = uploaded ?? src;
   const sizeClasses = {
     xs: 'w-6 h-6 text-xs',
     sm: 'w-8 h-8 text-sm',

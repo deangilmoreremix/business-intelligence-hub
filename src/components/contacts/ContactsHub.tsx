@@ -4,6 +4,8 @@ import { PageWrapper } from '../layout/PageWrapper';
 import { useContactStore, type Contact } from '../../store/contactStore';
 import { supabase } from '../../lib/supabase';
 import { CompaniesPanel } from './CompaniesPanel';
+import { PersonImageUpload } from '../people/PersonImageUpload';
+import { usePeoplePhotos } from '../../store/peoplePhotos';
 import {
   addActivity, bulkDelete, bulkSetStatus, bulkTag, getContactCompanyId, linkContactToCompany, listActivities,
   listCompanies, loadViews, mergeContacts, saveViews, type Activity, type Company, type SavedView,
@@ -269,7 +271,20 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
         <aside className="fixed right-0 top-0 h-full w-full max-w-md bg-white dark:bg-gray-900 shadow-2xl p-5 overflow-y-auto z-50">
           <button className="absolute right-4 top-4" onClick={() => setSelected(null)} aria-label="Close"><X className="w-5 h-5" /></button>
           {avatar && <img src={avatar} alt="" className="w-20 h-20 rounded-full mb-3" />}
-          <h2 className="text-xl font-semibold">{selected.name}</h2>
+          <PersonImageUpload
+            folder="contacts"
+            value={selected.avatarUrl}
+            onChange={async url => {
+              const { error: e } = await supabase.from('contacts').update({ avatar_url: url }).eq('id', selected.id);
+              if (e) throw new Error(e.message);
+              usePeoplePhotos.getState().set(selected.name, url);
+              await addActivity(selected.id, url ? 'photo updated' : 'photo removed');
+              await loadContactsFromSupabase();
+              setSelected(useContactStore.getState().contacts[selected.id] ?? null);
+              refreshActivities();
+            }}
+          />
+          <h2 className="text-xl font-semibold mt-3">{selected.name}</h2>
           <p className="text-sm text-gray-500">{selected.email} · {selected.company}</p>
           <label className="block text-sm mt-3">Company
             <select aria-label="Company" value={companyId} onChange={e => { const v = e.target.value; setCompanyId(v); guard(async () => { await linkContactToCompany(selected.id, companyOptions.find(c => c.id === v) ?? null); await loadContactsFromSupabase(); }); }} className="block mt-1 w-full py-1.5 px-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent">

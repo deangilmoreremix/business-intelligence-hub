@@ -37,6 +37,7 @@ import { ActivityDashboard } from './apps/ActivityDashboard';
 import { TrendIntelligence } from './apps/TrendIntelligence';
 import { ContactsHub } from './contacts/ContactsHub';
 
+import { TeamMembersPage } from './people/TeamMembersPage';
 import { ComingSoonPage } from './ComingSoonPage';
 import { aiApps } from '../data/aiApps';
 
@@ -81,6 +82,7 @@ const appComponents: Record<string, React.ComponentType<{ onBack?: () => void }>
   'activity-dashboard': ActivityDashboard,
   'trend-intelligence': TrendIntelligence,
   'contacts-hub': ContactsHub,
+  'team-members': TeamMembersPage,
   'dashboard-builder': DashboardBuilder
 };
 

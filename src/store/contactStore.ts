@@ -11,7 +11,8 @@ export interface Contact {
   lastName?: string;
   phone?: string;
   company?: string;
-  avatar?: string; // URL
+  avatar?: string; // URL (uploaded photo, else a stock photo)
+  avatarUrl?: string; // uploaded photo only
   avatarSrc?: string; // Alias for avatar for consistency with provided code
   initials?: string;
   status?: 'online' | 'offline' | 'busy' | 'away';
@@ -126,8 +127,9 @@ export const useContactStore = create<ContactState>()((set, get) => ({
           website: contactRow.website ?? undefined,
           bio: contactRow.bio ?? undefined,
           enrichedAt: contactRow.enriched_at ?? undefined,
-          avatar: getAvatarByIndex(index),
-          avatarSrc: getAvatarByIndex(index),
+          avatarUrl: contactRow.avatar_url ?? undefined,
+          avatar: contactRow.avatar_url ?? getAvatarByIndex(index),
+          avatarSrc: contactRow.avatar_url ?? getAvatarByIndex(index),
           initials: getInitials(fullName),
           createdAt: contactRow.created_at ?? undefined,
           updatedAt: contactRow.updated_at ?? undefined

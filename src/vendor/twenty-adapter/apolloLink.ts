@@ -1,5 +1,6 @@
 import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client';
 import { Observable } from 'rxjs';
+import { resolveCompleteFileUpload, resolveCreateFileUpload, type StorageLike } from './fileUpload';
 import {
   defaultRpc,
   resolveAggregateQuery,
@@ -16,7 +17,7 @@ type Selection = { kind: string; name?: { value: string } };
  * PieChartData, Aggregate<Plural>) directly from Supabase. Anything else is rejected, so a widget that needs
  * Twenty's backend fails loudly instead of silently showing nothing.
  */
-export const createSupabaseChartLink = (rpc: RpcFn = defaultRpc) =>
+export const createSupabaseChartLink = (rpc: RpcFn = defaultRpc, storage?: StorageLike) =>
   new ApolloLink(operation => {
     const def = operation.query.definitions.find(d => d.kind === 'OperationDefinition') as
       | { name?: { value: string }; selectionSet: { selections: Selection[] } }
@@ -42,6 +43,8 @@ export const createSupabaseChartLink = (rpc: RpcFn = defaultRpc) =>
         const selected = (root?.selectionSet?.selections ?? []).map(s => s.name?.value ?? '').filter(Boolean);
         return { [plural]: await resolveAggregateQuery(rpc, plural, selected, vars.filter) };
       }
+      if (opName === 'CreateFileUpload') return { createFileUpload: await resolveCreateFileUpload(vars as { filename: string; size: number }, storage) };
+      if (opName === 'CompleteFileUpload') return { completeFileUpload: await resolveCompleteFileUpload(vars as { fileId: string }, storage) };
       throw new Error(`Operation "${opName}" is not available in this app`);
     };
 
@@ -53,9 +56,9 @@ export const createSupabaseChartLink = (rpc: RpcFn = defaultRpc) =>
     });
   });
 
-export const createDashboardApolloClient = (rpc?: RpcFn) =>
+export const createDashboardApolloClient = (rpc?: RpcFn, storage?: StorageLike) =>
   new ApolloClient({
-    link: createSupabaseChartLink(rpc),
+    link: createSupabaseChartLink(rpc, storage),
     cache: new InMemoryCache(),
     defaultOptions: { watchQuery: { fetchPolicy: 'cache-and-network' } },
   });

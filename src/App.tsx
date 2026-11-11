@@ -4,11 +4,14 @@ import { Dashboard } from './components/Dashboard';
 import { AppRoute } from './components/AppRoute';
 const RecordsPage = lazy(() => import('./components/dashboard-builder/RecordsPage').then(m => ({ default: m.RecordsPage })));
 import { remoteCommunicator } from './utils/RemoteCommunicator';
+import { usePeoplePhotos } from './store/peoplePhotos';
 import { WalkthroughEngine } from './components/walkthrough/WalkthroughEngine';
 import { ChatWidget } from './components/chatbot/ChatWidget';
 import { ChatButton } from './components/chatbot/ChatButton';
 
 function App() {
+  useEffect(() => { void usePeoplePhotos.getState().load(); }, []);
+
   useEffect(() => {
     remoteCommunicator.notifyReady();
     console.log('✅ Analytics App initialized and ready');

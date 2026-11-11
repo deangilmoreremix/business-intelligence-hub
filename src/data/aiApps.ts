@@ -320,5 +320,13 @@ export const aiApps: AIApp[] = [
     icon: BarChart3,
     category: 'Analytics',
     path: '/app/dashboard-builder'
+  },
+  {
+    id: 'team-members',
+    title: 'Team Members',
+    description: 'Upload and manage the photos of your team shown across the app.',
+    icon: Users,
+    category: 'Contacts',
+    path: '/app/team-members'
   }
 ];

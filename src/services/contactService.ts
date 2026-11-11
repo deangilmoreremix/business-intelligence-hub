@@ -7,6 +7,7 @@ export interface Company {
   domain?: string | null;
   industry?: string | null;
   employees?: number | null;
+  logo_url?: string | null;
   contactCount?: number;
 }
 
