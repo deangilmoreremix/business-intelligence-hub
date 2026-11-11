@@ -1,0 +1,29 @@
+/*
+  Maps Twenty's design tokens (used by the vendored widgets) onto this app's look:
+  transparent backgrounds (cards come from GlassCard), Tailwind-like grays and text colors, Inter-like font.
+*/
+.twenty-bridge {
+  --t-background-primary: transparent;
+  --t-background-secondary: rgba(243, 244, 246, 0.7);
+  --t-background-tertiary: rgba(229, 231, 235, 0.8);
+  --t-font-color-primary: #111827;
+  --t-font-color-secondary: #4b5563;
+  --t-font-color-tertiary: #6b7280;
+  --t-font-color-light: #9ca3af;
+  --t-border-color-medium: #e5e7eb;
+  --t-border-color-light: #f3f4f6;
+  --t-font-family: inherit;
+  color: var(--t-font-color-primary);
+  height: 100%;
+  width: 100%;
+}
+.dark .twenty-bridge, .twenty-bridge.dark {
+  --t-background-secondary: rgba(31, 41, 55, 0.7);
+  --t-background-tertiary: rgba(55, 65, 81, 0.8);
+  --t-font-color-primary: #f3f4f6;
+  --t-font-color-secondary: #d1d5db;
+  --t-font-color-tertiary: #9ca3af;
+  --t-font-color-light: #6b7280;
+  --t-border-color-medium: #374151;
+  --t-border-color-light: #1f2937;
+}

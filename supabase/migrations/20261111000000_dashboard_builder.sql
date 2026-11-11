@@ -182,5 +182,27 @@ BEGIN
   RETURN QUERY EXECUTE sql;
 END $$;
 
+-- Record list widget / drill-down: rows filtered by the same translated filter as the charts.
+CREATE OR REPLACE FUNCTION dashboard_records(
+  p_table text,
+  p_filter jsonb DEFAULT '{}'::jsonb,
+  p_order text DEFAULT NULL,
+  p_desc boolean DEFAULT true,
+  p_limit integer DEFAULT 50,
+  p_offset integer DEFAULT 0
+)
+RETURNS SETOF jsonb
+LANGUAGE plpgsql STABLE SECURITY INVOKER AS $$
+DECLARE ocol text;
+BEGIN
+  p_limit := LEAST(GREATEST(COALESCE(p_limit, 50), 1), 500);
+  p_offset := GREATEST(COALESCE(p_offset, 0), 0);
+  ocol := dashboard_column(p_table, COALESCE(p_order, 'createdAt'));
+  RETURN QUERY EXECUTE format(
+    'SELECT to_jsonb(t) FROM public.%I t WHERE %s ORDER BY %I %s NULLS LAST LIMIT %s OFFSET %s',
+    p_table, dashboard_filter_sql(p_table, p_filter), ocol, CASE WHEN p_desc THEN 'DESC' ELSE 'ASC' END, p_limit, p_offset);
+END $$;
+
 GRANT EXECUTE ON FUNCTION dashboard_column(text, text), dashboard_filter_sql(text, jsonb),
-  dashboard_aggregate(text, text, text, text, text, text, text, jsonb, integer) TO anon, authenticated;
+  dashboard_aggregate(text, text, text, text, text, text, text, jsonb, integer),
+  dashboard_records(text, jsonb, text, boolean, integer, integer) TO anon, authenticated;

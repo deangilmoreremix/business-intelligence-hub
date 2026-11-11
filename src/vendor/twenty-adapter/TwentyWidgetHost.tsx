@@ -50,13 +50,14 @@ type Props = {
   rpc?: RpcFn;
   editing?: boolean;
   store?: ReturnType<typeof createStore>;
+  client?: ReturnType<typeof createDashboardApolloClient>;
   children?: ReactNode;
 };
 
 /** Renders a single vendored Twenty widget (graph or iframe) with all the context it needs. */
-export const TwentyWidgetHost = ({ widget, layoutId, rpc, editing = false, store: external }: Props) => {
+export const TwentyWidgetHost = ({ widget, layoutId, rpc, editing = false, store: external, client: externalClient }: Props) => {
   const store = useMemo(() => external ?? createTwentyStore([widget], layoutId), [external, widget, layoutId]);
-  const client = useMemo(() => createDashboardApolloClient(rpc), [rpc]);
+  const client = useMemo(() => externalClient ?? createDashboardApolloClient(rpc), [externalClient, rpc]);
   const type = widget.configuration?.configurationType;
   const isGraph = [
     WidgetConfigurationType.BAR_CHART, WidgetConfigurationType.LINE_CHART,

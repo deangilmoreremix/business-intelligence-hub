@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Dashboard } from './components/Dashboard';
 import { AppRoute } from './components/AppRoute';
+const RecordsPage = lazy(() => import('./components/dashboard-builder/RecordsPage').then(m => ({ default: m.RecordsPage })));
 import { remoteCommunicator } from './utils/RemoteCommunicator';
 import { WalkthroughEngine } from './components/walkthrough/WalkthroughEngine';
 import { ChatWidget } from './components/chatbot/ChatWidget';
@@ -31,6 +32,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/app/:appId" element={<AppRoute />} />
+        <Route path="/objects/:objectNamePlural" element={<Suspense fallback={null}><RecordsPage /></Suspense>} />
       </Routes>
       <WalkthroughEngine />
       <ChatButton />

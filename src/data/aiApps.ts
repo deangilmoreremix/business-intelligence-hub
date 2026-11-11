@@ -312,5 +312,13 @@ export const aiApps: AIApp[] = [
     icon: Users,
     category: 'Contacts',
     path: '/app/contacts-hub'
+  },
+  {
+    id: 'dashboard-builder',
+    title: 'Dashboard Builder',
+    description: 'Drag-and-drop dashboards with configurable bar, line, pie and number widgets on your live data.',
+    icon: BarChart3,
+    category: 'Analytics',
+    path: '/app/dashboard-builder'
   }
 ];

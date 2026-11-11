@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PipelineIntelligence } from './apps/PipelineIntelligence';
 import { DealRiskMonitor } from './apps/DealRiskMonitor';
@@ -36,8 +36,12 @@ import { LiveKPIMonitor } from './apps/LiveKPIMonitor';
 import { ActivityDashboard } from './apps/ActivityDashboard';
 import { TrendIntelligence } from './apps/TrendIntelligence';
 import { ContactsHub } from './contacts/ContactsHub';
+
 import { ComingSoonPage } from './ComingSoonPage';
 import { aiApps } from '../data/aiApps';
+
+// Heavy (vendored Twenty widgets + charts): loaded on demand so the main bundle stays small.
+const DashboardBuilder = lazy(() => import('./dashboard-builder/DashboardBuilder').then(m => ({ default: m.DashboardBuilder })));
 
 // Component mapping for all AI applications
 const appComponents: Record<string, React.ComponentType<{ onBack?: () => void }>> = {
@@ -76,7 +80,8 @@ const appComponents: Record<string, React.ComponentType<{ onBack?: () => void }>
   'live-kpi-monitor': LiveKPIMonitor,
   'activity-dashboard': ActivityDashboard,
   'trend-intelligence': TrendIntelligence,
-  'contacts-hub': ContactsHub
+  'contacts-hub': ContactsHub,
+  'dashboard-builder': DashboardBuilder
 };
 
 export const AppRoute: React.FC = () => {
@@ -91,7 +96,11 @@ export const AppRoute: React.FC = () => {
   const AppComponent = appComponents[appId];
   
   if (AppComponent) {
-    return <AppComponent onBack={() => navigate('/')} />;
+    return (
+      <Suspense fallback={<div className="p-8 text-center text-gray-500">Loading…</div>}>
+        <AppComponent onBack={() => navigate('/')} />
+      </Suspense>
+    );
   }
 
   // Check if it's a valid app from aiApps but no component yet

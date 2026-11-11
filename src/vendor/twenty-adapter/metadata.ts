@@ -49,6 +49,7 @@ const OBJECTS: Array<{
       { name: 'createdAt', label: 'Created', type: T.DATE_TIME },
       { name: 'updatedAt', label: 'Updated', type: T.DATE_TIME },
       { name: 'lastContactedAt', label: 'Last contacted', type: T.DATE_TIME, nullable: true },
+      { name: 'companyId', label: 'Company id', type: T.UUID, nullable: true },
     ],
   },
   {
@@ -61,6 +62,7 @@ const OBJECTS: Array<{
       { name: 'stageId', label: 'Stage', type: T.TEXT, nullable: true },
       { name: 'probability', label: 'Probability', type: T.NUMBER, nullable: true },
       { name: 'assignedTo', label: 'Assigned to', type: T.TEXT, nullable: true },
+      { name: 'contactId', label: 'Contact id', type: T.UUID, nullable: true },
       { name: 'expectedCloseDate', label: 'Expected close', type: T.DATE_TIME, nullable: true },
       { name: 'createdAt', label: 'Created', type: T.DATE_TIME },
       { name: 'updatedAt', label: 'Updated', type: T.DATE_TIME },
