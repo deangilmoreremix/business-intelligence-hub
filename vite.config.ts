@@ -1,11 +1,25 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import federation from '@originjs/vite-plugin-federation';
+import wyw from '@wyw-in-js/vite';
+import path from 'node:path';
+
+// Vendored Twenty sources (see src/vendor/twenty/NOTICE.md) expect Twenty's import aliases,
+// lingui macros and Linaria (build-time CSS-in-JS).
+const twentyRoot = path.resolve(__dirname, 'src/vendor/twenty');
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    react(),
+    react({ babel: { plugins: ['@lingui/babel-plugin-lingui-macro'] } }),
+    wyw({
+      include: [`${twentyRoot}/**/*.{ts,tsx}`],
+      exclude: ['**/generated-metadata/**', '**/generated/**'],
+      babelOptions: {
+        presets: ['@babel/preset-typescript', '@babel/preset-react'],
+        plugins: ['@babel/plugin-transform-export-namespace-from'],
+      },
+    }),
     federation({
       name: 'AnalyticsApp',
       filename: 'remoteEntry.js',
@@ -33,6 +47,14 @@ export default defineConfig({
       },
     }),
   ],
+  resolve: {
+    alias: [
+      { find: /^@\//, replacement: `${twentyRoot}/front/modules/` },
+      { find: /^~\//, replacement: `${twentyRoot}/front/` },
+      { find: /^twenty-front-component-renderer$/, replacement: path.resolve(__dirname, 'src/vendor/twenty-adapter/front-component-renderer.ts') },
+      { find: /^twenty-shared\/(.*)$/, replacement: `${twentyRoot}/shared/$1` },
+    ],
+  },
   optimizeDeps: {
     exclude: ['lucide-react'],
     esbuildOptions: {

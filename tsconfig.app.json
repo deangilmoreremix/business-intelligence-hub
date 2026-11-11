@@ -18,7 +18,17 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* Vendored Twenty import aliases (mirrored in vite.config.ts) */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/vendor/twenty/front/modules/*"],
+      "~/*": ["src/vendor/twenty/front/*"],
+      "twenty-shared/*": ["src/vendor/twenty/shared/*"],
+      "twenty-front-component-renderer": ["src/vendor/twenty-adapter/front-component-renderer.ts"]
+    }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/vendor/twenty", "src/vendor/twenty-adapter/probe.test.ts"]
 }
