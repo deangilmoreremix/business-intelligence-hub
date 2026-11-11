@@ -4,7 +4,7 @@ const fs = require('fs');
 const zlib = require('zlib');
 
 const BASE = 'http://localhost:5111';
-const SHOTS = '/tmp/claude-0/-home-user-business-intelligence-hub/e109f3db-2016-5ce5-b356-5a564a694384/scratchpad/screenshots';
+const SHOTS = require('os').tmpdir();
 const db = new Pool({ host: '127.0.0.1', user: 'postgres', password: 'pw', database: 'biztest' });
 const results = [];
 const check = (name, ok, extra = '') => { results.push(ok); console.log(ok ? 'PASS' : 'FAIL', name, extra); };
