@@ -217,16 +217,16 @@ body.dark-mode {
 }
 
 /* Override any potential Tailwind background conflicts */
-.bg-gray-50:not(.dark *) { 
+html:not([data-theme="dark"]) .bg-gray-50 { 
   background-color: #f8fafc !important; 
 }
 
-.bg-white:not(.dark *) { 
+html:not([data-theme="dark"]) .bg-white { 
   background-color: #ffffff !important; 
 }
 
 /* Ensure page containers use proper white background in light mode */
-.min-h-screen:not(.dark *):not([class*="bg-gradient"]) {
+html:not([data-theme="dark"]) .min-h-screen:not([class*="bg-gradient"]) {
   background-color: #ffffff !important;
 }
 

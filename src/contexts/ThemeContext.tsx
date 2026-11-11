@@ -18,7 +18,13 @@ const THEME_ATTRIBUTE = 'data-theme';
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
-    return 'light';
+    // Restore the saved choice (previously it was saved but never read back); default stays light.
+    try {
+      const saved = typeof window !== 'undefined' ? window.localStorage.getItem(THEME_STORAGE_KEY) : null;
+      return saved === 'dark' || saved === 'light' || saved === 'system' ? saved : 'light';
+    } catch {
+      return 'light';
+    }
   });
   
   const [systemPrefersDark, setSystemPrefersDark] = useState(() => {
