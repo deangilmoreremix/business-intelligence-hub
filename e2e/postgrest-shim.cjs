@@ -73,6 +73,18 @@ http
       res.writeHead(code, { ...cors, 'content-type': 'application/json' });
       res.end(obj === undefined ? '' : JSON.stringify(obj));
     };
+    const rpcMatch = /^\/rest\/v1\/rpc\/([a-z_]+)$/.exec(url.pathname);
+    if (rpcMatch && req.method === 'POST') {
+      try {
+        const args = JSON.parse(body || '{}');
+        const names = Object.keys(args);
+        const vals = names.map(k => (args[k] !== null && typeof args[k] === 'object' ? JSON.stringify(args[k]) : args[k]));
+        const fn = rpcMatch[1];
+        const r = await q(`SELECT * FROM ${id(fn)}(${names.map((n, i) => `${id(n)} := $${i + 1}`).join(', ')})`, vals);
+        const single = r.fields.length === 1 && r.fields[0].name === fn;
+        return send(200, single ? r.rows.map(x => x[fn]) : r.rows);
+      } catch (e) { return send(400, { code: e.code, message: e.message }); }
+    }
     if (!m) return send(404, { message: 'not found' });
     const t = id(m[1]);
     const params = [...url.searchParams.entries()];

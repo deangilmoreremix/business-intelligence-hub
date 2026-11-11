@@ -11,3 +11,7 @@ Setup (local, once):
 5. `node e2e/contacts.e2e.cjs`, `node e2e/apps.e2e.cjs`, `node e2e/chat.e2e.cjs`
 
 Unit tests (no setup): `npm test`.
+
+`builder.e2e.cjs` drives the Dashboard Builder (real vendored Twenty charts, drag/resize with the mouse, persistence,
+filters, record context, drill-down, approved iframe embeds, team scope). It needs the `dashboard_aggregate` /
+`dashboard_records` RPCs, which `postgrest-shim.cjs` exposes at `/rest/v1/rpc/<fn>` like Supabase does.

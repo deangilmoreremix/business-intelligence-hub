@@ -3,6 +3,7 @@ import { i18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/react';
 import { createStore, Provider as JotaiProvider } from 'jotai';
 import { useMemo, type ReactNode } from 'react';
+import { ThemeProvider } from 'twenty-ui/theme';
 
 import { ApolloCoreClientContext } from '@/object-metadata/contexts/ApolloCoreClientContext';
 import { metadataStoreState } from '@/metadata-store/states/metadataStoreState';
@@ -49,13 +50,14 @@ type Props = {
   layoutId: string;
   rpc?: RpcFn;
   editing?: boolean;
+  dark?: boolean;
   store?: ReturnType<typeof createStore>;
   client?: ReturnType<typeof createDashboardApolloClient>;
   children?: ReactNode;
 };
 
 /** Renders a single vendored Twenty widget (graph or iframe) with all the context it needs. */
-export const TwentyWidgetHost = ({ widget, layoutId, rpc, editing = false, store: external, client: externalClient }: Props) => {
+export const TwentyWidgetHost = ({ widget, layoutId, rpc, editing = false, dark = false, store: external, client: externalClient }: Props) => {
   const store = useMemo(() => external ?? createTwentyStore([widget], layoutId), [external, widget, layoutId]);
   const client = useMemo(() => externalClient ?? createDashboardApolloClient(rpc), [externalClient, rpc]);
   const type = widget.configuration?.configurationType;
@@ -65,6 +67,7 @@ export const TwentyWidgetHost = ({ widget, layoutId, rpc, editing = false, store
   ].includes(type as WidgetConfigurationType);
 
   return (
+    <ThemeProvider colorScheme={dark ? 'dark' : 'light'} applyToRoot={false} className="twenty-theme">
     <JotaiProvider store={store}>
       <I18nProvider i18n={i18n}>
         <ApolloProvider client={client}>
@@ -80,5 +83,6 @@ export const TwentyWidgetHost = ({ widget, layoutId, rpc, editing = false, store
         </ApolloProvider>
       </I18nProvider>
     </JotaiProvider>
+    </ThemeProvider>
   );
 };

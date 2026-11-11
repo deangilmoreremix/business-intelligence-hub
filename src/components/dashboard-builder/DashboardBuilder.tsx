@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactGridLayout, { useContainerWidth, verticalCompactor } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import {
-  BarChart3, LineChart, PieChart, Hash, Table2, Globe, Sparkles, Plus, Save, Pencil, Eye, Trash2, Users, User, X, Copy, ShieldCheck,
+  BarChart3, LineChart, PieChart, Hash, Table2, Globe, Sparkles, Plus, Save, Pencil, Eye, Trash2, Users, User, X, Copy, ShieldCheck, Settings,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -101,6 +101,7 @@ export const DashboardBuilder: React.FC<{ onBack?: () => void }> = ({ onBack }) 
   const [allowlist, setAllowlist] = useState<string[]>([]);
   const [showEmbeds, setShowEmbeds] = useState(false);
   const [embedText, setEmbedText] = useState('');
+  const seeding = useRef<Promise<SavedDashboard> | null>(null); // concurrent first loads must create one starter dashboard
   const { width, containerRef, mounted } = useContainerWidth();
   const client = useMemo(() => createDashboardApolloClient(), []);
   const layoutId = current?.id ?? 'draft';
@@ -116,7 +117,10 @@ export const DashboardBuilder: React.FC<{ onBack?: () => void }> = ({ onBack }) 
   const loadScope = useCallback(async (s: Scope) => {
     await guard(async () => {
       let list = await listDashboards(s);
-      if (!list.length && s === 'user') list = [await createDashboard('My dashboard', 'user', { widgets: starterWidgets(), context: null })];
+      if (!list.length && s === 'user') {
+        seeding.current ??= createDashboard('My dashboard', 'user', { widgets: starterWidgets(), context: null }).finally(() => { seeding.current = null; });
+        list = [await seeding.current];
+      }
       setDashboards(list);
       const first = list[0] ?? null;
       setCurrent(first);
@@ -210,7 +214,7 @@ export const DashboardBuilder: React.FC<{ onBack?: () => void }> = ({ onBack }) 
     }
     return (
       <div className={cn('twenty-bridge', isDark ? 'dark' : 'light')} data-testid={`widget-${w.kind}`}>
-        <TwentyWidgetHost widget={toTwentyWidget(w, layout.context)} layoutId={layoutId} store={store} client={client} editing={editing} />
+        <TwentyWidgetHost widget={toTwentyWidget(w, layout.context)} layoutId={layoutId} store={store} client={client} editing={editing} dark={isDark} />
       </div>
     );
   };
@@ -289,7 +293,7 @@ export const DashboardBuilder: React.FC<{ onBack?: () => void }> = ({ onBack }) 
                     <h3 className="flex-1 text-sm font-semibold truncate">{w.title}</h3>
                     {editing && (
                       <>
-                        <button aria-label={`Configure ${w.title}`} className="text-gray-500 hover:text-indigo-600 text-xs px-1" onMouseDown={e => e.stopPropagation()} onClick={() => setSelectedId(w.id)}>⚙</button>
+                        <button aria-label={`Configure ${w.title}`} className="text-gray-500 hover:text-indigo-600" onMouseDown={e => e.stopPropagation()} onClick={() => setSelectedId(w.id)}><Settings className="w-4 h-4" /></button>
                         <button aria-label={`Remove ${w.title}`} className="text-gray-400 hover:text-red-600" onMouseDown={e => e.stopPropagation()} onClick={() => { update({ ...layout, widgets: layout.widgets.filter(x => x.id !== w.id) }); if (selectedId === w.id) setSelectedId(null); }}><X className="w-4 h-4" /></button>
                       </>
                     )}
