@@ -59,7 +59,7 @@ export const FloatingHelpButton: React.FC<FloatingHelpButtonProps> = ({
             }}
             className={cn(
               'w-full px-4 py-2 rounded-lg font-medium',
-              'bg-blue-600 hover:bg-blue-700 text-white',
+              'bg-blue-600 hover:bg-blue-700 text-white btn-solid',
               'transition-colors duration-200'
             )}
           >

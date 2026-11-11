@@ -227,7 +227,7 @@ export const WalkthroughStep: React.FC<WalkthroughStepProps> = ({
               className={cn(
                 'px-4 py-2 rounded-lg font-medium transition-all duration-200',
                 'bg-blue-600 hover:bg-blue-700',
-                'text-white',
+                'text-white btn-solid',
                 'flex items-center gap-2',
                 'shadow-lg shadow-blue-500/30'
               )}
