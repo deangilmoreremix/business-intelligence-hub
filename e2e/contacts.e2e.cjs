@@ -58,8 +58,8 @@ const textMsg = text => ({ output: [{ type: 'message', content: [{ type: 'output
 
   // 2. CSV import
   const csv = 'first_name,last_name,email,phone,company,status\n"Bob","Smith","bob@initech.com","","Initech","prospect"\n"Robert","Smith","","","Initech","lead"\n';
-  fs.writeFileSync(require('os').tmpdir() + '/import.csv', csv);
-  await page.setInputFiles('input[type=file]', require('os').tmpdir() + '/import.csv');
+  fs.writeFileSync('/tmp/import.csv', csv);
+  await page.setInputFiles('input[type=file]', '/tmp/import.csv');
   await page.waitForSelector('td:has-text("Robert Smith")');
   check('CSV import creates rows', (await db.query("select count(*) c from contacts")).rows[0].c === '3');
 
@@ -131,7 +131,7 @@ const textMsg = text => ({ output: [{ type: 'message', content: [{ type: 'output
   check('contact linked to company', (await db.query("select company,company_id from contacts where email='jane@acme.com'")).rows[0].company === 'Acme Corp');
   await page.click('aside button[aria-label=Close]');
   await page.click('[role=tab]:has-text("Companies")');
-  await page.waitForSelector('tr:has-text("Acme Corp") td:nth-child(4):has-text("1")');
+  await page.waitForSelector('tr:has-text("Acme Corp") td:nth-child(5):has-text("1")');
   check('company shows contact count', true);
   await page.click('[role=tab]:has-text("Contacts")');
 

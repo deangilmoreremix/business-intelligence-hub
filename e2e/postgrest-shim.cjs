@@ -67,12 +67,37 @@ http
     reqHeaders = JSON.stringify(req.headers);
     const url = new URL(req.url, 'http://x');
     const m = /^\/rest\/v1\/([a-z_]+)$/.exec(url.pathname);
-    let body = '';
-    for await (const c of req) body += c;
+    const rawChunks = [];
+    for await (const c of req) rawChunks.push(c);
+    const rawBody = Buffer.concat(rawChunks);
+    const body = rawBody.toString('utf8');
     const send = (code, obj) => {
       res.writeHead(code, { ...cors, 'content-type': 'application/json' });
       res.end(obj === undefined ? '' : JSON.stringify(obj));
     };
+    // ---- Supabase Storage stand-in (people-images bucket) ----
+    const store = require('fs'); const pth = require('path');
+    const STORE_DIR = pth.join(__dirname, 'storage-data');
+    const signM = /^\/storage\/v1\/object\/upload\/sign\/([^/]+)\/(.+)$/.exec(url.pathname);
+    const pubM = /^\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/.exec(url.pathname);
+    if (signM && req.method === 'POST') {
+      res.writeHead(200, { ...cors, 'content-type': 'application/json' });
+      return res.end(JSON.stringify({ url: `/object/upload/sign/${signM[1]}/${signM[2]}?token=t_${Date.now()}` }));
+    }
+    if (signM && req.method === 'PUT') {
+      const file = pth.join(STORE_DIR, signM[1], decodeURIComponent(signM[2]));
+      store.mkdirSync(pth.dirname(file), { recursive: true });
+      store.writeFileSync(file, rawBody);
+      store.writeFileSync(file + '.type', req.headers['content-type'] || 'application/octet-stream');
+      res.writeHead(200, { ...cors, 'content-type': 'application/json' });
+      return res.end(JSON.stringify({ Key: `${signM[1]}/${signM[2]}` }));
+    }
+    if (pubM && (req.method === 'GET' || req.method === 'HEAD')) {
+      const file = pth.join(STORE_DIR, pubM[1], decodeURIComponent(pubM[2]));
+      if (!store.existsSync(file)) { res.writeHead(404, cors); return res.end(); }
+      res.writeHead(200, { ...cors, 'content-type': store.readFileSync(file + '.type', 'utf8') });
+      return res.end(store.readFileSync(file));
+    }
     const rpcMatch = /^\/rest\/v1\/rpc\/([a-z_]+)$/.exec(url.pathname);
     if (rpcMatch && req.method === 'POST') {
       try {

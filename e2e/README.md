@@ -15,3 +15,8 @@ Unit tests (no setup): `npm test`.
 `builder.e2e.cjs` drives the Dashboard Builder (real vendored Twenty charts, drag/resize with the mouse, persistence,
 filters, record context, drill-down, approved iframe embeds, team scope). It needs the `dashboard_aggregate` /
 `dashboard_records` RPCs, which `postgrest-shim.cjs` exposes at `/rest/v1/rpc/<fn>` like Supabase does.
+
+Also: `images.e2e.cjs` (real PNG uploads for contacts / team / company logos, needs the Storage stand-in in
+`postgrest-shim.cjs`), `theme-audit.e2e.cjs` + `theme-states.e2e.cjs` (every page and overlay in light and dark; flags
+wrong-colour surfaces and low-contrast text; the browser's OS scheme is deliberately the opposite of the app theme to prove
+the app toggle wins) and `theme-persist.e2e.cjs` (theme choice survives reloads).
