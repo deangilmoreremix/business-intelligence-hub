@@ -5,6 +5,8 @@ const fs = require('fs');
 const BASE = 'http://localhost:5111';
 const db = new Pool({ host: '127.0.0.1', user: 'postgres', password: 'pw', database: 'biztest' });
 const results = [];
+let __page = null;
+const settled = async n => { try { await __page.waitForFunction(k => document.querySelectorAll('tbody tr').length === k, n, { timeout: 6000 }); return true; } catch { return false; } };
 const check = (name, ok, extra = '') => { results.push([ok, name, extra]); console.log(ok ? 'PASS' : 'FAIL', name, extra); };
 const proxyCalls = [];
 
@@ -14,7 +16,7 @@ const textMsg = text => ({ output: [{ type: 'message', content: [{ type: 'output
   await db.query('TRUNCATE contacts, companies, app_settings, deals, ai_insights, ai_usage_logs CASCADE');
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ acceptDownloads: true });
-  const page = await ctx.newPage();
+  const page = await ctx.newPage(); __page = page;
   const pageErrors = [];
   page.on('pageerror', e => pageErrors.push(e.message));
   page.on('dialog', d => (d.type() === 'prompt' ? d.accept(d.message().includes('Tag') ? 'vip' : 'My view') : d.accept()));
@@ -65,21 +67,22 @@ const textMsg = text => ({ output: [{ type: 'message', content: [{ type: 'output
 
   // 3. search / filter / sort
   await page.fill('input[placeholder="Search contacts…"]', 'smith');
-  check('search filters rows', (await page.locator('tbody tr').count()) === 2);
+  check('search filters rows', (await settled(2)));
   await page.selectOption('select >> nth=0', 'prospect');
-  check('status filter', (await page.locator('tbody tr').count()) === 1);
+  check('status filter', (await settled(1)));
   // 4. saved views
   await page.click('button:has-text("Save view")');
   await page.waitForSelector('[aria-label="Saved views"] button:has-text("My view")');
   check('saved view persisted in app_settings', (await db.query("select setting_value from app_settings where setting_key='contact_views'")).rows[0]?.setting_value?.[0]?.query === 'smith');
   await page.fill('input[placeholder="Search contacts…"]', '');
   await page.selectOption('select >> nth=0', 'all');
-  check('cleared filters show all', (await page.locator('tbody tr').count()) === 3);
+  check('cleared filters show all', (await settled(3)));
   await page.click('[aria-label="Saved views"] button:has-text("My view")');
-  check('apply saved view restores filter', (await page.locator('tbody tr').count()) === 1);
+  check('apply saved view restores filter', (await settled(1)));
   await page.fill('input[placeholder="Search contacts…"]', '');
   await page.selectOption('select >> nth=0', 'all');
   await page.click('th:has-text("Name")');
+  await page.waitForTimeout(1500);
   const firstAsc = await page.locator('tbody tr td:nth-child(2)').first().innerText();
   check('sort by name ascending', firstAsc === 'Bob Smith', firstAsc);
 

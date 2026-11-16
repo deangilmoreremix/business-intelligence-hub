@@ -33,6 +33,20 @@ const jsonify = (v, type) => (v !== null && typeof v === 'object' && (!Array.isA
 function where(params, vals) {
   const parts = [];
   for (const [k, v] of params) {
+    if (k === 'or') {
+      // or=(col.ilike."*x*",col2.ilike."*x*")
+      const inner = v.replace(/^\(|\)$/g, '');
+      const conds = [];
+      for (const part of inner.match(/[a-z_]+\.[a-z]+\.(?:"(?:[^"\\]|\\.)*"|[^,]*)/g) || []) {
+        const m = /^([a-z_]+)\.([a-z]+)\.(.*)$/.exec(part);
+        if (!m) continue;
+        const val = m[3].replace(/^"|"$/g, '').replace(/\\(.)/g, (_, c) => (c === '%' || c === '_' ? '\\' + c : c)).replace(/\*/g, '%');
+        vals.push(val);
+        conds.push(`${id(m[1])} ${m[2] === 'ilike' ? 'ILIKE' : m[2] === 'like' ? 'LIKE' : '='} $${vals.length}`);
+      }
+      if (conds.length) parts.push('(' + conds.join(' OR ') + ')');
+      continue;
+    }
     if (['select', 'order', 'limit', 'offset', 'on_conflict', 'columns'].includes(k)) continue;
     const m = /^(eq|neq|in|is|gte|lte|gt|lt|like|ilike)\.(.*)$/.exec(v);
     if (!m) continue;
@@ -129,7 +143,15 @@ http
           }).join(',');
         }
         if (url.searchParams.get('limit')) sql += ' LIMIT ' + parseInt(url.searchParams.get('limit'), 10);
+        if (url.searchParams.get('offset')) sql += ' OFFSET ' + parseInt(url.searchParams.get('offset'), 10);
         r = await q(sql, vals);
+        if (/count=exact/.test(prefer)) {
+          const cv = [];
+          const cw = where(params, cv);
+          const cr = await q(`SELECT count(*)::int AS n FROM ${t}${cw}`, cv);
+          r.__total = cr.rows[0].n;
+          r.__from = parseInt(url.searchParams.get('offset') || '0', 10);
+        }
       } else if (req.method === 'POST') {
         const rows = [].concat(JSON.parse(body));
         const cols = [...new Set(rows.flatMap(Object.keys))];
@@ -166,7 +188,14 @@ http
         }
         return send(200, r.rows[0]);
       }
-      if (req.method === 'GET') return send(200, r.rows);
+      if (req.method === 'GET') {
+        if (r.__total !== undefined) {
+          const rng = r.rows.length ? `${r.__from}-${r.__from + r.rows.length - 1}` : '*';
+          res.writeHead(200, { ...cors, 'content-type': 'application/json', 'content-range': `${rng}/${r.__total}` });
+          return res.end(JSON.stringify(r.rows));
+        }
+        return send(200, r.rows);
+      }
       return wantRep ? send(req.method === 'POST' ? 201 : 200, r.rows) : send(req.method === 'POST' ? 201 : 204, undefined);
     } catch (e) {
       send(400, { code: e.code, message: e.message });

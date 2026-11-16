@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import type { Contact } from '../store/contactStore';
+import { rowToContact, type Contact } from '../store/contactStore';
 
 export interface Company {
   id: string;
@@ -119,4 +119,32 @@ export async function saveViews(views: SavedView[]): Promise<void> {
     ? await supabase.from('app_settings').update(row).eq('id', existing.data.id)
     : await supabase.from('app_settings').insert(row);
   if (r.error) throw new Error(r.error.message);
+}
+
+/* ---------- server-side paging + search ---------- */
+export type ContactSortKey = 'name' | 'company' | 'crmStatus' | 'createdAt';
+const SORT_COLUMN: Record<ContactSortKey, string> = { name: 'first_name', company: 'company', crmStatus: 'status', createdAt: 'created_at' };
+
+/**
+ * Quotes a user search string for a PostgREST `ilike."*…*"` filter (quotes and backslashes escaped; commas and
+ * parentheses are safe inside the quotes). `%` and `_` are left alone: they only widen a match.
+ */
+export const searchPattern = (q: string): string => `"*${q.trim().replace(/[\\"]/g, '\\$&')}*"`;
+
+export interface ContactsPageQuery { query?: string; status?: string; sortKey?: ContactSortKey; sortDir?: 1 | -1; page: number; pageSize: number }
+
+export async function listContactsPage(q: ContactsPageQuery): Promise<{ rows: Contact[]; total: number }> {
+  let req = supabase.from('contacts').select('*', { count: 'exact' });
+  if (q.status && q.status !== 'all') req = req.eq('status', q.status);
+  const text = q.query?.trim();
+  if (text) {
+    const p = searchPattern(text);
+    req = req.or(['first_name', 'last_name', 'email', 'company', 'phone'].map(c => `${c}.ilike.${p}`).join(','));
+  }
+  const col = SORT_COLUMN[q.sortKey ?? 'createdAt'];
+  req = req.order(col, { ascending: (q.sortDir ?? -1) === 1, nullsFirst: false }).order('id');
+  const from = q.page * q.pageSize;
+  const { data, error, count } = await req.range(from, from + q.pageSize - 1);
+  if (error) throw new Error(error.message);
+  return { rows: (data ?? []).map((r, i) => rowToContact(r as never, i)), total: count ?? 0 };
 }

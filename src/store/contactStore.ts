@@ -44,6 +44,35 @@ interface ContactState {
   setError: (error: string | null) => void;
 }
 
+/** Maps a `contacts` table row to the app's Contact shape (shared by the store and the paged hub list). */
+export const rowToContact = (contactRow: Record<string, string | null> & { id: string }, index: number): Contact => {
+  const fullName = `${contactRow.first_name} ${contactRow.last_name}`.trim();
+  return {
+    id: contactRow.id,
+    name: fullName,
+    firstName: contactRow.first_name ?? undefined,
+    lastName: contactRow.last_name ?? undefined,
+    email: contactRow.email ?? '',
+    phone: contactRow.phone ?? undefined,
+    company: contactRow.company ?? undefined,
+    status: 'online', // Default status
+    crmStatus: contactRow.status as Contact['crmStatus'],
+    jobTitle: contactRow.job_title ?? undefined,
+    city: contactRow.city ?? undefined,
+    linkedinUrl: contactRow.linkedin_url ?? undefined,
+    twitterUrl: contactRow.twitter_url ?? undefined,
+    website: contactRow.website ?? undefined,
+    bio: contactRow.bio ?? undefined,
+    enrichedAt: contactRow.enriched_at ?? undefined,
+    avatarUrl: contactRow.avatar_url ?? undefined,
+    avatar: contactRow.avatar_url ?? getAvatarByIndex(index),
+    avatarSrc: contactRow.avatar_url ?? getAvatarByIndex(index),
+    initials: getInitials(fullName),
+    createdAt: contactRow.created_at ?? undefined,
+    updatedAt: contactRow.updated_at ?? undefined
+  };
+};
+
 export const useContactStore = create<ContactState>()((set, get) => ({
   contacts: {},
   isLoading: false,
@@ -108,32 +137,7 @@ export const useContactStore = create<ContactState>()((set, get) => ({
       const contactsMap: { [key: string]: Contact } = {};
       
       data?.forEach((contactRow: Record<string, string | null> & { id: string }, index: number) => {
-        const fullName = `${contactRow.first_name} ${contactRow.last_name}`.trim();
-        
-        contactsMap[contactRow.id] = {
-          id: contactRow.id,
-          name: fullName,
-          firstName: contactRow.first_name ?? undefined,
-          lastName: contactRow.last_name ?? undefined,
-          email: contactRow.email ?? '',
-          phone: contactRow.phone ?? undefined,
-          company: contactRow.company ?? undefined,
-          status: 'online', // Default status
-          crmStatus: contactRow.status as Contact['crmStatus'],
-          jobTitle: contactRow.job_title ?? undefined,
-          city: contactRow.city ?? undefined,
-          linkedinUrl: contactRow.linkedin_url ?? undefined,
-          twitterUrl: contactRow.twitter_url ?? undefined,
-          website: contactRow.website ?? undefined,
-          bio: contactRow.bio ?? undefined,
-          enrichedAt: contactRow.enriched_at ?? undefined,
-          avatarUrl: contactRow.avatar_url ?? undefined,
-          avatar: contactRow.avatar_url ?? getAvatarByIndex(index),
-          avatarSrc: contactRow.avatar_url ?? getAvatarByIndex(index),
-          initials: getInitials(fullName),
-          createdAt: contactRow.created_at ?? undefined,
-          updatedAt: contactRow.updated_at ?? undefined
-        };
+        contactsMap[contactRow.id] = rowToContact(contactRow, index);
       });
       set({ 
         contacts: contactsMap, 

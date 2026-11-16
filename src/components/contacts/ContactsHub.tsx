@@ -7,7 +7,7 @@ import { CompaniesPanel } from './CompaniesPanel';
 import { PersonImageUpload } from '../people/PersonImageUpload';
 import { usePeoplePhotos } from '../../store/peoplePhotos';
 import {
-  addActivity, bulkDelete, bulkSetStatus, bulkTag, getContactCompanyId, linkContactToCompany, listActivities,
+  addActivity, listContactsPage, bulkDelete, bulkSetStatus, bulkTag, getContactCompanyId, linkContactToCompany, listActivities,
   listCompanies, loadViews, mergeContacts, saveViews, type Activity, type Company, type SavedView,
 } from '../../services/contactService';
 import {
@@ -67,13 +67,29 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   useEffect(() => { loadContactsFromSupabase(); }, [loadContactsFromSupabase]);
   useEffect(() => { loadViews().then(setViews).catch(() => undefined); }, []);
 
-  const rows = useMemo(() => {
-    const q = query.toLowerCase();
-    return Object.values(contacts)
-      .filter(c => (status === 'all' || c.crmStatus === status) &&
-        (!q || [c.name, c.email, c.company, c.phone].some(v => v?.toLowerCase().includes(q))))
-      .sort((a, b) => ((a[sort.key] ?? '') > (b[sort.key] ?? '') ? 1 : -1) * sort.dir);
-  }, [contacts, query, status, sort]);
+  // Server-side paging + search: the table shows one page of matching rows; the store keeps the full set for AI/duplicate tools.
+  const PAGE_SIZE = 50;
+  const [page, setPage] = useState(0);
+  const [rows, setRows] = useState<Contact[]>([]);
+  const [total, setTotal] = useState(0);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [tick, setTick] = useState(0);
+  const [debounced, setDebounced] = useState(query);
+  useEffect(() => { const t = setTimeout(() => setDebounced(query), 250); return () => clearTimeout(t); }, [query]);
+  useEffect(() => { setPage(0); }, [debounced, status, sort]);
+  useEffect(() => {
+    let live = true;
+    setPageLoading(true);
+    listContactsPage({ query: debounced, status, sortKey: sort.key, sortDir: sort.dir, page, pageSize: PAGE_SIZE })
+      .then(r => { if (live) { setRows(r.rows); setTotal(r.total); } })
+      .catch(e => live && setAiError(e instanceof Error ? e.message : 'Failed to load contacts'))
+      .finally(() => live && setPageLoading(false));
+    return () => { live = false; };
+  }, [debounced, status, sort, page, tick]);
+  // Any store change (create / delete / bulk action / sync) refreshes the visible page.
+  useEffect(() => { setTick(t => t + 1); }, [contacts]);
+  const reload = async () => { await loadContactsFromSupabase(); };
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const run = async <T,>(label: string, fn: () => Promise<T>, set: (v: T) => void) => {
     setBusy(label); setAiError(null);
@@ -122,7 +138,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
     setBusy('apply'); setAiError(null);
     try {
       await applyEnrichment(selected.id, enrich, [...accept]);
-      await loadContactsFromSupabase();
+      await reload();
       setEnrich(null);
       refreshActivities();
     } catch (e) { setAiError(e instanceof Error ? e.message : 'Failed to save'); } finally { setBusy(null); }
@@ -130,7 +146,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
 
   const flash = (m: string) => { setInfo(m); setTimeout(() => setInfo(null), 4000); };
   const ids = [...checked];
-  const afterBulk = async (msg: string) => { await loadContactsFromSupabase(); setChecked(new Set()); flash(msg); };
+  const afterBulk = async (msg: string) => { await reload(); setChecked(new Set()); flash(msg); };
   const guard = async (fn: () => Promise<void>) => { setAiError(null); try { await fn(); } catch (e) { setAiError(e instanceof Error ? e.message : 'Action failed'); } };
 
   const applyView = (v: SavedView) => { setQuery(v.query); setStatus(v.status as (typeof STATUSES)[number]); setSort({ key: v.sortKey as SortKey, dir: v.sortDir }); };
@@ -165,7 +181,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
     if (!window.confirm(`Merge ${g.ids.length} contacts into "${contacts[primary]?.name}"? The others will be deleted.`)) return;
     await mergeContacts(primary, rest);
     setDupes(d => d && d.filter(x => x !== g));
-    await loadContactsFromSupabase();
+    await reload();
     flash('Merged');
   });
 
@@ -213,7 +229,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
         <button className={btn} onClick={() => setShowNew(v => !v)}><Plus className="w-4 h-4" />New</button>
         <button className={btn} onClick={() => fileRef.current?.click()}><Upload className="w-4 h-4" />Import CSV</button>
         <input ref={fileRef} type="file" accept=".csv" hidden onChange={e => onImport(e.target.files?.[0])} />
-        <button className={btn} onClick={() => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([toCSV(rows)], { type: 'text/csv' })); a.download = 'contacts.csv'; a.click(); }}><Download className="w-4 h-4" />Export</button>
+        <button className={btn} onClick={() => guard(async () => { const all: Contact[] = []; for (let p = 0; p < 100; p++) { const r = await listContactsPage({ query: debounced, status, sortKey: sort.key, sortDir: sort.dir, page: p, pageSize: 500 }); all.push(...r.rows); if (all.length >= r.total || !r.rows.length) break; } const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([toCSV(all)], { type: 'text/csv' })); a.download = 'contacts.csv'; a.click(); })}><Download className="w-4 h-4" />Export</button>
         <button className={btn} disabled={busy === 'dupes'} onClick={() => run('dupes', () => findDuplicates(Object.values(contacts)), setDupes)}><Copy className="w-4 h-4" />Find duplicates</button>
       </div>
 
@@ -241,7 +257,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
 
       <div className="flex gap-2 mb-4">
         <input value={question} onChange={e => setQuestion(e.target.value)} placeholder="Ask AI about your contacts (e.g. which leads have no email?)" className="flex-1 py-2 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent text-sm" />
-        <button className={btn} disabled={!question || busy === 'ask'} onClick={() => run('ask', () => askAboutContacts(question, rows), setAnswer)}><Sparkles className="w-4 h-4" />Ask</button>
+        <button className={btn} disabled={!question || busy === 'ask'} onClick={() => run('ask', () => askAboutContacts(question, Object.values(contacts)), setAnswer)}><Sparkles className="w-4 h-4" />Ask</button>
       </div>
       {answer && <p className="mb-4 p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-sm whitespace-pre-wrap">{answer}</p>}
       {(aiError || error) && <p className="mb-4 text-sm text-red-600">{aiError || error}</p>}
@@ -267,9 +283,17 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
                 <td className="px-3 py-2">{c.crmStatus}</td><td className="px-3 py-2">{c.createdAt?.slice(0, 10)}</td>
               </tr>
             ))}
-            {!rows.length && <tr><td colSpan={6} className="px-3 py-8 text-center text-gray-500">{isLoading ? 'Loading…' : 'No contacts'}</td></tr>}
+            {!rows.length && <tr><td colSpan={6} className="px-3 py-8 text-center text-gray-500">{isLoading || pageLoading ? 'Loading…' : 'No contacts'}</td></tr>}
           </tbody>
         </table>
+      </div>
+      <div className="flex items-center justify-between mt-2 text-sm text-gray-500" data-testid="pager">
+        <span>{total ? `${page * PAGE_SIZE + 1}–${Math.min(total, (page + 1) * PAGE_SIZE)} of ${total}` : '0 contacts'}</span>
+        <span className="inline-flex items-center gap-2">
+          <button className={btn} disabled={page === 0} onClick={() => setPage(p => Math.max(0, p - 1))} aria-label="Previous page">Prev</button>
+          <span>Page {page + 1} / {pageCount}</span>
+          <button className={btn} disabled={page + 1 >= pageCount} onClick={() => setPage(p => p + 1)} aria-label="Next page">Next</button>
+        </span>
       </div>
 
       {selected && (
@@ -284,7 +308,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
               if (e) throw new Error(e.message);
               usePeoplePhotos.getState().set(selected.name, url);
               await addActivity(selected.id, url ? 'photo updated' : 'photo removed');
-              await loadContactsFromSupabase();
+              await reload();
               setSelected(useContactStore.getState().contacts[selected.id] ?? null);
               refreshActivities();
             }}
@@ -292,7 +316,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
           <h2 className="text-xl font-semibold mt-3">{selected.name}</h2>
           <p className="text-sm text-gray-500">{selected.email} · {selected.company}</p>
           <label className="block text-sm mt-3">Company
-            <select aria-label="Company" value={companyId} onChange={e => { const v = e.target.value; setCompanyId(v); guard(async () => { await linkContactToCompany(selected.id, companyOptions.find(c => c.id === v) ?? null); await loadContactsFromSupabase(); }); }} className="block mt-1 w-full py-1.5 px-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent">
+            <select aria-label="Company" value={companyId} onChange={e => { const v = e.target.value; setCompanyId(v); guard(async () => { await linkContactToCompany(selected.id, companyOptions.find(c => c.id === v) ?? null); await reload(); }); }} className="block mt-1 w-full py-1.5 px-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent">
               <option value="">— none —</option>{companyOptions.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </label>
