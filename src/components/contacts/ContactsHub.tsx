@@ -32,8 +32,13 @@ const parseCSV = (text: string) =>
 
 export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const { contacts, isLoading, error, loadContactsFromSupabase, createContact, deleteContact } = useContactStore();
-  const [query, setQuery] = useState('');
-  const [status, setStatus] = useState<(typeof STATUSES)[number]>('all');
+  // Deep links from the dashboard builder: ?status=lead&q=ann
+  const urlParams = useMemo(() => new URLSearchParams(window.location.search), []);
+  const [query, setQuery] = useState(urlParams.get('q') ?? '');
+  const [status, setStatus] = useState<(typeof STATUSES)[number]>(() => {
+    const s = urlParams.get('status');
+    return (STATUSES as readonly string[]).includes(s ?? '') ? (s as (typeof STATUSES)[number]) : 'all';
+  });
   const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: 'createdAt', dir: -1 });
   const [selected, setSelected] = useState<Contact | null>(null);
   const [notes, setNotes] = useState<{ id: string; body: string; created_at: string }[]>([]);

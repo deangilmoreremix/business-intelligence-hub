@@ -6,6 +6,8 @@ import {
   OPERANDS_BY_TYPE, defaultWidget, objectDef, operandNeedsValue, isDate, isNumeric,
   type FilterRow, type WidgetOptions, type WidgetSpec,
 } from './model';
+import { loadViews } from '../../services/contactService';
+import { viewToFilterRows } from '../contacts/viewFilters';
 import { deleteSavedFilter, listSavedFilters, saveFilter, type SavedFilter } from './persistence';
 import { CATALOG_OBJECTS } from '../../vendor/twenty-adapter/metadata';
 import type { FieldMetadataType } from 'twenty-shared/types';
@@ -27,6 +29,8 @@ const FilterEditor = ({ object, rows, onChange }: { object: CatalogObjectName; r
   const filterable = def.fields.filter(f => OPERANDS_BY_TYPE[f.type as string] && f.name !== 'id');
   const [saved, setSaved] = useState<SavedFilter[]>([]);
   const [err, setErr] = useState<string | null>(null);
+  const [contactViews, setContactViews] = useState<Awaited<ReturnType<typeof loadViews>>>([]);
+  useEffect(() => { if (object === 'contact') loadViews().then(setContactViews).catch(() => setContactViews([])); }, [object]);
   useEffect(() => { listSavedFilters(object).then(setSaved).catch(() => setSaved([])); }, [object]);
 
   const update = (i: number, patch: Partial<FilterRow>) => onChange(rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
@@ -76,6 +80,15 @@ const FilterEditor = ({ object, rows, onChange }: { object: CatalogObjectName; r
           ))}
           {!saved.length && <span className="text-xs text-gray-400">None yet</span>}
         </div>
+        {object === 'contact' && (
+          <div className="space-y-1" data-testid="contact-views">
+            <span className={label}>Advanced Contacts views</span>
+            <div className="flex flex-wrap gap-1">
+              {contactViews.map(v => <button key={v.name} className="px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700 text-xs hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => onChange(viewToFilterRows(v))}>{v.name}</button>)}
+              {!contactViews.length && <span className="text-xs text-gray-400">No saved views</span>}
+            </div>
+          </div>
+        )}
         {!!rows.length && (
           <div className="flex gap-2 text-xs">
             {(['user', 'team'] as const).map(scope => (

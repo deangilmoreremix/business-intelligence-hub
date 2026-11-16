@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { gqlFilterFor, objectDef, type ContextRecord, type WidgetSpec } from './model';
+import { filtersToContactsUrl } from '../contacts/viewFilters';
 import { countRecords, fetchRecords, type RecordRow } from './records';
 
 const fmt = (v: unknown) => {
@@ -52,7 +53,10 @@ export const RecordListWidget = ({ spec, context, onOpenRecord }: { spec: Widget
       </div>
       <div className="flex items-center justify-between px-3 py-1.5 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500">
         <span>{rows.length} of {total}</span>
-        <Link className="inline-flex items-center gap-1 hover:underline" to={`/objects/${def.namePlural}`}>Open all <ExternalLink className="w-3 h-3" /></Link>
+        <span className="inline-flex items-center gap-3">
+          {spec.objectName === 'contact' && <Link data-testid="open-in-contacts" className="inline-flex items-center gap-1 hover:underline" to={filtersToContactsUrl(spec.options.filters)}>Open in Advanced Contacts <ExternalLink className="w-3 h-3" /></Link>}
+          <Link className="inline-flex items-center gap-1 hover:underline" to={`/objects/${def.namePlural}`}>Open all <ExternalLink className="w-3 h-3" /></Link>
+        </span>
       </div>
     </div>
   );
