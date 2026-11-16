@@ -2,6 +2,10 @@
 // Requires env var OPENAI_API_KEY (set in Netlify site settings). Optional: ALLOWED_ORIGIN.
 import type { Context } from '@netlify/functions';
 import { authenticate, rateLimit } from '../lib/auth.mts';
+import { exceeded, hasLimits, limitsFromEnv, supabaseBudgetStore, tokensOf, type BudgetStore } from '../lib/budget.mts';
+
+// Replaceable in tests.
+export const budgetHooks: { store: () => BudgetStore | null } = { store: () => supabaseBudgetStore() };
 
 const ENDPOINTS = new Set(['responses', 'images/generations', 'images/edits']);
 const MODEL_PREFIXES = ['gpt-6', 'gpt-5', 'gpt-image-'];
@@ -29,6 +33,15 @@ export default async (req: Request, _ctx: Context) => {
 
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return json({ error: 'OPENAI_API_KEY is not configured on the server' }, 500);
+
+  const limits = limitsFromEnv();
+  const budget = hasLimits(limits) ? budgetHooks.store() : null;
+  if (budget) {
+    try {
+      const hit = exceeded(await budget.get(auth.tenant), limits);
+      if (hit) return json({ error: `Daily AI ${hit} limit reached for this account` }, 429);
+    } catch (e) { console.error(JSON.stringify({ level: 'error', fn: 'openai-proxy', msg: 'budget check failed (allowing request)', err: String(e) })); }
+  }
 
   let payload: { endpoint?: string; body?: Record<string, any> };
   try {
@@ -61,7 +74,13 @@ export default async (req: Request, _ctx: Context) => {
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify(body),
   });
-  return new Response(await upstream.text(), {
+  const text = await upstream.text();
+  if (budget && upstream.ok) {
+    let tokens = 0;
+    try { tokens = tokensOf(JSON.parse(text)); } catch { /* not JSON: count the request only */ }
+    budget.add(auth.tenant, 1, tokens).catch(e => console.error(JSON.stringify({ level: 'error', fn: 'openai-proxy', msg: 'budget update failed', err: String(e) })));
+  }
+  return new Response(text, {
     status: upstream.status,
     headers: { 'Content-Type': 'application/json' },
   });

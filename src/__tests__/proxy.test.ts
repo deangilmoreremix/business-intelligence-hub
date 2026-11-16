@@ -8,6 +8,7 @@ const proxyPath = '../../netlify/functions/openai-proxy.mts';
 let server: http.Server;
 let seen: Array<{ url: string; auth: string | undefined; body: Record<string, unknown> }> = [];
 let handler: (req: Request) => Promise<Response>;
+let hooks: { store: () => unknown };
 
 const call = (payload: unknown, init: RequestInit = {}) =>
   handler(new Request('http://localhost/.netlify/functions/openai-proxy', { method: 'POST', body: JSON.stringify(payload), ...init }));
@@ -23,13 +24,15 @@ beforeAll(async () => {
         return res.end(JSON.stringify({ error: { message: 'rate limited' } }));
       }
       res.writeHead(200, { 'content-type': 'application/json' });
-      res.end(JSON.stringify({ output_text: 'hi' }));
+      res.end(JSON.stringify({ output_text: 'hi', usage: { input_tokens: 40, output_tokens: 60 } }));
     });
   });
   await new Promise<void>(r => server.listen(0, r));
   process.env.OPENAI_BASE_URL = `http://127.0.0.1:${(server.address() as AddressInfo).port}/v1`;
   process.env.OPENAI_API_KEY = 'sk-test';
-  handler = (await import(/* @vite-ignore */ proxyPath)).default;
+  const mod = await import(/* @vite-ignore */ proxyPath);
+  handler = mod.default;
+  hooks = mod.budgetHooks;
 });
 afterAll(() => server.close());
 
@@ -116,5 +119,50 @@ describe('openai-proxy auth, limits and size', () => {
     process.env.CONTEXT = 'production';
     try { expect((await call({ endpoint: 'responses', body: { model: 'gpt-6-astra', input: 'x' } })).status).toBe(500); }
     finally { delete process.env.CONTEXT; }
+  });
+});
+
+describe('openai-proxy daily budget', () => {
+  beforeAll(() => { process.env.OPENAI_API_KEY = 'sk-test'; });
+  const ok = { endpoint: 'responses', body: { model: 'gpt-6-astra', input: 'x' } };
+  const memStore = () => {
+    const used = { requests: 0, tokens: 0 };
+    return { used, store: { get: async () => ({ ...used }), add: async (_t: string, r: number, t: number) => { used.requests += r; used.tokens += t; } } };
+  };
+
+  it('counts requests and real usage tokens, then refuses past the daily limit', async () => {
+    const { used, store } = memStore();
+    const original = hooks.store;
+    hooks.store = () => store;
+    process.env.DAILY_REQUEST_LIMIT = '2';
+    try {
+      expect((await call(ok)).status).toBe(200);
+      await new Promise(r => setTimeout(r, 10));
+      expect(used).toEqual({ requests: 1, tokens: 100 });
+      expect((await call(ok)).status).toBe(200);
+      await new Promise(r => setTimeout(r, 10));
+      const third = await call(ok);
+      expect(third.status).toBe(429);
+      expect((await third.json()).error).toMatch(/Daily AI requests limit/);
+    } finally { hooks.store = original; delete process.env.DAILY_REQUEST_LIMIT; }
+  });
+
+  it('enforces the token limit', async () => {
+    const { store } = memStore();
+    const original = hooks.store;
+    hooks.store = () => ({ ...store, get: async () => ({ requests: 1, tokens: 5000 }) });
+    process.env.DAILY_TOKEN_LIMIT = '5000';
+    try { expect((await call(ok)).status).toBe(429); }
+    finally { hooks.store = original; delete process.env.DAILY_TOKEN_LIMIT; }
+  });
+
+  it('fails open when the budget store errors, and is a no-op without limits', async () => {
+    const original = hooks.store;
+    hooks.store = () => ({ get: async () => { throw new Error('db down'); }, add: async () => { throw new Error('db down'); } });
+    process.env.DAILY_REQUEST_LIMIT = '1';
+    try { expect((await call(ok)).status).toBe(200); }
+    finally { hooks.store = original; delete process.env.DAILY_REQUEST_LIMIT; }
+    hooks.store = () => { throw new Error('must not be called without limits'); };
+    try { expect((await call(ok)).status).toBe(200); } finally { hooks.store = original; }
   });
 });

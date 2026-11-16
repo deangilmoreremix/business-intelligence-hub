@@ -52,5 +52,37 @@ BEGIN
   IF n <> 0 THEN RAISE EXCEPTION 'FAIL: anonymous (public tenant) sees % rows of other tenants', n; END IF;
 END $$;
 
+-- chatbot + preference tables are tenant scoped on top of their own session/user policies
+SELECT set_config('request.headers', '{"x-session-id":"s1"}', true);
+SELECT set_config('request.jwt.claims', '{"tenant_id":"tenant-a"}', true);
+INSERT INTO chatbot_conversations (session_id, title) VALUES ('s1', 'A chat');
+INSERT INTO user_preferences (user_id, preferences) VALUES ('shared-user-id', '{"a":1}');
+SELECT set_config('request.jwt.claims', '{"tenant_id":"tenant-b"}', true);
+DO $$
+DECLARE n int;
+BEGIN
+  SELECT count(*) INTO n FROM chatbot_conversations WHERE session_id = 's1';
+  IF n <> 0 THEN RAISE EXCEPTION 'FAIL: tenant B sees tenant A chatbot conversation (same session id)'; END IF;
+  SELECT count(*) INTO n FROM user_preferences WHERE user_id = 'shared-user-id';
+  IF n <> 0 THEN RAISE EXCEPTION 'FAIL: tenant B sees tenant A preferences'; END IF;
+END $$;
+SELECT set_config('request.jwt.claims', '{"tenant_id":"tenant-a"}', true);
+DO $$
+DECLARE n int;
+BEGIN
+  SELECT count(*) INTO n FROM chatbot_conversations WHERE session_id = 's1';
+  IF n <> 1 THEN RAISE EXCEPTION 'FAIL: tenant A lost its chatbot conversation (%)', n; END IF;
+END $$;
+
+-- budgets are not reachable from client roles
+DO $$
+BEGIN
+  BEGIN
+    PERFORM 1 FROM ai_budget LIMIT 1;
+    RAISE EXCEPTION 'FAIL: anon can read ai_budget';
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+  END;
+END $$;
+
 SELECT 'PASS tenant isolation' AS result;
 ROLLBACK;

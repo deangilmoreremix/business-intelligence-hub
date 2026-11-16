@@ -189,3 +189,35 @@ export async function restoreSnapshot(snap: ContactSnapshot, opts: { removeMerge
     must(await supabase.from('contact_activities').delete().eq('contact_id', opts.removeMergedMarkerFor).eq('kind', 'merged').gte('created_at', snap.takenAt).select());
   }
 }
+
+/* ---------- CSV import ---------- */
+export interface ImportOutcome { imported: number; duplicates: string[]; failed: string[] }
+
+/** Inserts validated rows in chunks; skips emails that already exist (also enforced by the per-tenant unique index). */
+export async function importContacts(rows: Array<{ firstName: string; lastName: string; email: string | null; phone: string | null; company: string | null; crmStatus: string }>): Promise<ImportOutcome> {
+  const out: ImportOutcome = { imported: 0, duplicates: [], failed: [] };
+  const emails = rows.map(r => r.email).filter((e): e is string => !!e);
+  const existing = new Set<string>();
+  for (let i = 0; i < emails.length; i += 200) {
+    const { data } = await supabase.from('contacts').select('email').in('email', emails.slice(i, i + 200));
+    (data ?? []).forEach(r => r.email && existing.add(String(r.email).toLowerCase()));
+  }
+  const fresh = rows.filter(r => {
+    if (r.email && existing.has(r.email)) { out.duplicates.push(r.email); return false; }
+    return true;
+  });
+  const toDb = (r: (typeof rows)[number]) => ({ first_name: r.firstName, last_name: r.lastName, email: r.email, phone: r.phone, company: r.company, status: r.crmStatus });
+  for (let i = 0; i < fresh.length; i += 200) {
+    const chunk = fresh.slice(i, i + 200);
+    const { error } = await supabase.from('contacts').insert(chunk.map(toDb));
+    if (!error) { out.imported += chunk.length; continue; }
+    // A unique-index race or one bad row: fall back to row by row so the rest still import.
+    for (const r of chunk) {
+      const one = await supabase.from('contacts').insert(toDb(r));
+      if (!one.error) out.imported++;
+      else if (one.error.code === '23505') out.duplicates.push(r.email ?? r.firstName);
+      else out.failed.push(`${r.firstName} ${r.lastName}`.trim());
+    }
+  }
+  return out;
+}

@@ -4,10 +4,11 @@ import { PageWrapper } from '../layout/PageWrapper';
 import { useContactStore, type Contact } from '../../store/contactStore';
 import { supabase } from '../../lib/supabase';
 import { CompaniesPanel } from './CompaniesPanel';
+import { parseContactsCsv } from './csv';
 import { PersonImageUpload } from '../people/PersonImageUpload';
 import { usePeoplePhotos } from '../../store/peoplePhotos';
 import {
-  addActivity, listContactsPage, snapshotContacts, restoreSnapshot, type ContactSnapshot, bulkDelete, bulkSetStatus, bulkTag, getContactCompanyId, linkContactToCompany, listActivities,
+  addActivity, importContacts, listContactsPage, snapshotContacts, restoreSnapshot, type ContactSnapshot, bulkDelete, bulkSetStatus, bulkTag, getContactCompanyId, linkContactToCompany, listActivities,
   listCompanies, loadViews, mergeContacts, saveViews, type Activity, type Company, type SavedView,
 } from '../../services/contactService';
 import {
@@ -23,12 +24,6 @@ const toCSV = (rows: Contact[]) =>
     .concat(rows.map(c => [c.firstName, c.lastName, c.email, c.phone, c.company, c.crmStatus]
       .map(v => `"${(v ?? '').toString().replace(/"/g, '""')}"`).join(',')))
     .join('\n');
-
-const parseCSV = (text: string) =>
-  text.split(/\r?\n/).slice(1).filter(Boolean).map(line => {
-    const cells = (line.match(/("([^"]|"")*"|[^,]*)(,|$)/g) ?? []).map(c => c.replace(/,$/, '').replace(/^"|"$/g, '').replace(/""/g, '"'));
-    return { firstName: cells[0] || '', lastName: cells[1], email: cells[2], phone: cells[3], company: cells[4], crmStatus: (cells[5] || 'lead') as Contact['crmStatus'] };
-  }).filter(r => r.firstName);
 
 export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const { contacts, isLoading, error, loadContactsFromSupabase, createContact, deleteContact } = useContactStore();
@@ -151,7 +146,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
     } catch (e) { setAiError(e instanceof Error ? e.message : 'Failed to save'); } finally { setBusy(null); }
   };
 
-  const flash = (m: string) => { setInfo(m); setTimeout(() => setInfo(null), 4000); };
+  const flash = (m: string, ms = 4000) => { setInfo(m); setTimeout(() => setInfo(null), ms); };
   const ids = [...checked];
   const afterBulk = async (msg: string) => { await reload(); setChecked(new Set()); flash(msg); };
   const guard = async (fn: () => Promise<void>) => { setAiError(null); try { await fn(); } catch (e) { setAiError(e instanceof Error ? e.message : 'Action failed'); } };
@@ -196,7 +191,18 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
 
   const onImport = async (f?: File) => {
     if (!f) return;
-    for (const r of parseCSV(await f.text())) await createContact(r);
+    await guard(async () => {
+      const { rows: valid, skipped } = parseContactsCsv(await f.text());
+      if (!valid.length && !skipped.length) { flash('The file has no contact rows'); return; }
+      const res = await importContacts(valid);
+      await reload();
+      const parts = [`Imported ${res.imported} contact(s)`];
+      if (res.duplicates.length) parts.push(`${res.duplicates.length} already existed`);
+      if (res.failed.length) parts.push(`${res.failed.length} failed`);
+      if (skipped.length) parts.push(`${skipped.length} skipped (${skipped.slice(0, 3).map(x => `line ${x.line}: ${x.reason}`).join('; ')}${skipped.length > 3 ? '; …' : ''})`);
+      flash(parts.join(', '), 10000);
+    });
+    if (fileRef.current) fileRef.current.value = '';
   };
 
   const th = (label: string, key: SortKey) => (
