@@ -78,7 +78,7 @@ export const tooltipContent = {
 
   features: {
     aiProviderGPT5: 'GPT-6 Astra - Advanced reasoning and deep analysis with premium AI capabilities',
-    aiProviderGemini: 'GPT-6.1 Terra - Fast processing and instant insights with optimized performance',
+    aiProviderFast: 'GPT-6.1 Terra - Fast processing and instant insights with optimized performance',
     darkModeEnabled: 'Dark mode is currently enabled. Click to switch to light mode.',
     darkModeDisabled: 'Light mode is currently enabled. Click to switch to dark mode.',
     searchActive: 'Currently searching across all applications',

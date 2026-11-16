@@ -10,7 +10,7 @@ let calls: Array<Record<string, any>> = [];
 describe('provider normalisation', () => {
   it('maps legacy ids', () => {
     expect(normalizeProvider('gpt-5')).toBe('openai-deep');
-    expect(normalizeProvider('gemini')).toBe('openai-fast');
+    expect(normalizeProvider('legacy-provider')).toBe('openai-deep');
     expect(normalizeProvider(undefined)).toBe('openai-deep');
     expect(normalizeProvider('openai-fast')).toBe('openai-fast');
   });

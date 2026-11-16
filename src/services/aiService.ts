@@ -6,7 +6,7 @@ export type AIProvider = 'openai-deep' | 'openai-fast';
 
 /** Maps legacy provider ids (saved settings, old call sites) onto current ones. */
 export const normalizeProvider = (p: string | undefined): AIProvider =>
-  p === 'openai-fast' || p === 'gemini' ? 'openai-fast' : 'openai-deep';
+  p === 'openai-fast' ? 'openai-fast' : 'openai-deep';
 export type AIAnalysisType = 'pipeline' | 'communication' | 'task' | 'integration' | 'analytics';
 
 export interface AIAnalysisRequest {
