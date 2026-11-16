@@ -230,7 +230,7 @@ class CRMService {
           setting_key: 'crm_config',
           setting_value: config,
           updated_at: new Date().toISOString()
-        }, { onConflict: 'setting_key,user_id' });
+        }, { onConflict: 'tenant_id,setting_key,user_id' });
 
       if (error) {
         console.error('Error saving CRM config:', error);
