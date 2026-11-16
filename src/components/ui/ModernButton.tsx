@@ -5,8 +5,8 @@ import { cn } from '../../lib/utils';
 
 // Default destination for buttons that were given no handler, chosen from the label (existing routes only).
 const defaultRoute = (label: string): string | null => {
-  if (/take action|start campaign|implement|prepare|optimi[sz]/i.test(label)) return '/app/automation-hub';
-  if (/view (details|prospects)|more details|contacts?/i.test(label)) return '/app/contacts-hub';
+  if (/take action|start campaign|implement|prepare|optimi[sz]|schedule|reschedule|execute|send |force sync|analy[sz]e process|create automation/i.test(label)) return '/app/automation-hub';
+  if (/view (details|prospects)|more details|^details$|contacts?/i.test(label)) return '/app/contacts-hub';
   return null;
 };
 
