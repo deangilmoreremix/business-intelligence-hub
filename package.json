@@ -13,6 +13,10 @@
   },
   "dependencies": {
     "@apollo/client": "^4.3.8",
+    "@dnd-kit/abstract": "^0.3.2",
+    "@dnd-kit/collision": "^0.3.2",
+    "@dnd-kit/dom": "^0.3.2",
+    "@dnd-kit/react": "^0.3.2",
     "@floating-ui/react": "^0.24.8",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@linaria/core": "^7.0.0",

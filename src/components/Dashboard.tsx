@@ -16,6 +16,8 @@ import { Tooltip } from './ui/Tooltip';
 import { tooltipContent } from '../data/tooltipContent';
 import { FloatingHelpButton } from './ui/FloatingHelpButton';
 import { HelpCenter } from './ui/HelpCenter';
+import { SortableGrid } from './movable/SortableGrid';
+import { useStoredOrder } from './movable/useStoredOrder';
 
 export const Dashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,6 +46,10 @@ export const Dashboard: React.FC = () => {
     const matchesCategory = selectedCategory === 'All' || app.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const { ordered: orderedIds, move: moveApp } = useStoredOrder('home-app-cards', aiApps.map(a => a.id));
+  const orderedApps = orderedIds.map(id => aiApps.find(a => a.id === id)!).filter(Boolean);
+  const visibleApps = orderedApps.filter(app => filteredApps.includes(app));
 
   return (
     <div className={cn(
@@ -162,13 +168,17 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Apps Grid */}
-        <div className={`grid gap-6 ${
-          viewMode === 'grid' 
-            ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' 
-            : 'grid-cols-1'
-        }`}>
-          {filteredApps.map((app, index) => (
-            <div key={app.id} style={{ animationDelay: `${index * 0.05}s` }} data-tour={index === 0 ? 'app-card-first' : undefined}>
+        <SortableGrid
+          groupId="home-app-cards"
+          items={visibleApps}
+          onMove={moveApp}
+          className={`grid gap-6 ${
+            viewMode === 'grid'
+              ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+              : 'grid-cols-1'
+          }`}
+          renderItem={(app, index) => (
+            <div style={{ animationDelay: `${index * 0.05}s` }} data-tour={index === 0 ? 'app-card-first' : undefined}>
               <AppCard
                 title={app.title}
                 description={app.description}
@@ -178,8 +188,8 @@ export const Dashboard: React.FC = () => {
                 appId={app.id}
               />
             </div>
-          ))}
-        </div>
+          )}
+        />
 
         {filteredApps.length === 0 && (
           <div className="text-center py-12">
