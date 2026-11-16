@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mock } from '../../lib/mockData';
 import { AlertTriangle, Clock, DollarSign, Shield } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
 import { GlassCard } from '../ui/GlassCard';
@@ -12,7 +13,7 @@ interface DealRiskMonitorProps {
 export const DealRiskMonitor: React.FC<DealRiskMonitorProps> = ({ onBack }) => {
   const [selectedRiskLevel, setSelectedRiskLevel] = useState('all');
 
-  const riskDeals = [
+  const riskDeals = mock([
     {
       id: 1,
       company: "TechCorp Solutions",
@@ -43,14 +44,14 @@ export const DealRiskMonitor: React.FC<DealRiskMonitorProps> = ({ onBack }) => {
       daysInStage: 8,
       lastActivity: "1 day ago"
     }
-  ];
+  ]);
 
-  const riskMetrics = [
+  const riskMetrics = mock([
     { label: "High Risk Deals", value: 23, change: "+3", color: "red" },
     { label: "Medium Risk Deals", value: 45, change: "-2", color: "yellow" },
     { label: "At Risk Revenue", value: "$1.2M", change: "+15%", color: "red" },
     { label: "Avg Days Stagnant", value: "18.5", change: "+2.3", color: "yellow" }
-  ];
+  ]);
 
   const getRiskColor = (level: string) => {
     switch (level) {

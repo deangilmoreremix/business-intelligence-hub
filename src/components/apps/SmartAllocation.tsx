@@ -1,4 +1,5 @@
 import { runAIAnalysis } from '../../lib/aiBus';
+import { mock } from '../../lib/mockData';
 import React, { useState } from 'react';
 import { Calendar, Users, Target, Zap, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -18,12 +19,12 @@ export const SmartAllocation: React.FC<SmartAllocationProps> = ({ onBack }) => {
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [selectedView, setSelectedView] = useState('team');
 
-  const allocationMetrics = [
+  const allocationMetrics = mock([
     { title: "Utilization Rate", value: "87%", change: 12.3, trend: "up" as const, color: "success" as const },
     { title: "Efficiency Score", value: "92%", change: 8.7, trend: "up" as const, color: "primary" as const },
     { title: "Optimal Matches", value: "156", change: 23.4, trend: "up" as const, color: "success" as const },
     { title: "Resource Balance", value: "94%", change: 15.6, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
   const teamAllocation = teamMembers.map(member => ({
     ...member,
@@ -33,7 +34,7 @@ export const SmartAllocation: React.FC<SmartAllocationProps> = ({ onBack }) => {
     capacity: Math.floor(Math.random() * 20) + 20
   }));
 
-  const projectAllocations = [
+  const projectAllocations = mock([
     {
       project: "Enterprise Client Onboarding",
       priority: "High",
@@ -58,7 +59,7 @@ export const SmartAllocation: React.FC<SmartAllocationProps> = ({ onBack }) => {
       completion: 23,
       deadline: "This month"
     }
-  ];
+  ]);
 
   const optimizeAllocation = async () => {
     setIsOptimizing(true);

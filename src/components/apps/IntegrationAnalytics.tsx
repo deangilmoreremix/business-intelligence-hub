@@ -1,4 +1,5 @@
 import { AIAnalysisSection } from '../ai/AIAnalysisSection';
+import { mock } from '../../lib/mockData';
 import React, { useState } from 'react';
 import { Settings, TrendingUp, CheckCircle, AlertCircle, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -12,21 +13,21 @@ interface IntegrationAnalyticsProps {
 export const IntegrationAnalytics: React.FC<IntegrationAnalyticsProps> = ({ onBack }) => {
   const [selectedTimeRange, setSelectedTimeRange] = useState('30d');
 
-  const integrationMetrics = [
+  const integrationMetrics = mock([
     { title: "Active Integrations", value: "24", change: 12.5, trend: "up" as const, color: "success" as const },
     { title: "Sync Success Rate", value: "98.7%", change: 2.3, trend: "up" as const, color: "success" as const },
     { title: "Data Throughput", value: "2.4M", change: 18.9, trend: "up" as const, color: "primary" as const },
     { title: "Uptime", value: "99.9%", change: 0.1, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const integrations = [
+  const integrations = mock([
     { name: "Salesforce CRM", status: "Connected", lastSync: "2 min ago", records: "15.2K", health: 98 },
     { name: "HubSpot Marketing", status: "Connected", lastSync: "5 min ago", records: "8.7K", health: 95 },
     { name: "Slack Workspace", status: "Connected", lastSync: "1 min ago", records: "2.3K", health: 100 },
     { name: "Google Workspace", status: "Syncing", lastSync: "syncing...", records: "45.1K", health: 87 },
     { name: "Microsoft Teams", status: "Connected", lastSync: "3 min ago", records: "5.8K", health: 92 },
     { name: "Zoom Meetings", status: "Warning", lastSync: "2 hours ago", records: "1.2K", health: 67 }
-  ];
+  ]);
 
   const syncActivities = [
     { platform: "Salesforce", activity: "Contact sync completed", time: "2 min ago", status: "success" },

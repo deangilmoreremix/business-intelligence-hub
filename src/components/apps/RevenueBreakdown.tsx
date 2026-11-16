@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mock } from '../../lib/mockData';
 import { LineChart, DollarSign, TrendingUp, PieChart, BarChart3, Target } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
@@ -14,41 +15,41 @@ export const RevenueBreakdown: React.FC<RevenueBreakdownProps> = ({ onBack }) =>
   const [selectedBreakdown, setSelectedBreakdown] = useState('source');
   const [timeFrame, setTimeFrame] = useState('quarterly');
 
-  const revenueMetrics = [
+  const revenueMetrics = mock([
     { title: "Total Revenue", value: "$3.2M", change: 18.5, trend: "up" as const, color: "success" as const },
     { title: "Recurring Revenue", value: "$2.1M", change: 25.3, trend: "up" as const, color: "success" as const },
     { title: "New Business", value: "$1.1M", change: 12.7, trend: "up" as const, color: "primary" as const },
     { title: "Growth Rate", value: "+28%", change: 8.9, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const revenueBySource = [
+  const revenueBySource = mock([
     { source: "New Customers", amount: "$1.2M", percentage: 37.5, growth: "+24%" },
     { source: "Upsells", amount: "$890K", percentage: 27.8, growth: "+31%" },
     { source: "Renewals", amount: "$756K", percentage: 23.6, growth: "+18%" },
     { source: "Cross-sells", amount: "$354K", percentage: 11.1, growth: "+42%" }
-  ];
+  ]);
 
-  const revenueBySegment = [
+  const revenueBySegment = mock([
     { segment: "Enterprise", amount: "$1.8M", percentage: 56.3, deals: 23, avgDeal: "$78K" },
     { segment: "Mid-Market", amount: "$945K", percentage: 29.5, deals: 67, avgDeal: "$14K" },
     { segment: "SMB", amount: "$455K", percentage: 14.2, deals: 156, avgDeal: "$3K" }
-  ];
+  ]);
 
-  const revenueByProduct = [
+  const revenueByProduct = mock([
     { product: "Core Platform", amount: "$1.5M", percentage: 46.9, margin: "72%" },
     { product: "Analytics Suite", amount: "$823K", percentage: 25.7, margin: "68%" },
     { product: "API Access", amount: "$534K", percentage: 16.7, margin: "85%" },
     { product: "Professional Services", amount: "$343K", percentage: 10.7, margin: "45%" }
-  ];
+  ]);
 
-  const monthlyTrends = [
+  const monthlyTrends = mock([
     { month: "Jan", revenue: 2.4, growth: 15 },
     { month: "Feb", revenue: 2.7, growth: 18 },
     { month: "Mar", revenue: 2.9, growth: 22 },
     { month: "Apr", revenue: 3.1, growth: 25 },
     { month: "May", revenue: 3.2, growth: 28 },
     { month: "Jun", revenue: 3.4, growth: 31 }
-  ];
+  ]);
 
   const breakdownOptions = [
     { id: 'source', name: 'By Source', icon: Target },

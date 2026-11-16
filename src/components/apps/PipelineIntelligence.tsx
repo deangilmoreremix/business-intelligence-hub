@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mock } from '../../lib/mockData';
 import { Zap, AlertCircle } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
 import { GlassCard } from '../ui/GlassCard';
@@ -24,20 +25,20 @@ export const PipelineIntelligence: React.FC<PipelineIntelligenceProps> = ({ onBa
     setLoading(false);
   };
 
-  const pipelineData = {
+  const pipelineData = mock({
     totalValue: "$2.4M",
     totalDeals: 847,
     avgDealSize: "$28,390",
     conversionRate: "23.8%",
     chartData: [65, 72, 68, 85, 92, 88, 95, 103, 97, 112, 108, 125]
-  };
+  });
 
-  const riskFactors = [
+  const riskFactors = mock([
     { factor: "Stagnant Deals (>30 days)", count: 23, risk: "high" },
     { factor: "Missing Key Information", count: 45, risk: "medium" },
     { factor: "Competitor Activity", count: 12, risk: "high" },
     { factor: "Budget Concerns", count: 18, risk: "medium" }
-  ];
+  ]);
 
   return (
     <PageWrapper

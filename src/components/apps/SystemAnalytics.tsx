@@ -1,4 +1,5 @@
 import { AIAnalysisSection } from '../ai/AIAnalysisSection';
+import { mock } from '../../lib/mockData';
 import React, { useState } from 'react';
 import { Gauge, TrendingUp, Server, Cpu, HardDrive, Wifi } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -12,31 +13,31 @@ interface SystemAnalyticsProps {
 export const SystemAnalytics: React.FC<SystemAnalyticsProps> = ({ onBack }) => {
   const [selectedTimeRange, setSelectedTimeRange] = useState('24h');
 
-  const systemMetrics = [
+  const systemMetrics = mock([
     { title: "System Uptime", value: "99.9%", change: 0.1, trend: "up" as const, color: "success" as const },
     { title: "Response Time", value: "1.2s", change: -8.3, trend: "up" as const, color: "success" as const },
     { title: "Active Users", value: "247", change: 12.7, trend: "up" as const, color: "primary" as const },
     { title: "API Requests", value: "2.4M", change: 18.5, trend: "up" as const, color: "primary" as const }
-  ];
+  ]);
 
-  const systemComponents = [
+  const systemComponents = mock([
     { name: "Web Server", status: "Healthy", cpu: 45, memory: 62, uptime: "99.9%" },
     { name: "Database Server", status: "Healthy", cpu: 38, memory: 71, uptime: "99.8%" },
     { name: "API Gateway", status: "Warning", cpu: 85, memory: 78, uptime: "99.5%" },
     { name: "Cache Server", status: "Healthy", cpu: 25, memory: 43, uptime: "100%" },
     { name: "Background Jobs", status: "Healthy", cpu: 32, memory: 55, uptime: "99.7%" }
-  ];
+  ]);
 
-  const performanceMetrics = [
+  const performanceMetrics = mock([
     { metric: "Page Load Time", current: "2.1s", target: "< 3s", status: "good" },
     { metric: "API Response Time", current: "450ms", target: "< 500ms", status: "good" },
     { metric: "Database Query Time", current: "85ms", target: "< 100ms", status: "excellent" },
     { metric: "Memory Usage", current: "68%", target: "< 80%", status: "good" },
     { metric: "CPU Utilization", current: "45%", target: "< 70%", status: "excellent" },
     { metric: "Disk Usage", current: "34%", target: "< 80%", status: "excellent" }
-  ];
+  ]);
 
-  const activityInsights = [
+  const activityInsights = mock([
     { time: "00:00", users: 12, requests: 450 },
     { time: "06:00", users: 45, requests: 1200 },
     { time: "09:00", users: 189, requests: 4800 },
@@ -44,7 +45,7 @@ export const SystemAnalytics: React.FC<SystemAnalyticsProps> = ({ onBack }) => {
     { time: "15:00", users: 198, requests: 5100 },
     { time: "18:00", users: 89, requests: 2800 },
     { time: "21:00", users: 34, requests: 950 }
-  ];
+  ]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

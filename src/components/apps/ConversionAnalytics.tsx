@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mock } from '../../lib/mockData';
 import { Target, Users, Zap, BarChart3, PieChart } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
@@ -14,38 +15,38 @@ export const ConversionAnalytics: React.FC<ConversionAnalyticsProps> = ({ onBack
   const [selectedFunnel, setSelectedFunnel] = useState('sales');
   const [timeFrame, setTimeFrame] = useState('30d');
 
-  const conversionMetrics = [
+  const conversionMetrics = mock([
     { title: "Overall Conversion", value: "23.8%", change: 8.3, trend: "up" as const, color: "success" as const },
     { title: "Lead to Opportunity", value: "65%", change: 12.5, trend: "up" as const, color: "primary" as const },
     { title: "Opportunity to Close", value: "36.6%", change: 5.7, trend: "up" as const, color: "success" as const },
     { title: "Avg Time to Convert", value: "28 days", change: -15.3, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const funnelStages = [
+  const funnelStages = mock([
     { stage: "Visitors", count: 12543, conversion: 100, dropOff: 0 },
     { stage: "Leads", count: 2847, conversion: 22.7, dropOff: 77.3 },
     { stage: "Qualified Leads", count: 1851, conversion: 14.8, dropOff: 35.0 },
     { stage: "Opportunities", count: 892, conversion: 7.1, dropOff: 51.8 },
     { stage: "Proposals", count: 453, conversion: 3.6, dropOff: 49.2 },
     { stage: "Closed Won", count: 167, conversion: 1.3, dropOff: 63.1 }
-  ];
+  ]);
 
-  const conversionByChannel = [
+  const conversionByChannel = mock([
     { channel: "Organic Search", leads: 1245, conversions: 312, rate: 25.1 },
     { channel: "Paid Ads", leads: 892, conversions: 198, rate: 22.2 },
     { channel: "Email Marketing", leads: 567, conversions: 156, rate: 27.5 },
     { channel: "Social Media", leads: 434, conversions: 87, rate: 20.0 },
     { channel: "Referrals", leads: 298, conversions: 89, rate: 29.9 },
     { channel: "Direct", leads: 189, conversions: 67, rate: 35.4 }
-  ];
+  ]);
 
-  const conversionBySegment = [
+  const conversionBySegment = mock([
     { segment: "Enterprise", prospects: 234, conversions: 89, rate: 38.0, value: "$125K" },
     { segment: "Mid-Market", prospects: 567, conversions: 178, rate: 31.4, value: "$45K" },
     { segment: "SMB", prospects: 892, conversions: 245, rate: 27.5, value: "$12K" }
-  ];
+  ]);
 
-  const conversionInsights = [
+  const conversionInsights = mock([
     {
       insight: "Email Marketing Best Performer",
       description: "Email campaigns show 27.5% conversion rate, 3x higher than social media",
@@ -64,7 +65,7 @@ export const ConversionAnalytics: React.FC<ConversionAnalyticsProps> = ({ onBack
       action: "Streamline proposal process and reduce time to delivery",
       impact: "Medium"
     }
-  ];
+  ]);
 
   const getConversionColor = (rate: number) => {
     if (rate >= 30) return 'text-green-600 bg-green-100';

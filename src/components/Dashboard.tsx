@@ -18,6 +18,7 @@ import { FloatingHelpButton } from './ui/FloatingHelpButton';
 import { HelpCenter } from './ui/HelpCenter';
 import { SortableGrid } from './movable/SortableGrid';
 import { useStoredOrder } from './movable/useStoredOrder';
+import { isMockDataEnabled, setMockDataEnabled } from '../lib/mockData';
 
 export const Dashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -71,6 +72,22 @@ export const Dashboard: React.FC = () => {
           </div>
           <div className="flex items-center gap-4">
             <NavigationBar showLabels={false} />
+            <button
+              type="button"
+              data-testid="mock-data-toggle"
+              className="btn-solid px-3 py-2 rounded-lg text-sm border border-gray-300"
+              onClick={() => {
+                if (isMockDataEnabled()) {
+                  if (!window.confirm('Hide all demo data? Pages will show empty states. Your real contacts, deals and uploads are not touched, and you can restore the demo data any time.')) return;
+                  setMockDataEnabled(false);
+                } else {
+                  setMockDataEnabled(true);
+                }
+                window.location.reload();
+              }}
+            >
+              {isMockDataEnabled() ? 'Delete mock data' : 'Restore demo data'}
+            </button>
             <div data-tour="dark-mode-toggle">
               <DarkModeToggle />
             </div>

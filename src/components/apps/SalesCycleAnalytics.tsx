@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mock } from '../../lib/mockData';
 import { MovableSections } from '../movable/MovableSections';
 import { usePageArrange } from '../movable/usePageArrange';
 import { ArrowLeft, Clock, TrendingUp, Users, Calendar, Zap } from 'lucide-react';
@@ -18,19 +19,19 @@ export const SalesCycleAnalytics: React.FC<SalesCycleAnalyticsProps> = ({ onBack
   const [selectedSegment, setSelectedSegment] = useState('all');
   const [timeRange, setTimeRange] = useState('90d');
 
-  const cycleMetrics = [
+  const cycleMetrics = mock([
     { label: "Average Cycle Time", value: "28.5 days", change: "-3.2 days", trend: "up" as const },
     { label: "Fastest Cycle Time", value: "8 days", change: "-1 day", trend: "up" as const },
     { label: "Longest Cycle Time", value: "89 days", change: "+5 days", trend: "down" as const },
     { label: "Cycle Efficiency", value: "76%", change: "+4%", trend: "up" as const }
-  ];
+  ]);
 
-  const stageAnalysis = [
+  const stageAnalysis = mock([
     { stage: "Lead to Qualified", avgDays: 5.2, benchmark: 7, efficiency: 126 },
     { stage: "Qualified to Proposal", avgDays: 8.7, benchmark: 10, efficiency: 115 },
     { stage: "Proposal to Negotiation", avgDays: 12.3, benchmark: 14, efficiency: 114 },
     { stage: "Negotiation to Close", avgDays: 6.8, benchmark: 9, efficiency: 132 },
-  ];
+  ]);
 
   const segmentData = {
     enterprise: { avgCycle: "45.2 days", deals: 23, efficiency: "68%" },

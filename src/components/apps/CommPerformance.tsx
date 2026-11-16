@@ -1,4 +1,5 @@
 import { AIAnalysisSection } from '../ai/AIAnalysisSection';
+import { mock } from '../../lib/mockData';
 import React, { useState } from 'react';
 import { TrendingDown, BarChart3, Users, Target } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -14,19 +15,19 @@ interface CommPerformanceProps {
 export const CommPerformance: React.FC<CommPerformanceProps> = ({ onBack }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
 
-  const performanceMetrics = [
+  const performanceMetrics = mock([
     { title: "Communication ROI", value: "312%", change: 23.5, trend: "up" as const, color: "success" as const },
     { title: "Engagement Rate", value: "78.5%", change: 12.3, trend: "up" as const, color: "primary" as const },
     { title: "Cost per Contact", value: "$12.50", change: -18.7, trend: "up" as const, color: "success" as const },
     { title: "Conversion Rate", value: "24.8%", change: 8.9, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const channelPerformance = [
+  const channelPerformance = mock([
     { channel: "Email", cost: "$8.20", conversion: "28%", roi: "340%" },
     { channel: "Phone", cost: "$24.50", conversion: "45%", roi: "280%" },
     { channel: "Video Call", cost: "$18.30", conversion: "52%", roi: "420%" },
     { channel: "Chat", cost: "$3.80", conversion: "18%", roi: "180%" }
-  ];
+  ]);
 
   return (
     <PageWrapper

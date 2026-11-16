@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { mock } from '../../lib/mockData';
 import { Gauge, Activity, TrendingUp, AlertCircle, Zap } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
@@ -25,28 +26,28 @@ export const LiveKPIMonitor: React.FC<LiveKPIMonitorProps> = ({ onBack }) => {
     }
   }, [isLiveMode]);
 
-  const salesKPIs = [
+  const salesKPIs = mock([
     { title: "Revenue Today", value: "$47.2K", change: 12.3, trend: "up" as const, color: "success" as const, status: "healthy" },
     { title: "Active Deals", value: "156", change: 8.7, trend: "up" as const, color: "primary" as const, status: "healthy" },
     { title: "Conversion Rate", value: "23.8%", change: 5.2, trend: "up" as const, color: "success" as const, status: "healthy" },
     { title: "Pipeline Velocity", value: "28 days", change: -15.3, trend: "up" as const, color: "success" as const, status: "healthy" }
-  ];
+  ]);
 
-  const operationalKPIs = [
+  const operationalKPIs = mock([
     { title: "System Uptime", value: "99.9%", change: 0.1, trend: "up" as const, color: "success" as const, status: "healthy" },
     { title: "Response Time", value: "1.2s", change: -8.5, trend: "up" as const, color: "success" as const, status: "healthy" },
     { title: "Active Users", value: "247", change: 15.7, trend: "up" as const, color: "primary" as const, status: "healthy" },
     { title: "Error Rate", value: "0.3%", change: -45.2, trend: "up" as const, color: "success" as const, status: "healthy" }
-  ];
+  ]);
 
-  const marketingKPIs = [
+  const marketingKPIs = mock([
     { title: "Website Traffic", value: "12.5K", change: 23.4, trend: "up" as const, color: "primary" as const, status: "healthy" },
     { title: "Lead Generation", value: "89", change: 18.9, trend: "up" as const, color: "success" as const, status: "healthy" },
     { title: "Email Open Rate", value: "34.2%", change: 8.1, trend: "up" as const, color: "success" as const, status: "healthy" },
     { title: "Social Engagement", value: "1.8K", change: 25.6, trend: "up" as const, color: "primary" as const, status: "healthy" }
-  ];
+  ]);
 
-  const kpiAlerts = [
+  const kpiAlerts = mock([
     {
       metric: "Server Response Time",
       current: "2.1s",
@@ -71,7 +72,7 @@ export const LiveKPIMonitor: React.FC<LiveKPIMonitorProps> = ({ onBack }) => {
       time: "3 hours ago",
       trend: "improving"
     }
-  ];
+  ]);
 
   const getDashboardKPIs = () => {
     switch (selectedDashboard) {

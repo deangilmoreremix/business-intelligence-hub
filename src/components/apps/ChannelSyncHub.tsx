@@ -1,4 +1,5 @@
 import React from 'react';
+import { mock } from '../../lib/mockData';
 import { Shuffle, MessageSquare, Mail, Phone, Video, Zap } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
@@ -12,19 +13,19 @@ interface ChannelSyncHubProps {
 
 export const ChannelSyncHub: React.FC<ChannelSyncHubProps> = ({ onBack }) => {
 
-  const syncMetrics = [
+  const syncMetrics = mock([
     { title: "Sync Accuracy", value: "98.5%", change: 2.1, trend: "up" as const, color: "success" as const },
     { title: "Active Channels", value: "8", change: 0, trend: "up" as const, color: "primary" as const },
     { title: "Messages Synced", value: "2,847", change: 15.3, trend: "up" as const, color: "primary" as const },
     { title: "Sync Speed", value: "1.2s", change: -18.7, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const channels = [
+  const channels = mock([
     { name: "Email", icon: Mail, status: "synced", messages: 1247, lastSync: "2 min ago" },
     { name: "Phone", icon: Phone, status: "synced", messages: 689, lastSync: "1 min ago" },
     { name: "Video Calls", icon: Video, status: "syncing", messages: 234, lastSync: "syncing..." },
     { name: "Chat", icon: MessageSquare, status: "synced", messages: 521, lastSync: "30 sec ago" }
-  ];
+  ]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

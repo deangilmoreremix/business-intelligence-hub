@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mock } from '../../lib/mockData';
 import { Target, TrendingUp, Users, Lightbulb, Zap } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
 import { GlassCard } from '../ui/GlassCard';
@@ -13,7 +14,7 @@ interface SmartConversionInsightsProps {
 export const SmartConversionInsights: React.FC<SmartConversionInsightsProps> = ({ onBack }) => {
   const [selectedSegment, setSelectedSegment] = useState('enterprise');
 
-  const conversionOpportunities = [
+  const conversionOpportunities = mock([
     {
       id: 1,
       title: "High-Value Enterprise Leads",
@@ -44,20 +45,20 @@ export const SmartConversionInsights: React.FC<SmartConversionInsightsProps> = (
       actionItems: ["Send pricing proposals", "Offer limited-time discounts", "Follow up calls"],
       priority: "medium"
     }
-  ];
+  ]);
 
-  const conversionMetrics = [
+  const conversionMetrics = mock([
     { label: "Conversion Rate", value: "23.8%", change: "+4.2%", trend: "up" as const },
     { label: "Avg Time to Convert", value: "32 days", change: "-5 days", trend: "up" as const },
     { label: "Revenue per Convert", value: "$28K", change: "+12%", trend: "up" as const },
     { label: "Hot Prospects", value: "156", change: "+23", trend: "up" as const }
-  ];
+  ]);
 
-  const segmentData = {
+  const segmentData = mock({
     enterprise: { rate: "73%", revenue: "$890K", prospects: 23 },
     midmarket: { rate: "65%", revenue: "$340K", prospects: 45 },
     smb: { rate: "45%", revenue: "$180K", prospects: 67 }
-  };
+  });
 
   return (
     <PageWrapper

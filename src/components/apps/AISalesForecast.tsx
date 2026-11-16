@@ -1,4 +1,5 @@
 import { runAIAnalysis } from '../../lib/aiBus';
+import { mock } from '../../lib/mockData';
 import React, { useState } from 'react';
 import { Zap, TrendingUp, Calendar, Target, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -16,12 +17,12 @@ export const AISalesForecast: React.FC<AISalesForecastProps> = ({ onBack }) => {
   const [forecastPeriod, setForecastPeriod] = useState('quarterly');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const forecastMetrics = [
+  const forecastMetrics = mock([
     { title: "Q4 Forecast", value: "$2.8M", change: 12.5, trend: "up" as const, color: "success" as const },
     { title: "Confidence Level", value: "89%", change: 5.2, trend: "up" as const, color: "primary" as const },
     { title: "Pipeline Growth", value: "+23%", change: 8.7, trend: "up" as const, color: "success" as const },
     { title: "Risk Factor", value: "Low", change: -15.3, trend: "up" as const, color: "primary" as const }
-  ];
+  ]);
 
   const generateForecast = async () => {
     setIsGenerating(true);
@@ -93,12 +94,12 @@ export const AISalesForecast: React.FC<AISalesForecastProps> = ({ onBack }) => {
           icon={<Calendar className="w-6 h-6 text-indigo-600" />}
         >
           <div className="space-y-4">
-            {[
+            {mock([
               { period: "Oct 2024", forecast: "$890K", confidence: 92 },
               { period: "Nov 2024", forecast: "$950K", confidence: 88 },
               { period: "Dec 2024", forecast: "$1.1M", confidence: 85 },
               { period: "Jan 2025", forecast: "$1.2M", confidence: 82 }
-            ].map((item, index) => (
+            ]).map((item, index) => (
               <div key={index} className="p-4 border border-gray-200 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-semibold text-gray-900">{item.period}</h3>

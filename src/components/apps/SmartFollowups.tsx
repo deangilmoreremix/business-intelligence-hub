@@ -1,4 +1,5 @@
 import { runAIAnalysis } from '../../lib/aiBus';
+import { mock } from '../../lib/mockData';
 import { MovableSections } from '../movable/MovableSections';
 import { usePageArrange } from '../movable/usePageArrange';
 import React, { useState } from 'react';
@@ -20,14 +21,14 @@ export const SmartFollowups: React.FC<SmartFollowupsProps> = ({ onBack }) => {
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [selectedPriority, setSelectedPriority] = useState('all');
 
-  const followupMetrics = [
+  const followupMetrics = mock([
     { label: "Pending Follow-ups", value: "247", change: "-8%", trend: "up" as const },
     { label: "Completion Rate", value: "84%", change: "+6%", trend: "up" as const },
     { label: "Avg Response Time", value: "2.3h", change: "-45m", trend: "up" as const },
     { label: "Success Rate", value: "67%", change: "+12%", trend: "up" as const }
-  ];
+  ]);
 
-  const smartFollowups = [
+  const smartFollowups = mock([
     {
       id: 1,
       contact: "Acme Corporation",
@@ -64,7 +65,7 @@ export const SmartFollowups: React.FC<SmartFollowupsProps> = ({ onBack }) => {
       dealValue: "$340K",
       lastActivity: "5 days ago"
     }
-  ];
+  ]);
 
   const optimizeFollowups = async () => {
     setIsOptimizing(true);

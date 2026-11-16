@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mock } from '../../lib/mockData';
 import { Zap, TrendingUp, Users, BarChart3, Clock, Target } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
@@ -15,31 +16,31 @@ interface AppsIntelligenceProps {
 export const AppsIntelligence: React.FC<AppsIntelligenceProps> = ({ onBack }) => {
   const [selectedTimeRange, setSelectedTimeRange] = useState('30d');
 
-  const intelligenceMetrics = [
+  const intelligenceMetrics = mock([
     { title: "App Usage Rate", value: "89%", change: 15.3, trend: "up" as const, color: "success" as const },
     { title: "User Engagement", value: "76%", change: 8.7, trend: "up" as const, color: "primary" as const },
     { title: "Feature Adoption", value: "67%", change: 23.1, trend: "up" as const, color: "success" as const },
     { title: "Productivity Gain", value: "+34%", change: 12.5, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const appUsage = [
+  const appUsage = mock([
     { name: "Pipeline Intelligence", usage: 95, users: 12, sessions: 247, avgTime: "8.3 min" },
     { name: "Smart Follow-ups", usage: 87, users: 9, sessions: 189, avgTime: "6.1 min" },
     { name: "Activity Analytics", usage: 82, users: 11, sessions: 203, avgTime: "5.7 min" },
     { name: "Deal Risk Monitor", usage: 78, users: 8, sessions: 156, avgTime: "7.2 min" },
     { name: "Email Optimizer", usage: 71, users: 7, sessions: 134, avgTime: "4.9 min" },
     { name: "Sentiment Monitor", usage: 65, users: 6, sessions: 98, avgTime: "3.8 min" }
-  ];
+  ]);
 
-  const featureAdoption = [
+  const featureAdoption = mock([
     { feature: "AI Insights Generation", adopted: 89, impact: "High" },
     { feature: "Automated Reporting", adopted: 76, impact: "High" },
     { feature: "Real-time Alerts", adopted: 82, impact: "Medium" },
     { feature: "Custom Dashboards", adopted: 45, impact: "Medium" },
     { feature: "API Integrations", adopted: 34, impact: "Low" }
-  ];
+  ]);
 
-  const usageRecommendations = [
+  const usageRecommendations = mock([
     {
       type: "Underutilized Features",
       description: "Custom Dashboards showing low adoption (45%)",
@@ -58,7 +59,7 @@ export const AppsIntelligence: React.FC<AppsIntelligenceProps> = ({ onBack }) =>
       action: "Schedule personalized training sessions",
       priority: "Medium"
     }
-  ];
+  ]);
 
   const getUsageColor = (usage: number) => {
     if (usage >= 85) return 'text-green-600 bg-green-100';

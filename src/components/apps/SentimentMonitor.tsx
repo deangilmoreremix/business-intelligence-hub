@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mock } from '../../lib/mockData';
 import { Heart, TrendingUp, MessageSquare, AlertCircle, Smile, Frown } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
@@ -13,20 +14,20 @@ interface SentimentMonitorProps {
 export const SentimentMonitor: React.FC<SentimentMonitorProps> = ({ onBack }) => {
   const [timeRange, setTimeRange] = useState('7d');
 
-  const sentimentMetrics = [
+  const sentimentMetrics = mock([
     { title: "Overall Sentiment", value: "78%", change: 5.2, trend: "up" as const, color: "success" as const },
     { title: "Positive Interactions", value: "1,247", change: 12.8, trend: "up" as const, color: "success" as const },
     { title: "Sentiment Score", value: "8.2/10", change: 8.5, trend: "up" as const, color: "primary" as const },
     { title: "Response Satisfaction", value: "92%", change: 3.7, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const sentimentBreakdown = [
+  const sentimentBreakdown = mock([
     { sentiment: "Very Positive", count: 456, percentage: 38, color: "bg-green-500" },
     { sentiment: "Positive", count: 523, percentage: 43, color: "bg-blue-500" },
     { sentiment: "Neutral", count: 189, percentage: 16, color: "bg-gray-400" },
     { sentiment: "Negative", count: 28, percentage: 2, color: "bg-yellow-500" },
     { sentiment: "Very Negative", count: 12, percentage: 1, color: "bg-red-500" }
-  ];
+  ]);
 
   const recentAlerts = [
     {

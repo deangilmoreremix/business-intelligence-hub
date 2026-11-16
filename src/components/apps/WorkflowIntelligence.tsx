@@ -1,4 +1,5 @@
 import { runAIAnalysis } from '../../lib/aiBus';
+import { mock } from '../../lib/mockData';
 import React, { useState } from 'react';
 import { Workflow, AlertTriangle, TrendingUp, Zap, Target } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -16,14 +17,14 @@ export const WorkflowIntelligence: React.FC<WorkflowIntelligenceProps> = ({ onBa
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedWorkflow, setSelectedWorkflow] = useState('sales-process');
 
-  const workflowMetrics = [
+  const workflowMetrics = mock([
     { title: "Workflow Efficiency", value: "84%", change: 15.2, trend: "up" as const, color: "success" as const },
     { title: "Bottlenecks Detected", value: "7", change: -23.1, trend: "up" as const, color: "success" as const },
     { title: "Avg Process Time", value: "4.2h", change: -18.5, trend: "up" as const, color: "success" as const },
     { title: "Automation Rate", value: "67%", change: 28.3, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const bottlenecks = [
+  const bottlenecks = mock([
     {
       stage: "Proposal Approval",
       delay: "2.3 days",
@@ -45,16 +46,16 @@ export const WorkflowIntelligence: React.FC<WorkflowIntelligenceProps> = ({ onBa
       frequency: 89,
       suggestion: "Use template-based contract system"
     }
-  ];
+  ]);
 
-  const workflowSteps = [
+  const workflowSteps = mock([
     { step: "Lead Qualification", duration: "0.5h", efficiency: 92, status: "optimal" },
     { step: "Initial Contact", duration: "1.2h", efficiency: 78, status: "good" },
     { step: "Needs Assessment", duration: "2.1h", efficiency: 85, status: "good" },
     { step: "Proposal Creation", duration: "4.5h", efficiency: 65, status: "bottleneck" },
     { step: "Review & Approval", duration: "3.2h", efficiency: 45, status: "bottleneck" },
     { step: "Contract Finalization", duration: "2.8h", efficiency: 71, status: "needs-improvement" }
-  ];
+  ]);
 
   const runWorkflowAnalysis = async () => {
     setIsAnalyzing(true);

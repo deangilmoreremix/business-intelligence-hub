@@ -1,4 +1,5 @@
 import { runAIAnalysis } from '../../lib/aiBus';
+import { mock } from '../../lib/mockData';
 import React, { useState } from 'react';
 import { Database, CheckCircle, AlertTriangle, XCircle, TrendingUp, Zap } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -16,14 +17,14 @@ export const DataQuality: React.FC<DataQualityProps> = ({ onBack }) => {
   const [isScanning, setIsScanning] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  const qualityMetrics = [
+  const qualityMetrics = mock([
     { title: "Overall Quality Score", value: "87%", change: 8.3, trend: "up" as const, color: "success" as const },
     { title: "Data Completeness", value: "92%", change: 5.7, trend: "up" as const, color: "success" as const },
     { title: "Accuracy Rate", value: "94%", change: 3.2, trend: "up" as const, color: "success" as const },
     { title: "Duplicate Records", value: "156", change: -23.1, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const dataCategories = [
+  const dataCategories = mock([
     { 
       category: "Contact Information", 
       completeness: 94, 
@@ -56,9 +57,9 @@ export const DataQuality: React.FC<DataQualityProps> = ({ onBack }) => {
       records: "12,678",
       status: "good"
     }
-  ];
+  ]);
 
-  const qualityIssues = [
+  const qualityIssues = mock([
     {
       type: "Missing Email Addresses",
       severity: "High",
@@ -87,7 +88,7 @@ export const DataQuality: React.FC<DataQualityProps> = ({ onBack }) => {
       impact: "Historical reporting gaps",
       suggestion: "Archive old records systematically"
     }
-  ];
+  ]);
 
   const runQualityScan = async () => {
     setIsScanning(true);

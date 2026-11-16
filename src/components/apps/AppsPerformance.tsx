@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mock } from '../../lib/mockData';
 import { Eye, TrendingUp, AlertCircle, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
@@ -13,21 +14,21 @@ interface AppsPerformanceProps {
 export const AppsPerformance: React.FC<AppsPerformanceProps> = ({ onBack }) => {
   const [selectedMetric, setSelectedMetric] = useState('response-time');
 
-  const performanceMetrics = [
+  const performanceMetrics = mock([
     { title: "Avg Response Time", value: "1.2s", change: -15.3, trend: "up" as const, color: "success" as const },
     { title: "Uptime", value: "99.8%", change: 0.2, trend: "up" as const, color: "success" as const },
     { title: "API Calls", value: "2.4M", change: 23.7, trend: "up" as const, color: "primary" as const },
     { title: "Error Rate", value: "0.3%", change: -45.2, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const appPerformance = [
+  const appPerformance = mock([
     { name: "Pipeline Intelligence", responseTime: "0.8s", uptime: "99.9%", load: 85, status: "excellent" },
     { name: "Deal Risk Monitor", responseTime: "1.1s", uptime: "99.7%", load: 67, status: "good" },
     { name: "Smart Followups", responseTime: "0.9s", uptime: "99.8%", load: 72, status: "good" },
     { name: "Activity Analytics", responseTime: "1.5s", uptime: "99.5%", load: 91, status: "warning" },
     { name: "Email Optimizer", responseTime: "2.1s", uptime: "99.2%", load: 95, status: "critical" },
     { name: "Sentiment Monitor", responseTime: "1.0s", uptime: "99.9%", load: 58, status: "excellent" }
-  ];
+  ]);
 
   const performanceAlerts = [
     {

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mock } from '../../lib/mockData';
 import { Shield, AlertTriangle, Clock, TrendingDown, Target } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
@@ -15,21 +16,21 @@ interface RiskMonitorProps {
 export const RiskMonitor: React.FC<RiskMonitorProps> = ({ onBack }) => {
   const [alertLevel, setAlertLevel] = useState('all');
 
-  const riskMetrics = [
+  const riskMetrics = mock([
     { title: "Critical Risks", value: "12", change: -25.3, trend: "up" as const, color: "danger" as const },
     { title: "Overdue Tasks", value: "34", change: -18.7, trend: "up" as const, color: "warning" as const },
     { title: "Risk Score", value: "7.2/10", change: 12.5, trend: "down" as const, color: "warning" as const },
     { title: "Mitigation Rate", value: "78%", change: 15.2, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const riskCategories = [
+  const riskCategories = mock([
     { type: "Deadline Risk", count: 23, severity: "High", trend: "increasing" },
     { type: "Resource Risk", count: 15, severity: "Medium", trend: "stable" },
     { type: "Quality Risk", count: 8, severity: "High", trend: "decreasing" },
     { type: "Budget Risk", count: 12, severity: "Medium", trend: "stable" }
-  ];
+  ]);
 
-  const criticalTasks = [
+  const criticalTasks = mock([
     {
       id: 1,
       title: "Enterprise Contract Review",
@@ -60,7 +61,7 @@ export const RiskMonitor: React.FC<RiskMonitorProps> = ({ onBack }) => {
       impact: "Client Relationship",
       mitigation: "Schedule emergency meeting"
     }
-  ];
+  ]);
 
   const getRiskColor = (level: string) => {
     switch (level) {

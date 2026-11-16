@@ -1,4 +1,5 @@
 import { runAIAnalysis } from '../../lib/aiBus';
+import { mock } from '../../lib/mockData';
 import React, { useState } from 'react';
 import { Users, Target, Zap, Shield } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -16,18 +17,18 @@ export const CompetitorInsights: React.FC<CompetitorInsightsProps> = ({ onBack }
   const [selectedCompetitor, setSelectedCompetitor] = useState('all');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const competitorMetrics = [
+  const competitorMetrics = mock([
     { title: "Competitive Deals", value: "34", change: 8, trend: "down" as const, color: "warning" as const },
     { title: "Win Rate vs Competition", value: "67%", change: 12, trend: "up" as const, color: "success" as const },
     { title: "Avg Deal Size", value: "$89K", change: -5, trend: "down" as const, color: "danger" as const },
     { title: "Competitive Threat Level", value: "Medium", change: 0, trend: "up" as const, color: "warning" as const }
-  ];
+  ]);
 
-  const competitors = [
+  const competitors = mock([
     { name: "CompetitorA", deals: 18, winRate: 45, avgDeal: "$75K", threat: "High" },
     { name: "CompetitorB", deals: 12, winRate: 32, avgDeal: "$65K", threat: "Medium" },
     { name: "CompetitorC", deals: 8, winRate: 28, avgDeal: "$55K", threat: "Low" }
-  ];
+  ]);
 
   const runCompetitiveAnalysis = async () => {
     setIsAnalyzing(true);

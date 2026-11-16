@@ -1,4 +1,5 @@
 import { AIAnalysisSection } from '../ai/AIAnalysisSection';
+import { mock } from '../../lib/mockData';
 import React, { useState } from 'react';
 import { Activity, Target, BarChart3, Zap } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -12,21 +13,21 @@ interface TaskImpactAnalyticsProps {
 export const TaskImpactAnalytics: React.FC<TaskImpactAnalyticsProps> = ({ onBack }) => {
   const [timeRange, setTimeRange] = useState('30d');
 
-  const impactMetrics = [
+  const impactMetrics = mock([
     { title: "High Impact Tasks", value: "156", change: 23.4, trend: "up" as const, color: "success" as const },
     { title: "Productivity Score", value: "87%", change: 12.1, trend: "up" as const, color: "primary" as const },
     { title: "Value Generated", value: "$1.2M", change: 18.7, trend: "up" as const, color: "success" as const },
     { title: "Efficiency Gain", value: "+34%", change: 8.9, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const taskCategories = [
+  const taskCategories = mock([
     { category: "Deal Advancement", impact: 92, tasks: 45, value: "$450K" },
     { category: "Client Communication", impact: 78, tasks: 89, value: "$230K" },
     { category: "Proposal Creation", impact: 85, tasks: 32, value: "$320K" },
     { category: "Follow-up Activities", impact: 71, tasks: 67, value: "$180K" }
-  ];
+  ]);
 
-  const impactAnalysis = [
+  const impactAnalysis = mock([
     {
       task: "Enterprise Deal Negotiations",
       impact: 95,
@@ -51,7 +52,7 @@ export const TaskImpactAnalytics: React.FC<TaskImpactAnalyticsProps> = ({ onBack
       revenue: "$150K",
       status: "medium-impact"
     }
-  ];
+  ]);
 
   const getImpactColor = (impact: number) => {
     if (impact >= 85) return 'text-green-600 bg-green-100';

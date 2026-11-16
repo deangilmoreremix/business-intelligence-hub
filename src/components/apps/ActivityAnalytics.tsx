@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mock } from '../../lib/mockData';
 import { MovableSections } from '../movable/MovableSections';
 import { usePageArrange } from '../movable/usePageArrange';
 import { ArrowLeft, MessageSquare, Phone, Mail, Video, Calendar, TrendingUp } from 'lucide-react';
@@ -17,28 +18,28 @@ export const ActivityAnalytics: React.FC<ActivityAnalyticsProps> = ({ onBack }) 
   const arrange = usePageArrange();
   const [timeRange, setTimeRange] = useState('7d');
 
-  const activityMetrics = [
+  const activityMetrics = mock([
     { label: "Total Activities", value: "2,847", change: "+12%", trend: "up" as const },
     { label: "Daily Average", value: "142", change: "+8%", trend: "up" as const },
     { label: "Response Rate", value: "78%", change: "+5%", trend: "up" as const },
     { label: "Engagement Score", value: "92", change: "+3", trend: "up" as const }
-  ];
+  ]);
 
-  const channelData = [
+  const channelData = mock([
     { channel: "Email", icon: Mail, count: 1247, rate: 82, trend: "+15%" },
     { channel: "Phone", icon: Phone, count: 689, rate: 74, trend: "+8%" },
     { channel: "Video", icon: Video, count: 234, rate: 91, trend: "+22%" },
     { channel: "Meeting", icon: Calendar, count: 156, rate: 95, trend: "+12%" },
     { channel: "Chat", icon: MessageSquare, count: 521, rate: 67, trend: "+18%" }
-  ];
+  ]);
 
-  const frequencyAnalysis = [
+  const frequencyAnalysis = mock([
     { timeSlot: "9:00 AM", activities: 45, effectiveness: 89 },
     { timeSlot: "11:00 AM", activities: 67, effectiveness: 92 },
     { timeSlot: "2:00 PM", activities: 78, effectiveness: 85 },
     { timeSlot: "4:00 PM", activities: 56, effectiveness: 88 },
     { timeSlot: "6:00 PM", activities: 23, effectiveness: 76 }
-  ];
+  ]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-6">

@@ -1,4 +1,5 @@
 import { runAIAnalysis } from '../../lib/aiBus';
+import { mock } from '../../lib/mockData';
 import React, { useState } from 'react';
 import { Layers, Target, AlertCircle, TrendingUp, Zap, Clock } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -18,14 +19,14 @@ export const PriorityIntelligence: React.FC<PriorityIntelligenceProps> = ({ onBa
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all');
 
-  const priorityMetrics = [
+  const priorityMetrics = mock([
     { title: "High Priority Tasks", value: "23", change: -12.5, trend: "up" as const, color: "warning" as const },
     { title: "Optimization Score", value: "87%", change: 15.3, trend: "up" as const, color: "success" as const },
     { title: "Time Saved", value: "4.2h", change: 23.7, trend: "up" as const, color: "success" as const },
     { title: "Task Efficiency", value: "92%", change: 8.9, trend: "up" as const, color: "primary" as const }
-  ];
+  ]);
 
-  const priorityTasks = [
+  const priorityTasks = mock([
     {
       id: 1,
       title: "Follow up with TechCorp - Contract Review",
@@ -56,7 +57,7 @@ export const PriorityIntelligence: React.FC<PriorityIntelligenceProps> = ({ onBa
       estimatedTime: "45m",
       assignee: "Emily Rodriguez"
     }
-  ];
+  ]);
 
   const optimizePriorities = async () => {
     setIsOptimizing(true);

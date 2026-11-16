@@ -1,4 +1,5 @@
 import { runAIAnalysis } from '../../lib/aiBus';
+import { mock } from '../../lib/mockData';
 import React, { useState } from 'react';
 import { Mail, TrendingUp, Zap, Target, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -15,14 +16,14 @@ interface EmailOptimizerProps {
 export const EmailOptimizer: React.FC<EmailOptimizerProps> = ({ onBack }) => {
   const [isOptimizing, setIsOptimizing] = useState(false);
 
-  const emailMetrics = [
+  const emailMetrics = mock([
     { title: "Open Rate", value: "68.5%", change: 12.3, trend: "up" as const, color: "success" as const },
     { title: "Response Rate", value: "34.2%", change: 8.7, trend: "up" as const, color: "primary" as const },
     { title: "Click Through Rate", value: "12.8%", change: 15.2, trend: "up" as const, color: "success" as const },
     { title: "Avg Response Time", value: "2.3h", change: -18.5, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const emailInsights = [
+  const emailInsights = mock([
     {
       type: "Subject Line",
       current: "Quick follow-up on our conversation",
@@ -44,7 +45,7 @@ export const EmailOptimizer: React.FC<EmailOptimizerProps> = ({ onBack }) => {
       improvement: "+15% engagement",
       confidence: 85
     }
-  ];
+  ]);
 
   const runOptimization = async () => {
     setIsOptimizing(true);

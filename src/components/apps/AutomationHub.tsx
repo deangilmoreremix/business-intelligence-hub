@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mock } from '../../lib/mockData';
 import { Zap, Play, Pause, Settings, TrendingUp } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
@@ -13,14 +14,14 @@ interface AutomationHubProps {
 export const AutomationHub: React.FC<AutomationHubProps> = ({ onBack }) => {
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  const automationMetrics = [
+  const automationMetrics = mock([
     { title: "Active Automations", value: "42", change: 18.7, trend: "up" as const, color: "success" as const },
     { title: "Time Saved", value: "127h", change: 34.2, trend: "up" as const, color: "success" as const },
     { title: "Tasks Automated", value: "2,847", change: 23.1, trend: "up" as const, color: "primary" as const },
     { title: "Success Rate", value: "96.8%", change: 8.3, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const automations = [
+  const automations = mock([
     {
       name: "Lead Qualification Workflow",
       category: "Sales",
@@ -57,9 +58,9 @@ export const AutomationHub: React.FC<AutomationHubProps> = ({ onBack }) => {
       success: 100,
       lastRun: "Yesterday"
     }
-  ];
+  ]);
 
-  const opportunities = [
+  const opportunities = mock([
     {
       process: "Contract Approval Workflow",
       timeSpent: "24h/week",
@@ -81,7 +82,7 @@ export const AutomationHub: React.FC<AutomationHubProps> = ({ onBack }) => {
       potential: "Medium", 
       effort: "High"
     }
-  ];
+  ]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

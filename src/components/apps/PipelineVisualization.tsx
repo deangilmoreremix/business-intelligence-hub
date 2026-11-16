@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mock } from '../../lib/mockData';
 import { PieChart, BarChart3, TrendingUp, Target } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
@@ -14,35 +15,35 @@ export const PipelineVisualization: React.FC<PipelineVisualizationProps> = ({ on
   const [selectedView, setSelectedView] = useState('funnel');
   const [timeRange, setTimeRange] = useState('30d');
 
-  const visualizationMetrics = [
+  const visualizationMetrics = mock([
     { title: "Pipeline Value", value: "$2.4M", change: 15.3, trend: "up" as const, color: "success" as const },
     { title: "Conversion Rate", value: "23.8%", change: 8.7, trend: "up" as const, color: "primary" as const },
     { title: "Velocity", value: "28 days", change: -12.5, trend: "up" as const, color: "success" as const },
     { title: "Win Rate", value: "67%", change: 5.2, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const stageData = [
+  const stageData = mock([
     { stage: "Lead", count: 234, value: "$580K", conversion: 65, color: "bg-blue-500" },
     { stage: "Qualified", count: 152, value: "$760K", conversion: 78, color: "bg-green-500" },
     { stage: "Proposal", count: 89, value: "$690K", conversion: 82, color: "bg-yellow-500" },
     { stage: "Negotiation", count: 45, value: "$450K", conversion: 89, color: "bg-orange-500" },
     { stage: "Closed Won", count: 23, value: "$340K", conversion: 100, color: "bg-purple-500" }
-  ];
+  ]);
 
-  const segmentBreakdown = [
+  const segmentBreakdown = mock([
     { segment: "Enterprise", percentage: 45, value: "$1.1M", color: "bg-purple-500" },
     { segment: "Mid-Market", percentage: 32, value: "$770K", color: "bg-blue-500" },
     { segment: "SMB", percentage: 23, value: "$530K", color: "bg-green-500" }
-  ];
+  ]);
 
-  const trendData = [
+  const trendData = mock([
     { month: "Jan", value: 1.8, deals: 67 },
     { month: "Feb", value: 2.1, deals: 73 },
     { month: "Mar", value: 1.9, deals: 69 },
     { month: "Apr", value: 2.3, deals: 81 },
     { month: "May", value: 2.4, deals: 87 },
     { month: "Jun", value: 2.2, deals: 79 }
-  ];
+  ]);
 
   const viewOptions = [
     { id: 'funnel', name: 'Funnel View', icon: Target },

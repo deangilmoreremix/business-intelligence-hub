@@ -1,4 +1,5 @@
 import { runAIAnalysis } from '../../lib/aiBus';
+import { mock } from '../../lib/mockData';
 import React, { useState } from 'react';
 import { DollarSign, TrendingUp, Target, Zap, PieChart } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -16,18 +17,18 @@ export const RevenueIntelligence: React.FC<RevenueIntelligenceProps> = ({ onBack
   const [timeRange, setTimeRange] = useState('quarterly');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const revenueMetrics = [
+  const revenueMetrics = mock([
     { title: "Total Revenue", value: "$2.8M", change: 18.5, trend: "up" as const, color: "success" as const },
     { title: "Revenue Growth", value: "+23%", change: 12.1, trend: "up" as const, color: "success" as const },
     { title: "Revenue per Deal", value: "$45K", change: 8.7, trend: "up" as const, color: "primary" as const },
     { title: "Recurring Revenue", value: "$1.2M", change: 25.3, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const revenueSegments = [
+  const revenueSegments = mock([
     { segment: "Enterprise", revenue: "$1.2M", growth: "+32%", percentage: 43 },
     { segment: "Mid-Market", revenue: "$890K", growth: "+18%", percentage: 32 },
     { segment: "SMB", revenue: "$710K", growth: "+12%", percentage: 25 }
-  ];
+  ]);
 
   const runRevenueAnalysis = async () => {
     setIsAnalyzing(true);

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mock } from '../../lib/mockData';
 import { Clock3, MessageSquare, TrendingUp, AlertCircle, Zap, Mail } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
@@ -16,21 +17,21 @@ export const ResponseIntelligence: React.FC<ResponseIntelligenceProps> = ({ onBa
   const [timeRange, setTimeRange] = useState('7d');
   const [channelFilter, setChannelFilter] = useState('all');
 
-  const responseMetrics = [
+  const responseMetrics = mock([
     { title: "Avg Response Time", value: "2.3h", change: -15.2, trend: "up" as const, color: "success" as const },
     { title: "Response Rate", value: "87%", change: 8.4, trend: "up" as const, color: "primary" as const },
     { title: "First Touch Speed", value: "12m", change: -25.7, trend: "up" as const, color: "success" as const },
     { title: "Resolution Time", value: "4.2h", change: -12.1, trend: "up" as const, color: "primary" as const }
-  ];
+  ]);
 
-  const channelData = [
+  const channelData = mock([
     { channel: "Email", avgTime: "1.8h", volume: 247, rate: 92, trend: "improving" },
     { channel: "Phone", avgTime: "0.5h", volume: 156, rate: 89, trend: "stable" },
     { channel: "Chat", avgTime: "3m", volume: 89, rate: 94, trend: "improving" },
     { channel: "Social", avgTime: "2.1h", volume: 34, rate: 78, trend: "declining" }
-  ];
+  ]);
 
-  const responseAlerts = [
+  const responseAlerts = mock([
     {
       id: 1,
       type: "urgent",
@@ -55,7 +56,7 @@ export const ResponseIntelligence: React.FC<ResponseIntelligenceProps> = ({ onBa
       count: 0,
       priority: "low"
     }
-  ];
+  ]);
 
   const headerActions = (
     <>

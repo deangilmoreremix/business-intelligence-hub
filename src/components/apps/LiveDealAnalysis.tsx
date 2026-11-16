@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { mock } from '../../lib/mockData';
 import { Brain, Activity, AlertTriangle, TrendingUp } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
 import { Section } from '../ui/Section';
@@ -25,14 +26,14 @@ export const LiveDealAnalysis: React.FC<LiveDealAnalysisProps> = ({ onBack }) =>
     }
   }, [isLiveMode]);
 
-  const liveMetrics = [
+  const liveMetrics = mock([
     { title: "Active Deals", value: "147", change: 3, trend: "up" as const, color: "primary" as const },
     { title: "Hot Prospects", value: "23", change: 5, trend: "up" as const, color: "warning" as const },
     { title: "At Risk", value: "8", change: -2, trend: "up" as const, color: "danger" as const },
     { title: "Closed Today", value: "5", change: 12, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const liveDeals = [
+  const liveDeals = mock([
     {
       id: 1,
       company: "TechCorp",
@@ -63,7 +64,7 @@ export const LiveDealAnalysis: React.FC<LiveDealAnalysisProps> = ({ onBack }) =>
       status: "cold",
       probability: 45
     }
-  ];
+  ]);
 
   const headerActions = (
     <ModernButton

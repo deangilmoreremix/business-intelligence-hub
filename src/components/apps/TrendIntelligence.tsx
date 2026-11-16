@@ -1,4 +1,5 @@
 import { runAIAnalysis } from '../../lib/aiBus';
+import { mock } from '../../lib/mockData';
 import React, { useState } from 'react';
 import { TrendingUp, BarChart3, LineChart, PieChart, Zap, Target } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -17,14 +18,14 @@ export const TrendIntelligence: React.FC<TrendIntelligenceProps> = ({ onBack }) 
   const [forecastPeriod, setForecastPeriod] = useState('90d');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const trendMetrics = [
+  const trendMetrics = mock([
     { title: "Trend Accuracy", value: "94.2%", change: 8.7, trend: "up" as const, color: "success" as const },
     { title: "Positive Trends", value: "23", change: 15.3, trend: "up" as const, color: "success" as const },
     { title: "Forecast Confidence", value: "89%", change: 5.2, trend: "up" as const, color: "primary" as const },
     { title: "Trend Velocity", value: "+18.5%", change: 12.8, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const majorTrends = [
+  const majorTrends = mock([
     {
       trend: "Revenue Growth Acceleration",
       direction: "Upward",
@@ -55,16 +56,16 @@ export const TrendIntelligence: React.FC<TrendIntelligenceProps> = ({ onBack }) 
       prediction: "Average deal time to reduce to 32 days by end of quarter",
       recommendation: "Standardize enterprise sales process and expand team"
     }
-  ];
+  ]);
 
-  const trendCategories = [
+  const trendCategories = mock([
     { category: "Revenue Trends", count: 8, positive: 7, negative: 1, strength: "Strong" },
     { category: "Customer Trends", count: 6, positive: 5, negative: 1, strength: "Moderate" },
     { category: "Product Trends", count: 4, positive: 3, negative: 1, strength: "Moderate" },
     { category: "Market Trends", count: 5, positive: 4, negative: 1, strength: "Strong" }
-  ];
+  ]);
 
-  const predictiveInsights = [
+  const predictiveInsights = mock([
     {
       insight: "Q4 Revenue Projection",
       prediction: "$4.2M",
@@ -86,7 +87,7 @@ export const TrendIntelligence: React.FC<TrendIntelligenceProps> = ({ onBack }) 
       timeline: "60 days",
       factors: ["Engagement metrics", "Support quality", "Product satisfaction"]
     }
-  ];
+  ]);
 
   const runTrendAnalysis = async () => {
     setIsAnalyzing(true);

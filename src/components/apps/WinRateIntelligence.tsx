@@ -1,4 +1,5 @@
 import { runAIAnalysis } from '../../lib/aiBus';
+import { mock } from '../../lib/mockData';
 import React, { useState } from 'react';
 import { Award, TrendingUp, Users, Target, Zap, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -18,18 +19,18 @@ export const WinRateIntelligence: React.FC<WinRateIntelligenceProps> = ({ onBack
   const [selectedSegment, setSelectedSegment] = useState('all');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const winRateMetrics = [
+  const winRateMetrics = mock([
     { title: "Overall Win Rate", value: "67.3%", change: 5.2, trend: "up" as const, color: "success" as const },
     { title: "Avg Deal Cycle", value: "28 days", change: -3.5, trend: "up" as const, color: "primary" as const },
     { title: "Top Performer", value: "Sarah J.", change: 12.8, trend: "up" as const, color: "primary" as const },
     { title: "Win Rate Trend", value: "↗ +8.4%", change: 8.4, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const segmentAnalysis = [
+  const segmentAnalysis = mock([
     { segment: "Enterprise", winRate: 78, deals: 45, revenue: "$1.2M", trend: "up" },
     { segment: "Mid-Market", winRate: 65, deals: 89, revenue: "$890K", trend: "up" },
     { segment: "SMB", winRate: 52, deals: 156, revenue: "$340K", trend: "down" }
-  ];
+  ]);
 
   const runWinRateAnalysis = async () => {
     setIsAnalyzing(true);

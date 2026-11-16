@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { mock } from '../../lib/mockData';
 import { MovableSections } from '../movable/MovableSections';
 import { usePageArrange } from '../movable/usePageArrange';
 import { ArrowLeft, FileText, TrendingUp, Users, DollarSign, Target, Download } from 'lucide-react';
@@ -18,12 +19,12 @@ export const PerformanceReports: React.FC<PerformanceReportsProps> = ({ onBack }
   const [selectedReport, setSelectedReport] = useState('overview');
   const [timeRange, setTimeRange] = useState('30d');
 
-  const reportMetrics = [
+  const reportMetrics = mock([
     { label: "Total Revenue", value: "$2.4M", change: "+18%", trend: "up" as const },
     { label: "Deals Closed", value: "147", change: "+12%", trend: "up" as const },
     { label: "Team Performance", value: "89%", change: "+5%", trend: "up" as const },
     { label: "Goal Achievement", value: "94%", change: "+8%", trend: "up" as const }
-  ];
+  ]);
 
   const reportTypes = [
     { id: 'overview', name: 'Performance Overview', icon: FileText },
@@ -32,12 +33,12 @@ export const PerformanceReports: React.FC<PerformanceReportsProps> = ({ onBack }
     { id: 'goals', name: 'Goal Tracking', icon: Target }
   ];
 
-  const quarterlyData = [
+  const quarterlyData = mock([
     { quarter: "Q1 2024", revenue: "$1.8M", deals: 89, growth: "+15%" },
     { quarter: "Q2 2024", revenue: "$2.1M", deals: 102, growth: "+17%" },
     { quarter: "Q3 2024", revenue: "$2.4M", deals: 117, growth: "+14%" },
     { quarter: "Q4 2024", revenue: "$2.7M", deals: 128, growth: "+13%" }
-  ];
+  ]);
 
   const topPerformers = teamMembers.map(member => ({
     ...member,

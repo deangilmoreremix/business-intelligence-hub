@@ -1,4 +1,5 @@
 import { AIAnalysisSection } from '../ai/AIAnalysisSection';
+import { mock } from '../../lib/mockData';
 import React, { useState } from 'react';
 import { Activity, Users, Clock, TrendingUp, Zap, BarChart3 } from 'lucide-react';
 import { PageWrapper } from '../layout/PageWrapper';
@@ -15,21 +16,21 @@ export const ActivityDashboard: React.FC<ActivityDashboardProps> = ({ onBack }) 
   const [timeRange, setTimeRange] = useState('today');
   const [activityType, setActivityType] = useState('all');
 
-  const activityMetrics = [
+  const activityMetrics = mock([
     { title: "Total Activities", value: "2,847", change: 18.5, trend: "up" as const, color: "primary" as const },
     { title: "Team Productivity", value: "94%", change: 12.3, trend: "up" as const, color: "success" as const },
     { title: "Avg Response Time", value: "2.3h", change: -23.7, trend: "up" as const, color: "success" as const },
     { title: "Completion Rate", value: "87%", change: 8.9, trend: "up" as const, color: "success" as const }
-  ];
+  ]);
 
-  const activityTypes = [
+  const activityTypes = mock([
     { type: "Calls", count: 456, percentage: 35, avgDuration: "12.5 min", success: 89 },
     { type: "Emails", count: 892, percentage: 28, avgDuration: "3.2 min", success: 76 },
     { type: "Meetings", count: 234, percentage: 18, avgDuration: "45 min", success: 94 },
     { type: "Tasks", count: 567, percentage: 19, avgDuration: "25 min", success: 82 }
-  ];
+  ]);
 
-  const recentActivities = [
+  const recentActivities = mock([
     {
       id: 1,
       type: "Call",
@@ -70,9 +71,9 @@ export const ActivityDashboard: React.FC<ActivityDashboardProps> = ({ onBack }) 
       status: "completed",
       outcome: "Ready for signature"
     }
-  ];
+  ]);
 
-  const hourlyActivity = [
+  const hourlyActivity = mock([
     { hour: "9 AM", activities: 145, productivity: 78 },
     { hour: "10 AM", activities: 189, productivity: 89 },
     { hour: "11 AM", activities: 234, productivity: 92 },
@@ -81,7 +82,7 @@ export const ActivityDashboard: React.FC<ActivityDashboardProps> = ({ onBack }) 
     { hour: "2 PM", activities: 198, productivity: 88 },
     { hour: "3 PM", activities: 212, productivity: 91 },
     { hour: "4 PM", activities: 187, productivity: 85 }
-  ];
+  ]);
 
   const getActivityIcon = (type: string) => {
     switch (type) {

@@ -1,4 +1,5 @@
 import { getAvatarByIndex, getInitials } from '../utils/avatars';
+import { mock } from '../lib/mockData';
 
 export interface TeamMember {
   id: string;
@@ -13,7 +14,7 @@ export interface TeamMember {
   revenue?: string;
 }
 
-export const teamMembers: TeamMember[] = [
+export const teamMembers: TeamMember[] = mock([
   {
     id: '1',
     name: 'Sarah Johnson',
@@ -68,7 +69,7 @@ export const teamMembers: TeamMember[] = [
     deals: 15,
     revenue: '$220K'
   }
-];
+]);
 
 // Enhance team members with avatars and initials
 teamMembers.forEach((member, index) => {

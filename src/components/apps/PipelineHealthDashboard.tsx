@@ -1,4 +1,5 @@
 import { runAIAnalysis } from '../../lib/aiBus';
+import { mock } from '../../lib/mockData';
 import { MovableSections } from '../movable/MovableSections';
 import { usePageArrange } from '../movable/usePageArrange';
 import React, { useState, useEffect } from 'react';
@@ -33,20 +34,20 @@ export const PipelineHealthDashboard: React.FC<PipelineHealthDashboardProps> = (
     setIsAnalyzing(false);
   };
 
-  const healthMetrics = [
+  const healthMetrics = mock([
     { label: "Overall Health Score", value: `${healthScore}%`, change: "+3%", trend: "up" as const },
     { label: "Pipeline Velocity", value: "23.5 days", change: "-2.1 days", trend: "up" as const },
     { label: "Conversion Rate", value: "18.7%", change: "+1.4%", trend: "up" as const },
     { label: "Revenue at Risk", value: "$245K", change: "-15%", trend: "up" as const }
-  ];
+  ]);
 
-  const stageHealth = [
+  const stageHealth = mock([
     { stage: "Lead", health: 92, deals: 156, value: "$780K", issues: 2 },
     { stage: "Qualified", health: 87, deals: 89, value: "$890K", issues: 5 },
     { stage: "Proposal", health: 74, deals: 45, value: "$670K", issues: 8 },
     { stage: "Negotiation", health: 68, deals: 23, value: "$450K", issues: 12 },
     { stage: "Closing", health: 85, deals: 15, value: "$340K", issues: 3 }
-  ];
+  ]);
 
   const getHealthColor = (health: number) => {
     if (health >= 80) return 'text-green-600 bg-green-100';
