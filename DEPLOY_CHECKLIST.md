@@ -7,4 +7,7 @@ Things only you can run (they need live credentials):
 3. **Deploy**, then run `SITE_URL=https://<site>.netlify.app npm run smoke:openai` – all lines must PASS.
 4. **Images** – open Advanced Contacts, upload a contact photo, reload; it must persist (proves Storage signed upload).
 5. **Federation** – load `/remoteEntry.js` from the host app and open the AnalyticsApp remote; check styles render.
-6. **Known gaps** – row-level security is still open to anon/authenticated (tenant policies need the host token model); the openai-proxy has no per-user auth/rate limits yet. Do not expose publicly with real customer data until those are done.
+6. **Auth + tenancy** – set `HOST_JWT_SECRET` (use the Supabase JWT secret), `ALLOWED_ORIGIN`, and have the host post `{type:'AUTH_TOKEN', data: <jwt>}` (claims `tenant_id`, `exp`, `role: "authenticated"`). Apply migrations `20261113…` (tenant RLS) and `20261114…` (CRM server-side). Run `psql "$DB_URL" -f scripts/test-tenant-rls.sql` – it must print `PASS tenant isolation`. Without a token everything lives in the shared `public` tenant.
+7. **CRM** – set `SUPABASE_SERVICE_ROLE_KEY` (+ `SUPABASE_URL`); the CRM connector now runs server-side and requires a host token. Reconnect the CRM once (old browser-stored keys are scrubbed).
+8. **Headers** – CSP is report-only; review violations in the browser console, then switch it to enforcing and add `frame-ancestors <host origin>`.
+9. **Known gaps** – the daily AI budget is not enforced (rate limit is per function instance, in memory); chatbot/preferences/walkthrough tables are still session-scoped, not tenant-scoped; storage uploads are not tenant-isolated. Without HOST_JWT_SECRET the proxy runs open.
