@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview --host 0.0.0.0 --port 5000",
     "typecheck": "node scripts/typecheck.cjs",
-    "test": "vitest run"
+    "test": "vitest run",
+    "smoke:openai": "node scripts/smoke-openai.cjs"
   },
   "dependencies": {
     "@apollo/client": "^4.3.8",
