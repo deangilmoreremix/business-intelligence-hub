@@ -146,6 +146,16 @@ const textMsg = text => ({ output: [{ type: 'message', content: [{ type: 'output
   await page.waitForSelector('text=Merged');
   const smiths = (await db.query("select first_name,email,company from contacts where last_name='Smith'")).rows;
   check('merge leaves one contact and keeps donor fields', smiths.length === 1 && smiths[0].email === 'bob@initech.com', JSON.stringify(smiths));
+  // 8b. undo the merge: both Smiths are back, the merge marker activity is gone, then merge again
+  await page.waitForSelector('[data-testid=undo-bar]');
+  await page.click('[data-testid=undo-bar] button:has-text("Undo")');
+  await page.waitForSelector('text=Merge undone');
+  check('undo merge restores both contacts', (await db.query("select count(*) c from contacts where last_name='Smith'")).rows[0].c === '2');
+  check('undo merge removes the merged marker', (await db.query("select count(*) c from contact_activities where kind='merged'")).rows[0].c === '0');
+  await page.click('button:has-text("Find duplicates")');
+  await page.waitForSelector('[aria-label="Duplicate groups"]');
+  await page.click('button:has-text("Merge")');
+  await page.waitForSelector('text=Merged');
 
   // 9. bulk
   await page.click('input[aria-label="Select all"]');
@@ -165,6 +175,11 @@ const textMsg = text => ({ output: [{ type: 'message', content: [{ type: 'output
   await page.click('[role=toolbar] button:has-text("Delete")');
   await page.waitForSelector('text=Deleted');
   check('bulk delete', (await db.query('select count(*) c from contacts')).rows[0].c === '0');
+  await page.waitForSelector('[data-testid=undo-bar]');
+  await page.click('[data-testid=undo-bar] button:has-text("Undo")');
+  await page.waitForSelector('text=Restored');
+  check('undo bulk delete brings the contacts back', (await db.query('select count(*) c from contacts')).rows[0].c === '2');
+  check('undo bulk delete restores notes', (await db.query('select count(*) c from contact_notes')).rows[0].c >= '1');
 
   check('no uncaught page errors', pageErrors.length === 0, pageErrors.join(' ; '));
   await page.screenshot({ path: '/tmp/contacts-final.png' });

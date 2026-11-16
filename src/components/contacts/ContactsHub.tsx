@@ -7,7 +7,7 @@ import { CompaniesPanel } from './CompaniesPanel';
 import { PersonImageUpload } from '../people/PersonImageUpload';
 import { usePeoplePhotos } from '../../store/peoplePhotos';
 import {
-  addActivity, listContactsPage, bulkDelete, bulkSetStatus, bulkTag, getContactCompanyId, linkContactToCompany, listActivities,
+  addActivity, listContactsPage, snapshotContacts, restoreSnapshot, type ContactSnapshot, bulkDelete, bulkSetStatus, bulkTag, getContactCompanyId, linkContactToCompany, listActivities,
   listCompanies, loadViews, mergeContacts, saveViews, type Activity, type Company, type SavedView,
 } from '../../services/contactService';
 import {
@@ -63,6 +63,13 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const [companyOptions, setCompanyOptions] = useState<Company[]>([]);
   const [companyId, setCompanyId] = useState<string>('');
   const [info, setInfo] = useState<string | null>(null);
+  const [undo, setUndo] = useState<{ label: string; run: () => Promise<void> } | null>(null);
+  const undoTimer = useRef<ReturnType<typeof setTimeout>>();
+  const offerUndo = (label: string, run: () => Promise<void>) => {
+    setUndo({ label, run });
+    clearTimeout(undoTimer.current);
+    undoTimer.current = setTimeout(() => setUndo(null), 15000);
+  };
 
   useEffect(() => { loadContactsFromSupabase(); }, [loadContactsFromSupabase]);
   useEffect(() => { loadViews().then(setViews).catch(() => undefined); }, []);
@@ -179,10 +186,12 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const mergeGroup = (g: DuplicateGroup) => guard(async () => {
     const [primary, ...rest] = g.ids;
     if (!window.confirm(`Merge ${g.ids.length} contacts into "${contacts[primary]?.name}"? The others will be deleted.`)) return;
+    const snap: ContactSnapshot = await snapshotContacts(g.ids);
     await mergeContacts(primary, rest);
     setDupes(d => d && d.filter(x => x !== g));
     await reload();
     flash('Merged');
+    offerUndo(`Merged ${g.ids.length} contacts`, async () => { await restoreSnapshot(snap, { removeMergedMarkerFor: primary }); await reload(); flash('Merge undone'); });
   });
 
   const onImport = async (f?: File) => {
@@ -206,6 +215,13 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
       </div>
       {tab === 'companies' ? <CompaniesPanel btn={btn} /> : (<>
       {info && <p role="status" className="mb-3 text-sm text-emerald-600">{info}</p>}
+      {undo && (
+        <div role="status" data-testid="undo-bar" className="mb-3 flex items-center gap-3 text-sm rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2">
+          <span>{undo.label}</span>
+          <button className={btn} onClick={() => { const u = undo; setUndo(null); clearTimeout(undoTimer.current); guard(u.run); }}>Undo</button>
+          <button className="text-gray-400" aria-label="Dismiss" onClick={() => setUndo(null)}>×</button>
+        </div>
+      )}
       {!!views.length && (
         <div className="flex flex-wrap gap-2 mb-3 items-center text-sm" aria-label="Saved views">
           <Bookmark className="w-4 h-4 text-gray-400" />
@@ -241,7 +257,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
           </select>
           <button className={btn} onClick={() => { const t = window.prompt('Tag to add'); if (t) guard(async () => { await bulkTag(ids, t.trim()); await afterBulk(`Tagged "${t.trim()}"`); }); }}><Tag className="w-4 h-4" />Tag</button>
           <button className={btn} disabled={busy === 'bulk-enrich'} onClick={bulkEnrich}><Globe className="w-4 h-4" />{busy === 'bulk-enrich' ? 'Enriching…' : 'Enrich selected'}</button>
-          <button className={btn} onClick={() => { if (window.confirm(`Delete ${ids.length} contact(s)?`)) guard(async () => { await bulkDelete(ids); await afterBulk('Deleted'); }); }}><Trash2 className="w-4 h-4" />Delete</button>
+          <button className={btn} onClick={() => { if (window.confirm(`Delete ${ids.length} contact(s)?`)) guard(async () => { const snap = await snapshotContacts(ids); await bulkDelete(ids); await afterBulk('Deleted'); offerUndo(`Deleted ${ids.length} contact(s)`, async () => { await restoreSnapshot(snap); await reload(); flash('Restored'); }); }); }}><Trash2 className="w-4 h-4" />Delete</button>
           <button className={btn} onClick={() => setChecked(new Set())}>Clear</button>
         </div>
       )}
@@ -325,7 +341,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
             <button className={btn} disabled={busy === 'enrich'} onClick={() => run('enrich', () => enrichContact(selected), showEnrichment)}><Globe className="w-4 h-4" />{busy === 'enrich' ? 'Searching web…' : 'Enrich from web'}</button>
             <button className={btn} disabled={busy === 'email'} onClick={() => run('email', async () => { const d = await draftEmail(selected, 'Follow up and book a call'); await addActivity(selected.id, 'email drafted', d.subject); refreshActivities(); return d; }, setEmail)}><Mail className="w-4 h-4" />Draft email</button>
             <button className={btn} disabled={busy === 'avatar'} onClick={() => run('avatar', () => generateContactAvatar(selected), setAvatar)}><ImageIcon className="w-4 h-4" />Avatar</button>
-            <button className={btn} onClick={async () => { await deleteContact(selected.id); setSelected(null); }}><Trash2 className="w-4 h-4" />Delete</button>
+            <button className={btn} onClick={async () => { const id = selected.id; const snap = await snapshotContacts([id]).catch(() => null); await deleteContact(id); setSelected(null); if (snap) offerUndo('Deleted 1 contact', async () => { await restoreSnapshot(snap); await reload(); flash('Restored'); }); }}><Trash2 className="w-4 h-4" />Delete</button>
           </div>
           {enrich && (
             <div className="p-3 mb-3 rounded-lg border border-emerald-300 dark:border-emerald-700 text-sm">

@@ -148,3 +148,44 @@ export async function listContactsPage(q: ContactsPageQuery): Promise<{ rows: Co
   if (error) throw new Error(error.message);
   return { rows: (data ?? []).map((r, i) => rowToContact(r as never, i)), total: count ?? 0 };
 }
+
+/* ---------- undo for destructive bulk actions (client-held snapshot, no schema change) ---------- */
+export interface ContactSnapshot {
+  takenAt: string;
+  contacts: Array<Record<string, unknown>>;
+  notes: Array<Record<string, unknown>>;
+  activities: Array<Record<string, unknown>>;
+  /** deals that pointed at one of these contacts (ON DELETE SET NULL would otherwise lose the link) */
+  deals: Array<{ id: string; contact_id: string }>;
+}
+
+/** Captures the contacts (and the rows that cascade-delete or get re-pointed with them) so the action can be undone. */
+export async function snapshotContacts(ids: string[]): Promise<ContactSnapshot> {
+  const takenAt = new Date().toISOString();
+  const [contacts, notes, activities, deals] = await Promise.all([
+    supabase.from('contacts').select('*').in('id', ids),
+    supabase.from('contact_notes').select('*').in('contact_id', ids),
+    supabase.from('contact_activities').select('*').in('contact_id', ids),
+    supabase.from('deals').select('id,contact_id').in('contact_id', ids),
+  ]);
+  return {
+    takenAt,
+    contacts: must(contacts) ?? [],
+    notes: must(notes) ?? [],
+    activities: must(activities) ?? [],
+    deals: (must(deals) ?? []) as Array<{ id: string; contact_id: string }>,
+  };
+}
+
+/** Puts a snapshot back: recreates deleted contacts, restores edited fields, notes, activities and deal links. */
+export async function restoreSnapshot(snap: ContactSnapshot, opts: { removeMergedMarkerFor?: string } = {}): Promise<void> {
+  if (snap.contacts.length) must(await supabase.from('contacts').upsert(snap.contacts, { onConflict: 'id' }).select());
+  if (snap.notes.length) must(await supabase.from('contact_notes').upsert(snap.notes, { onConflict: 'id' }).select());
+  if (snap.activities.length) must(await supabase.from('contact_activities').upsert(snap.activities, { onConflict: 'id' }).select());
+  const byContact = new Map<string, string[]>();
+  for (const d of snap.deals) byContact.set(d.contact_id, [...(byContact.get(d.contact_id) ?? []), d.id]);
+  for (const [contactId, dealIds] of byContact) must(await supabase.from('deals').update({ contact_id: contactId }).in('id', dealIds).select());
+  if (opts.removeMergedMarkerFor) {
+    must(await supabase.from('contact_activities').delete().eq('contact_id', opts.removeMergedMarkerFor).eq('kind', 'merged').gte('created_at', snap.takenAt).select());
+  }
+}
