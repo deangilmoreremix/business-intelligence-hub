@@ -4,7 +4,7 @@ import { ViewFilterOperand } from 'twenty-shared/types';
 import type { CatalogObjectName } from '../../vendor/twenty-adapter/metadata';
 import {
   OPERANDS_BY_TYPE, defaultWidget, objectDef, operandNeedsValue, isDate, isNumeric,
-  type FilterRow, type WidgetOptions, type WidgetSpec,
+  isStaticKind, type FilterRow, type WidgetOptions, type WidgetSpec,
 } from './model';
 import { loadViews } from '../../services/contactService';
 import { viewToFilterRows } from '../contacts/viewFilters';
@@ -143,7 +143,7 @@ export const WidgetConfigPanel = ({ spec, allowlist, onChange, onRemove, onClose
 
       <div><span className={label}>Title</span><input aria-label="Title" className={input} value={spec.title} onChange={e => onChange({ ...spec, title: e.target.value })} /></div>
 
-      {spec.kind !== 'iframe' && spec.kind !== 'aiInsights' && (
+      {!isStaticKind(spec.kind) && (
         <div>
           <span className={label}>Data</span>
           <select aria-label="Object" className={input} value={spec.objectName} onChange={e => {
@@ -229,7 +229,7 @@ export const WidgetConfigPanel = ({ spec, allowlist, onChange, onRemove, onClose
         </div>
       )}
 
-      {spec.kind !== 'iframe' && spec.kind !== 'aiInsights' && (
+      {!isStaticKind(spec.kind) && (
         <>
           <div><span className={label}>Filters</span><FilterEditor object={spec.objectName} rows={o.filters} onChange={filters => set({ filters })} /></div>
           <Check checked={o.useContext} onChange={v => set({ useContext: v })}>Filter by the dashboard’s selected record</Check>

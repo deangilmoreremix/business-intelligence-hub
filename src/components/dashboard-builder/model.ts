@@ -5,7 +5,7 @@ import {
 } from '../../vendor/twenty-adapter/metadata';
 import { chartFilterToGql, objectFromMetadataId } from '../../vendor/twenty-adapter/chartData';
 
-export type WidgetKind = 'bar' | 'line' | 'pie' | 'aggregate' | 'recordList' | 'iframe' | 'aiInsights';
+export type WidgetKind = 'bar' | 'line' | 'pie' | 'aggregate' | 'recordList' | 'iframe' | 'aiInsights' | 'kpis' | 'aiAnalytics';
 
 export interface FilterRow {
   field: string;               // catalog field name
@@ -60,10 +60,13 @@ const DEFAULT_GROUP: Record<CatalogObjectName, { field: string; granularity?: st
   contact: { field: 'status' }, deal: { field: 'stageId' }, company: { field: 'industry' },
 };
 
+/** Widgets that wrap an existing component and have no object/filter configuration. */
+export const isStaticKind = (k: WidgetKind) => k === 'iframe' || k === 'aiInsights' || k === 'kpis' || k === 'aiAnalytics';
+
 export const defaultWidget = (kind: WidgetKind, objectName: CatalogObjectName = 'contact'): WidgetSpec => {
   const g = DEFAULT_GROUP[objectName];
   const titles: Record<WidgetKind, string> = {
-    bar: 'Bar chart', line: 'Trend', pie: 'Distribution', aggregate: 'Total', recordList: 'Records', iframe: 'Embedded page', aiInsights: 'AI insights',
+    bar: 'Bar chart', line: 'Trend', pie: 'Distribution', aggregate: 'Total', recordList: 'Records', iframe: 'Embedded page', aiInsights: 'AI insights', kpis: 'KPI cards', aiAnalytics: 'AI analytics',
   };
   const base = { ...DEFAULT_OPTIONS, groupBy: g.field };
   const options: WidgetOptions =
@@ -71,8 +74,8 @@ export const defaultWidget = (kind: WidgetKind, objectName: CatalogObjectName = 
     : kind === 'aggregate' ? { ...DEFAULT_OPTIONS }
     : kind === 'recordList' ? { ...DEFAULT_OPTIONS, columns: objectDef(objectName).fields.filter(f => f.name !== 'id').slice(0, 4).map(f => f.name) }
     : base;
-  const size = kind === 'aggregate' ? { w: 3, h: 3 } : kind === 'recordList' ? { w: 6, h: 6 } : { w: 6, h: 5 };
-  return { id: newId(), kind, title: `${titles[kind]}${kind === 'iframe' || kind === 'aiInsights' ? '' : ` · ${objectDef(objectName).labelPlural}`}`, objectName, grid: { x: 0, y: Infinity, ...size }, options };
+  const size = kind === 'kpis' ? { w: 12, h: 4 } : kind === 'aiAnalytics' ? { w: 12, h: 8 } : kind === 'aggregate' ? { w: 3, h: 3 } : kind === 'recordList' ? { w: 6, h: 6 } : { w: 6, h: 5 };
+  return { id: newId(), kind, title: `${titles[kind]}${isStaticKind(kind) ? '' : ` · ${objectDef(objectName).labelPlural}`}`, objectName, grid: { x: 0, y: Infinity, ...size }, options };
 };
 
 /* -------------------- filters -------------------- */

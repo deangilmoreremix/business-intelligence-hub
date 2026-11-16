@@ -9,6 +9,8 @@ import { PageWrapper } from '../layout/PageWrapper';
 import { GlassCard } from '../ui/GlassCard';
 import { ModernButton } from '../ui/ModernButton';
 import { AIAnalysisSection } from '../ai/AIAnalysisSection';
+import KPICards from '../dashboard/KPICards';
+import { AIAnalyticsDashboard } from '../dashboard/AIAnalyticsDashboard';
 import { useTheme } from '../../contexts/ThemeContext';
 import { TwentyWidgetHost, createTwentyStore } from '../../vendor/twenty-adapter/TwentyWidgetHost';
 import { createDashboardApolloClient } from '../../vendor/twenty-adapter/apolloLink';
@@ -36,6 +38,8 @@ const KINDS: Array<{ kind: WidgetKind; label: string; icon: React.ComponentType<
   { kind: 'recordList', label: 'Record list', icon: Table2, hint: 'Underlying records' },
   { kind: 'iframe', label: 'Embedded page', icon: Globe, hint: 'Approved sites only' },
   { kind: 'aiInsights', label: 'AI insights', icon: Sparkles, hint: 'GPT analysis' },
+  { kind: 'kpis', label: 'KPI cards', icon: Hash, hint: 'Deals, pipeline, win rate' },
+  { kind: 'aiAnalytics', label: 'AI analytics', icon: Sparkles, hint: 'Usage and impact' },
 ];
 
 const TWENTY_KINDS: WidgetKind[] = ['bar', 'line', 'pie', 'aggregate', 'iframe'];
@@ -206,6 +210,8 @@ export const DashboardBuilder: React.FC<{ onBack?: () => void }> = ({ onBack }) 
 
   const renderWidget = (w: WidgetSpec) => {
     if (w.kind === 'recordList') return <RecordListWidget spec={w} context={layout.context} onOpenRecord={r => openRecord(r, w.objectName)} />;
+    if (w.kind === 'kpis') return <div className="p-2 overflow-auto h-full"><KPICards /></div>;
+    if (w.kind === 'aiAnalytics') return <div className="p-2 overflow-auto h-full"><AIAnalyticsDashboard /></div>;
     if (w.kind === 'aiInsights') return <div className="p-2 overflow-auto h-full"><AIAnalysisSection appId={`dashboard-${w.id}`} analysisType="analytics" title="AI insights" description="Analysis of your contacts and deals" /></div>;
     if (w.kind === 'iframe') {
       const host = (() => { try { return new URL(w.options.url).hostname; } catch { return ''; } })();
