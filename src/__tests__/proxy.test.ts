@@ -76,3 +76,45 @@ describe('openai-proxy', () => {
     expect((await call({ endpoint: 'responses', body: { model: 'gpt-6-astra', input: 'x' } })).status).toBe(500);
   });
 });
+
+describe('openai-proxy auth, limits and size', () => {
+  beforeAll(() => { process.env.OPENAI_API_KEY = 'sk-test'; });
+  it('requires a valid host token when HOST_JWT_SECRET is set, and uses its tenant', async () => {
+    const { signJwt, _resetRateLimits } = await import(/* @vite-ignore */ '../../netlify/lib/auth.mts');
+    _resetRateLimits();
+    process.env.HOST_JWT_SECRET = 'shh';
+    try {
+      const ok = { endpoint: 'responses', body: { model: 'gpt-6-astra', input: 'x' } };
+      expect((await call(ok)).status).toBe(401);
+      expect((await call(ok, { headers: { authorization: 'Bearer nope' } })).status).toBe(401);
+      const expired = signJwt({ tenant_id: 't1', exp: Math.floor(Date.now() / 1000) - 10 }, 'shh');
+      expect((await call(ok, { headers: { authorization: `Bearer ${expired}` } })).status).toBe(401);
+      const wrongKey = signJwt({ tenant_id: 't1', exp: Math.floor(Date.now() / 1000) + 60 }, 'other');
+      expect((await call(ok, { headers: { authorization: `Bearer ${wrongKey}` } })).status).toBe(401);
+      const good = signJwt({ tenant_id: 't1', exp: Math.floor(Date.now() / 1000) + 60 }, 'shh');
+      expect((await call(ok, { headers: { authorization: `Bearer ${good}` } })).status).toBe(200);
+    } finally { delete process.env.HOST_JWT_SECRET; }
+  });
+
+  it('rate-limits per tenant', async () => {
+    const { _resetRateLimits } = await import(/* @vite-ignore */ '../../netlify/lib/auth.mts');
+    _resetRateLimits();
+    process.env.RATE_LIMIT_PER_MIN = '2';
+    try {
+      const ok = { endpoint: 'responses', body: { model: 'gpt-6-astra', input: 'x' } };
+      expect((await call(ok)).status).toBe(200);
+      expect((await call(ok)).status).toBe(200);
+      const third = await call(ok);
+      expect(third.status).toBe(429);
+      expect(Number(third.headers.get('retry-after'))).toBeGreaterThan(0);
+    } finally { delete process.env.RATE_LIMIT_PER_MIN; _resetRateLimits(); }
+  });
+
+  it('rejects oversized bodies and refuses production without ALLOWED_ORIGIN', async () => {
+    const big = { endpoint: 'responses', body: { model: 'gpt-6-astra', input: 'x'.repeat(250_000) } };
+    expect((await call(big)).status).toBe(413);
+    process.env.CONTEXT = 'production';
+    try { expect((await call({ endpoint: 'responses', body: { model: 'gpt-6-astra', input: 'x' } })).status).toBe(500); }
+    finally { delete process.env.CONTEXT; }
+  });
+});

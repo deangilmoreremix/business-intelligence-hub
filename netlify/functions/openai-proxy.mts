@@ -1,10 +1,13 @@
 // Netlify Function: server-side proxy for the OpenAI Responses and Images APIs.
 // Requires env var OPENAI_API_KEY (set in Netlify site settings). Optional: ALLOWED_ORIGIN.
 import type { Context } from '@netlify/functions';
+import { authenticate, rateLimit } from '../lib/auth.mts';
 
 const ENDPOINTS = new Set(['responses', 'images/generations', 'images/edits']);
 const MODEL_PREFIXES = ['gpt-6', 'gpt-5', 'gpt-image-'];
 const MAX_OUTPUT_TOKENS = 16000;
+const MAX_BODY_BYTES = 200_000;
+const DEFAULT_RATE_LIMIT_PER_MIN = 30;
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -15,14 +18,23 @@ export default async (req: Request, _ctx: Context) => {
 
   const allowed = process.env.ALLOWED_ORIGIN;
   const origin = req.headers.get('origin');
+  // In production an explicit allowed origin is mandatory (otherwise any site could spend the OpenAI key).
+  if (!allowed && process.env.CONTEXT === 'production') return json({ error: 'ALLOWED_ORIGIN must be set on the server' }, 500);
   if (allowed && origin && origin !== allowed) return json({ error: 'Forbidden origin' }, 403);
+
+  const auth = authenticate(req);
+  if (!auth.ok) return json({ error: auth.error }, auth.status ?? 401);
+  const limit = rateLimit(auth.tenant, Number(process.env.RATE_LIMIT_PER_MIN) || DEFAULT_RATE_LIMIT_PER_MIN);
+  if (!limit.ok) return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), { status: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': String(limit.retryAfter) } });
 
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return json({ error: 'OPENAI_API_KEY is not configured on the server' }, 500);
 
   let payload: { endpoint?: string; body?: Record<string, any> };
   try {
-    payload = await req.json();
+    const raw = await req.text();
+    if (raw.length > MAX_BODY_BYTES) return json({ error: 'Request too large' }, 413);
+    payload = JSON.parse(raw);
   } catch {
     return json({ error: 'Invalid JSON' }, 400);
   }

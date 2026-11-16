@@ -91,3 +91,33 @@ describe('availability', () => {
     expect(await checkAIAvailable()).toBe(true);
   });
 });
+
+describe('resilience and auth header', () => {
+  it('retries transient 5xx/429 and then succeeds', async () => {
+    let n = 0;
+    handler = () => (++n < 3 ? { status: 503, json: { error: { message: 'busy' } } } : { json: { output: [{ type: 'message', content: [{ type: 'output_text', text: 'fine' }] }] } });
+    const r = await createResponseFull({ input: 'x' });
+    expect(r.text).toBe('fine');
+    expect(n).toBe(3);
+  });
+
+  it('does not retry client errors', async () => {
+    let n = 0;
+    handler = () => { n++; return { status: 400, json: { error: { message: 'bad' } } }; };
+    await expect(createResponseFull({ input: 'x' })).rejects.toMatchObject({ status: 400 });
+    expect(n).toBe(1);
+  });
+
+  it('sends the host token as a bearer header when set', async () => {
+    const { setHostToken } = await import('../lib/hostAuth');
+    let seen: string | undefined;
+    vi.stubGlobal('fetch', async (_u: string, init?: { headers?: Record<string, string>; body?: string }) => {
+      if (!init?.body) return new Response(JSON.stringify({ configured: true }));
+      seen = init.headers?.Authorization;
+      return new Response(JSON.stringify({ output: [{ type: 'message', content: [{ type: 'output_text', text: 'ok' }] }] }));
+    });
+    setHostToken('abc.def.ghi');
+    try { await createResponseFull({ input: 'x' }); } finally { setHostToken(null); }
+    expect(seen).toBe('Bearer abc.def.ghi');
+  });
+});

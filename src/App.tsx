@@ -4,6 +4,7 @@ import { Dashboard } from './components/Dashboard';
 import { AppRoute } from './components/AppRoute';
 const RecordsPage = lazy(() => import('./components/dashboard-builder/RecordsPage').then(m => ({ default: m.RecordsPage })));
 import { remoteCommunicator } from './utils/RemoteCommunicator';
+import { setHostToken } from './lib/hostAuth';
 import { usePeoplePhotos } from './store/peoplePhotos';
 import { WalkthroughEngine } from './components/walkthrough/WalkthroughEngine';
 import { ChatWidget } from './components/chatbot/ChatWidget';
@@ -20,6 +21,8 @@ function App() {
       console.log('📊 Received initial data sync from host:', data);
     };
 
+    const handleAuthToken = (_type: string, data: any) => setHostToken(typeof data === 'string' ? data : data?.token ?? null);
+    remoteCommunicator.on('AUTH_TOKEN', handleAuthToken);
     remoteCommunicator.on('INITIAL_DATA_SYNC', handleDataSync);
     remoteCommunicator.on('CRM_READY', () => {
       console.log('✅ Host CRM is ready for communication');
@@ -27,6 +30,7 @@ function App() {
 
     return () => {
       remoteCommunicator.off('INITIAL_DATA_SYNC', handleDataSync);
+      remoteCommunicator.off('AUTH_TOKEN', handleAuthToken);
     };
   }, []);
 

@@ -6,6 +6,8 @@
  * `netlify dev`, set VITE_OPENAI_API_KEY to call api.openai.com directly (dev only).
  */
 
+import { hostAuthHeaders } from './hostAuth';
+
 const DIRECT_KEY: string | undefined = import.meta.env.VITE_OPENAI_API_KEY;
 const PROXY_URL: string = import.meta.env.VITE_AI_PROXY_URL || '/.netlify/functions/openai-proxy';
 const OPENAI_BASE = 'https://api.openai.com/v1';
@@ -77,19 +79,46 @@ export class OpenAIError extends Error {
   }
 }
 
-async function post(endpoint: 'responses' | 'images/generations' | 'images/edits', body: unknown): Promise<Record<string, unknown>> {
+const REQUEST_TIMEOUT_MS = 120_000;
+const MAX_RETRIES = 2;
+const BASE_DELAY_MS = import.meta.env.MODE === 'test' ? 1 : 600;
+const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+const retryable = (status: number) => status === 429 || status >= 500;
+
+async function send(endpoint: string, body: unknown): Promise<Response> {
   const useDirect = Boolean(DIRECT_KEY) && import.meta.env.DEV;
-  const res = useDirect
-    ? await fetch(`${OPENAI_BASE}/${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${DIRECT_KEY}` },
-        body: JSON.stringify(body),
-      })
-    : await fetch(PROXY_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ endpoint, body }),
-      });
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    return useDirect
+      ? await fetch(`${OPENAI_BASE}/${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${DIRECT_KEY}` },
+          body: JSON.stringify(body),
+          signal: ctrl.signal,
+        })
+      : await fetch(PROXY_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...hostAuthHeaders() },
+          body: JSON.stringify({ endpoint, body }),
+          signal: ctrl.signal,
+        });
+  } catch (e) {
+    if ((e as Error)?.name === 'AbortError') throw new OpenAIError('The AI request timed out. Please try again.', 408);
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function post(endpoint: 'responses' | 'images/generations' | 'images/edits', body: unknown): Promise<Record<string, unknown>> {
+  let res = await send(endpoint, body);
+  // Retry transient failures (rate limit / server errors) with exponential backoff, honouring Retry-After.
+  for (let attempt = 0; attempt < MAX_RETRIES && retryable(res.status); attempt++) {
+    const after = Number(res.headers.get('retry-after'));
+    await sleep(after > 0 && import.meta.env.MODE !== 'test' ? Math.min(after * 1000, 10_000) : BASE_DELAY_MS * 2 ** attempt);
+    res = await send(endpoint, body);
+  }
 
   const json = (await res.json().catch(() => ({}))) as ApiError & Record<string, unknown>;
   if (!res.ok) {

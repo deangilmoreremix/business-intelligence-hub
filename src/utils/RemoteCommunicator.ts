@@ -10,7 +10,8 @@ type MessageType =
   | 'SYNC_THEME'
   | 'NAVIGATION_REQUEST'
   | 'DATA_REQUEST'
-  | 'ERROR_REPORT';
+  | 'ERROR_REPORT'
+  | 'AUTH_TOKEN';
 
 interface MessagePayload {
   type: MessageType;
@@ -166,4 +167,4 @@ export class RemoteCommunicator {
   }
 }
 
-export const remoteCommunicator = new RemoteCommunicator();
+export const remoteCommunicator = new RemoteCommunicator(import.meta.env.VITE_HOST_ORIGIN || '*');
