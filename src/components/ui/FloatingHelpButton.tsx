@@ -44,6 +44,7 @@ export const FloatingHelpButton: React.FC<FloatingHelpButtonProps> = ({
             </h3>
             <button
               onClick={() => setIsExpanded(false)}
+              aria-label="Close help"
               className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />

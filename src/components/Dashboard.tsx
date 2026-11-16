@@ -157,6 +157,8 @@ export const Dashboard: React.FC = () => {
               <Tooltip content={tooltipContent.dashboard.gridView} position="bottom">
                 <button
                   onClick={() => setViewMode('grid')}
+                  aria-label="Grid view"
+                  aria-pressed={viewMode === 'grid'}
                   className={cn(
                     'p-2 rounded transition-all duration-200',
                     viewMode === 'grid'
@@ -170,6 +172,8 @@ export const Dashboard: React.FC = () => {
               <Tooltip content={tooltipContent.dashboard.listView} position="bottom">
                 <button
                   onClick={() => setViewMode('list')}
+                  aria-label="List view"
+                  aria-pressed={viewMode === 'list'}
                   className={cn(
                     'p-2 rounded transition-all duration-200',
                     viewMode === 'list'

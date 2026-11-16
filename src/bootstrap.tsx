@@ -8,6 +8,7 @@ import { NavigationProvider } from './contexts/NavigationContext';
 import { ContentProvider } from './contexts/ContentContext';
 import { WalkthroughProvider } from './contexts/WalkthroughContext';
 import { initializeKnowledgeBase } from './utils/initializeKnowledge';
+import { installErrorReporting } from './lib/errorReporting';
 
 const isStandalone = () => {
   return window.self === window.top;
@@ -15,6 +16,7 @@ const isStandalone = () => {
 
 console.log('🚀 Analytics App bootstrap', isStandalone() ? '(Standalone Mode)' : '(Federated Mode)');
 
+installErrorReporting();
 initializeKnowledgeBase().catch(console.error);
 
 const rootElement = document.getElementById('root');

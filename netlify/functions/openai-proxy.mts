@@ -2,6 +2,7 @@
 // Requires env var OPENAI_API_KEY (set in Netlify site settings). Optional: ALLOWED_ORIGIN.
 import type { Context } from '@netlify/functions';
 import { authenticate, rateLimit } from '../lib/auth.mts';
+import { log } from '../lib/log.mts';
 import { exceeded, hasLimits, limitsFromEnv, supabaseBudgetStore, tokensOf, type BudgetStore } from '../lib/budget.mts';
 
 // Replaceable in tests.
@@ -40,7 +41,7 @@ export default async (req: Request, _ctx: Context) => {
     try {
       const hit = exceeded(await budget.get(auth.tenant), limits);
       if (hit) return json({ error: `Daily AI ${hit} limit reached for this account` }, 429);
-    } catch (e) { console.error(JSON.stringify({ level: 'error', fn: 'openai-proxy', msg: 'budget check failed (allowing request)', err: String(e) })); }
+    } catch (e) { log('error', 'openai-proxy', 'budget check failed (allowing request)', { err: String(e) }); }
   }
 
   let payload: { endpoint?: string; body?: Record<string, any> };
@@ -75,10 +76,11 @@ export default async (req: Request, _ctx: Context) => {
     body: JSON.stringify(body),
   });
   const text = await upstream.text();
+  if (!upstream.ok) log('warn', 'openai-proxy', 'upstream error', { status: upstream.status, endpoint, tenant: auth.tenant });
   if (budget && upstream.ok) {
     let tokens = 0;
     try { tokens = tokensOf(JSON.parse(text)); } catch { /* not JSON: count the request only */ }
-    budget.add(auth.tenant, 1, tokens).catch(e => console.error(JSON.stringify({ level: 'error', fn: 'openai-proxy', msg: 'budget update failed', err: String(e) })));
+    budget.add(auth.tenant, 1, tokens).catch(e => log('error', 'openai-proxy', 'budget update failed', { err: String(e) }));
   }
   return new Response(text, {
     status: upstream.status,

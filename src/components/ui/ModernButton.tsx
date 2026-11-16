@@ -18,6 +18,8 @@ interface ModernButtonProps {
   disabled?: boolean;
   onClick?: () => void;
   className?: string;
+  /** Accessible name for icon-only buttons. */
+  ariaLabel?: string;
 }
 
 export const ModernButton: React.FC<ModernButtonProps> = ({
@@ -27,7 +29,8 @@ export const ModernButton: React.FC<ModernButtonProps> = ({
   loading = false,
   disabled = false,
   onClick,
-  className = ''
+  className = '',
+  ariaLabel
 }) => {
   const navigate = useNavigate();
   const label = typeof children === 'string' ? children : '';
@@ -61,6 +64,7 @@ export const ModernButton: React.FC<ModernButtonProps> = ({
   return (
     <button
       onClick={handleClick}
+      aria-label={ariaLabel}
       disabled={disabled || loading}
       className={cn(
         getVariantClass(),

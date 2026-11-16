@@ -13,6 +13,10 @@ interface AutomationHubProps {
 
 export const AutomationHub: React.FC<AutomationHubProps> = ({ onBack }) => {
   const [selectedCategory, setSelectedCategory] = useState('all');
+  // Play/pause toggles an automation's displayed state for this session.
+  const [toggled, setToggled] = useState<Set<string>>(new Set());
+  const toggle = (name: string) => setToggled(prev => { const n = new Set(prev); if (n.has(name)) n.delete(name); else n.add(name); return n; });
+  const statusOf = (a: { name: string; status: string }) => (toggled.has(a.name) ? (a.status === 'Active' ? 'Paused' : 'Active') : a.status);
 
   const automationMetrics = mock([
     { title: "Active Automations", value: "42", change: 18.7, trend: "up" as const, color: "success" as const },
@@ -160,15 +164,15 @@ export const AutomationHub: React.FC<AutomationHubProps> = ({ onBack }) => {
                     <p className="text-sm text-gray-600">{automation.category} • {automation.frequency}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(automation.status)}`}>
-                      {automation.status}
+                    <div className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(statusOf(automation))}`}>
+                      {statusOf(automation)}
                     </div>
-                    {automation.status === 'Active' ? (
-                      <ModernButton variant="outline" size="sm">
+                    {statusOf(automation) === 'Active' ? (
+                      <ModernButton variant="outline" size="sm" onClick={() => toggle(automation.name)} ariaLabel={`Pause ${automation.name}`}>
                         <Pause className="w-3 h-3" />
                       </ModernButton>
                     ) : (
-                      <ModernButton variant="outline" size="sm">
+                      <ModernButton variant="outline" size="sm" onClick={() => toggle(automation.name)} ariaLabel={`Resume ${automation.name}`}>
                         <Play className="w-3 h-3" />
                       </ModernButton>
                     )}

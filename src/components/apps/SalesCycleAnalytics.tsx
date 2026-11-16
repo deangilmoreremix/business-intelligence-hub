@@ -44,7 +44,7 @@ export const SalesCycleAnalytics: React.FC<SalesCycleAnalyticsProps> = ({ onBack
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <ModernButton variant="ghost" onClick={onBack} className="p-2">
+          <ModernButton variant="ghost" onClick={onBack} className="p-2" ariaLabel="Back">
             <ArrowLeft className="w-5 h-5" />
           </ModernButton>
           <div className="flex-1">

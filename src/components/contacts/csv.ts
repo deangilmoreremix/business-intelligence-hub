@@ -12,7 +12,7 @@ const MAX_FIELD = 300;
 
 /** Splits CSV text into records of cells, honouring quotes. Each record carries its 1-based starting line. */
 export function parseCsvRecords(input: string): Array<{ line: number; cells: string[] }> {
-  const text = input.replace(/^﻿/, '');
+  const text = input.replace(/^\uFEFF/, '');
   const out: Array<{ line: number; cells: string[] }> = [];
   let cells: string[] = [], cell = '', inQ = false, line = 1, startLine = 1;
   const endCell = () => { cells.push(cell); cell = ''; };

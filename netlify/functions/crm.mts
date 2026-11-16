@@ -4,6 +4,7 @@
 import type { Context } from '@netlify/functions';
 import { createClient } from '@supabase/supabase-js';
 import { authenticate, rateLimit } from '../lib/auth.mts';
+import { log } from '../lib/log.mts';
 import { assertSafeCrmUrl, mapContact, mapDeal } from '../lib/crm.mts';
 
 const json = (body: unknown, status = 200) =>
@@ -116,6 +117,7 @@ export default async (req: Request, _ctx: Context) => {
       default: return json({ error: 'Unknown action' }, 400);
     }
   } catch (e) {
+    log('warn', 'crm', 'request failed', { action: payload.action, tenant, err: e instanceof Error ? e.message : String(e) });
     return json({ error: e instanceof Error ? e.message : 'CRM request failed' }, 502);
   }
 };
