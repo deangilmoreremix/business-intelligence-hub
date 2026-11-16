@@ -136,7 +136,7 @@ class AIService {
       You are an expert business intelligence AI analyzing CRM data for actionable insights.
       
       Business Context:
-      - Company: ${context.businessContext?.company || 'Technology Company'}
+      - Company: ${context.businessContext?.company || 'not provided'}
       - Industry: ${context.businessContext?.industry || 'Software/SaaS'}
       - Team Size: ${context.businessContext?.teamSize || '10-50 employees'}
       
@@ -204,10 +204,8 @@ class AIService {
     
     Communication Metrics:
     - Total Communications: ${commData.totalComms}
-    - Response Rate: ${commData.responseRate}%
-    - Average Response Time: ${commData.avgResponseTime}
     - Channel Distribution: ${JSON.stringify(commData.channelBreakdown)}
-    - Sentiment Analysis: ${JSON.stringify(commData.sentimentData)}
+    - ${commData.note}
     
     Please analyze:
     1. Communication effectiveness by channel
@@ -391,22 +389,17 @@ class AIService {
    * Analyze communication data
    */
   private analyzeCommunicationData(communications: any[]) {
-    const totalComms = communications.length;
-    const responseRate = Math.floor(Math.random() * 20) + 75; // Simulated for now
-    const avgResponseTime = `${Math.floor(Math.random() * 4) + 1}.${Math.floor(Math.random() * 9)}h`;
-    
-    const channelBreakdown = communications.reduce((acc, comm) => {
-      const channel = comm.type || 'email';
+    // Real figures only: counts per activity kind from contact_activities. No simulated rates or sentiment.
+    const channelBreakdown = communications.reduce((acc: Record<string, number>, comm) => {
+      const channel = comm.kind || comm.type || 'other';
       acc[channel] = (acc[channel] || 0) + 1;
       return acc;
     }, {});
 
     return {
-      totalComms,
-      responseRate,
-      avgResponseTime,
+      totalComms: communications.length,
       channelBreakdown,
-      sentimentData: { positive: 78, neutral: 18, negative: 4 }
+      note: 'Response rate and sentiment are not tracked in this data; do not infer them.'
     };
   }
 
@@ -416,9 +409,9 @@ class AIService {
   private async getBusinessContext(customerId?: string) {
     if (!customerId) {
       return {
-        company: 'Technology Company',
-        industry: 'Software/SaaS',
-        teamSize: '10-50 employees'
+        company: 'not provided',
+        industry: 'not provided',
+        teamSize: 'not provided'
       };
     }
 
@@ -430,16 +423,16 @@ class AIService {
         .single();
 
       return {
-        company: data?.company_name || 'Technology Company',
-        industry: 'Software/SaaS',
-        teamSize: data?.plan === 'Enterprise' ? '50+ employees' : '10-50 employees'
+        company: data?.company_name || 'not provided',
+        industry: 'not provided',
+        teamSize: 'not provided'
       };
     } catch (error) {
       console.error('Error getting business context:', error);
       return {
-        company: 'Technology Company',
-        industry: 'Software/SaaS',
-        teamSize: '10-50 employees'
+        company: 'not provided',
+        industry: 'not provided',
+        teamSize: 'not provided'
       };
     }
   }
@@ -469,8 +462,8 @@ class AIService {
     
     try {
       const { data } = await supabase
-        .from('communications')
-        .select('*')
+        .from('contact_activities')
+        .select('contact_id, kind, detail, created_at')
         .in('contact_id', contactIds)
         .order('created_at', { ascending: false })
         .limit(50);

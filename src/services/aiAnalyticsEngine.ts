@@ -454,7 +454,7 @@ class AIAnalyticsEngine {
 
   private getDefaultOptimizationPlan() {
     return {
-      overallScore: 75,
+      overallScore: 0,
       priorityActions: [
         'Connect to SmartCRM for real data analysis',
         'Configure AI providers for analysis',
@@ -467,7 +467,7 @@ class AIAnalyticsEngine {
       ],
       strategicInitiatives: [
         'Implement predictive analytics',
-        'Develop custom AI models',
+        'Review AI insights for each app',
         'Create automated workflows'
       ],
       expectedROI: 'Configure data sources for ROI estimation'
