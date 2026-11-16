@@ -1,6 +1,14 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '../../lib/utils';
+
+// Default destination for buttons that were given no handler, chosen from the label (existing routes only).
+const defaultRoute = (label: string): string | null => {
+  if (/take action|start campaign|implement|prepare|optimi[sz]/i.test(label)) return '/app/automation-hub';
+  if (/view (details|prospects)|more details|contacts?/i.test(label)) return '/app/contacts-hub';
+  return null;
+};
 
 interface ModernButtonProps {
   children: React.ReactNode;
@@ -21,6 +29,9 @@ export const ModernButton: React.FC<ModernButtonProps> = ({
   onClick,
   className = ''
 }) => {
+  const navigate = useNavigate();
+  const label = typeof children === 'string' ? children : '';
+  const handleClick = onClick ?? (() => { const to = defaultRoute(label); if (to) navigate(to); });
   const getVariantClass = () => {
     switch (variant) {
       case 'glass':
@@ -49,7 +60,7 @@ export const ModernButton: React.FC<ModernButtonProps> = ({
 
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
       disabled={disabled || loading}
       className={cn(
         getVariantClass(),
