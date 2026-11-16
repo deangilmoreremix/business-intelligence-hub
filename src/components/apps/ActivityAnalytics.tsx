@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { MovableSections } from '../movable/MovableSections';
+import { usePageArrange } from '../movable/usePageArrange';
 import { ArrowLeft, MessageSquare, Phone, Mail, Video, Calendar, TrendingUp } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
 import { GlassCard } from '../ui/GlassCard';
@@ -12,6 +14,7 @@ interface ActivityAnalyticsProps {
 }
 
 export const ActivityAnalytics: React.FC<ActivityAnalyticsProps> = ({ onBack }) => {
+  const arrange = usePageArrange();
   const [timeRange, setTimeRange] = useState('7d');
 
   const activityMetrics = [
@@ -60,7 +63,10 @@ export const ActivityAnalytics: React.FC<ActivityAnalyticsProps> = ({ onBack }) 
               <option value="90d">Last 90 days</option>
             </select>
           </div>
-        </div>
+        {arrange.button}
+          </div>
+
+        <MovableSections pageKey={arrange.pageKey} arranging={arrange.arranging}>
 
         {/* AI Analysis Section */}
         <AIAnalysisSection
@@ -259,7 +265,8 @@ export const ActivityAnalytics: React.FC<ActivityAnalyticsProps> = ({ onBack }) 
             </div>
           </div>
         </GlassCard>
-      </div>
+      </MovableSections>
+        </div>
     </div>
   );
 };

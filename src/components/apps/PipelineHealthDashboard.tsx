@@ -1,4 +1,6 @@
 import { runAIAnalysis } from '../../lib/aiBus';
+import { MovableSections } from '../movable/MovableSections';
+import { usePageArrange } from '../movable/usePageArrange';
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, TrendingUp, AlertTriangle, Target, Users } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
@@ -14,6 +16,7 @@ interface PipelineHealthDashboardProps {
 }
 
 export const PipelineHealthDashboard: React.FC<PipelineHealthDashboardProps> = ({ onBack }) => {
+  const arrange = usePageArrange();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [healthScore, setHealthScore] = useState(0);
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
@@ -78,7 +81,10 @@ export const PipelineHealthDashboard: React.FC<PipelineHealthDashboardProps> = (
               Analyze Health
             </ModernButton>
           </div>
-        </div>
+        {arrange.button}
+          </div>
+
+        <MovableSections pageKey={arrange.pageKey} arranging={arrange.arranging}>
         <AIAnalysisSection
           appId="pipeline-health"
           analysisType="pipeline"
@@ -253,7 +259,8 @@ export const PipelineHealthDashboard: React.FC<PipelineHealthDashboardProps> = (
             </div>
           </div>
         </GlassCard>
-      </div>
+      </MovableSections>
+        </div>
     </div>
   );
 };

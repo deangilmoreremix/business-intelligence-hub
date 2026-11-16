@@ -1,6 +1,8 @@
-import React from 'react';
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { ArrowLeft, Move } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { MovableSections } from '../movable/MovableSections';
+import { savePref } from '../../lib/prefs';
 import { ModernButton } from '../ui/ModernButton';
 import { cn } from '../../lib/utils';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -31,6 +33,9 @@ export const PageWrapper: React.FC<PageWrapperProps> = ({
 }) => {
   const { isDark } = useTheme();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const [arranging, setArranging] = useState(false);
+  const resetLayout = () => { void savePref(`page-sections:${pathname}`, []).then(() => window.location.reload()); };
   
   const handleBack = () => {
     if (onBack) {
@@ -62,16 +67,19 @@ export const PageWrapper: React.FC<PageWrapperProps> = ({
             <p className="text-gray-600 dark:text-gray-300 mt-1">{description}</p>
           </div>
           {/* Header Actions */}
-          {headerActions && (
-            <div className="flex gap-3">
-              {headerActions}
-            </div>
-          )}
+          <div className="flex gap-3 items-center">
+            {headerActions}
+            <button type="button" onClick={() => setArranging(a => !a)} aria-pressed={arranging} title="Rearrange the sections of this page" data-testid="arrange-toggle"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+              <Move className="w-4 h-4" />{arranging ? 'Done' : 'Arrange'}
+            </button>
+            {arranging && <button type="button" onClick={resetLayout} data-testid="arrange-reset" className="px-3 py-1.5 rounded-lg text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">Reset</button>}
+          </div>
         </div>
 
         {/* Content */}
         <div className={cn("pb-8", contentClassName)}>
-          {children}
+          <MovableSections pageKey={pathname} arranging={arranging}>{children}</MovableSections>
         </div>
       </div>
     </div>

@@ -1,4 +1,6 @@
 import { runAIAnalysis } from '../../lib/aiBus';
+import { MovableSections } from '../movable/MovableSections';
+import { usePageArrange } from '../movable/usePageArrange';
 import React, { useState } from 'react';
 import { ArrowLeft, CheckSquare, AlertCircle, Zap, Calendar, Target } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
@@ -14,6 +16,7 @@ interface SmartFollowupsProps {
 }
 
 export const SmartFollowups: React.FC<SmartFollowupsProps> = ({ onBack }) => {
+  const arrange = usePageArrange();
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [selectedPriority, setSelectedPriority] = useState('all');
 
@@ -96,7 +99,10 @@ export const SmartFollowups: React.FC<SmartFollowupsProps> = ({ onBack }) => {
               Optimize Schedule
             </ModernButton>
           </div>
-        </div>
+        {arrange.button}
+          </div>
+
+        <MovableSections pageKey={arrange.pageKey} arranging={arrange.arranging}>
 
         {/* AI Analysis Section */}
         <AIAnalysisSection
@@ -298,7 +304,8 @@ export const SmartFollowups: React.FC<SmartFollowupsProps> = ({ onBack }) => {
             })}
           </div>
         </GlassCard>
-      </div>
+      </MovableSections>
+        </div>
     </div>
 
   );

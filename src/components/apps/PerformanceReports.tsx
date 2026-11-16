@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { MovableSections } from '../movable/MovableSections';
+import { usePageArrange } from '../movable/usePageArrange';
 import { ArrowLeft, FileText, TrendingUp, Users, DollarSign, Target, Download } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
 import { AIAnalysisSection } from '../ai/AIAnalysisSection';
@@ -12,6 +14,7 @@ interface PerformanceReportsProps {
 }
 
 export const PerformanceReports: React.FC<PerformanceReportsProps> = ({ onBack }) => {
+  const arrange = usePageArrange();
   const [selectedReport, setSelectedReport] = useState('overview');
   const [timeRange, setTimeRange] = useState('30d');
 
@@ -76,7 +79,10 @@ export const PerformanceReports: React.FC<PerformanceReportsProps> = ({ onBack }
               Export Report
             </ModernButton>
           </div>
-        </div>
+        {arrange.button}
+          </div>
+
+        <MovableSections pageKey={arrange.pageKey} arranging={arrange.arranging}>
         <AIAnalysisSection
           appId="performance-reports"
           analysisType="analytics"
@@ -321,7 +327,8 @@ export const PerformanceReports: React.FC<PerformanceReportsProps> = ({ onBack }
             </div>
           </div>
         </GlassCard>
-      </div>
+      </MovableSections>
+        </div>
     </div>
   );
 };

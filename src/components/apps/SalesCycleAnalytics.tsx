@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { MovableSections } from '../movable/MovableSections';
+import { usePageArrange } from '../movable/usePageArrange';
 import { ArrowLeft, Clock, TrendingUp, Users, Calendar, Zap } from 'lucide-react';
 import { ModernButton } from '../ui/ModernButton';
 import { AIAnalysisSection } from '../ai/AIAnalysisSection';
@@ -12,6 +14,7 @@ interface SalesCycleAnalyticsProps {
 }
 
 export const SalesCycleAnalytics: React.FC<SalesCycleAnalyticsProps> = ({ onBack }) => {
+  const arrange = usePageArrange();
   const [selectedSegment, setSelectedSegment] = useState('all');
   const [timeRange, setTimeRange] = useState('90d');
 
@@ -58,7 +61,10 @@ export const SalesCycleAnalytics: React.FC<SalesCycleAnalyticsProps> = ({ onBack
               <option value="12m">Last 12 months</option>
             </select>
           </div>
-        </div>
+        {arrange.button}
+          </div>
+
+        <MovableSections pageKey={arrange.pageKey} arranging={arrange.arranging}>
         <AIAnalysisSection
           appId="sales-cycle-analytics"
           analysisType="pipeline"
@@ -265,7 +271,8 @@ export const SalesCycleAnalytics: React.FC<SalesCycleAnalyticsProps> = ({ onBack
             </div>
           </div>
         </GlassCard>
-      </div>
+      </MovableSections>
+        </div>
     </div>
   );
 };
