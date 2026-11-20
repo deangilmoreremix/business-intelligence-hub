@@ -1,6 +1,6 @@
 import { createJsonResponse, createResponse, createResponseFull, generateImage } from '../lib/openai';
 import { supabase } from '../lib/supabase';
-import type { Contact } from '../store/contactStore';
+import { rowToContact, type Contact } from '../store/contactStore';
 
 const str = { type: 'string' };
 
@@ -84,6 +84,39 @@ export async function findDuplicates(contacts: Contact[], useAI = true): Promise
     if (ids.length > 1) { groups.push({ ids, reason: `AI: ${g.reason}` }); ids.forEach(i => grouped.add(i)); }
   }
   return groups;
+}
+
+export interface NamedDuplicateGroup extends DuplicateGroup { names: Record<string, string> }
+
+/**
+ * Same result as findDuplicates, but without needing the full contact list in the browser: exact email/phone groups
+ * come from the database (`contact_duplicate_groups`), and only a capped set of contacts that share a last name
+ * (`contact_fuzzy_candidates`, 150 max) goes to the AI pass.
+ */
+export async function findDuplicatesServer(useAI = true): Promise<NamedDuplicateGroup[]> {
+  const rpc = await supabase.rpc('contact_duplicate_groups');
+  if (rpc.error) throw new Error(rpc.error.message);
+  const groups: DuplicateGroup[] = [];
+  const grouped = new Set<string>();
+  for (const g of (rpc.data ?? []) as Array<{ ids: string[]; reason: string }>) {
+    const ids = g.ids.filter(i => !grouped.has(i));
+    if (ids.length > 1) { groups.push({ ids, reason: g.reason }); ids.forEach(i => grouped.add(i)); }
+  }
+  const people = new Map<string, Contact>();
+  if (useAI) {
+    const cand = await supabase.rpc('contact_fuzzy_candidates', { p_limit: 150 });
+    if (cand.error) throw new Error(cand.error.message);
+    const fresh = ((cand.data ?? []) as Array<Record<string, string | null> & { id: string }>)
+      .filter(r => !grouped.has(r.id)).map((r, i) => rowToContact(r, i));
+    fresh.forEach(c => people.set(c.id, c));
+    if (fresh.length > 1) groups.push(...(await findDuplicates(fresh, true)));
+  }
+  const need = Array.from(new Set(groups.flatMap(g => g.ids))).filter(id => !people.has(id));
+  for (let i = 0; i < need.length; i += 200) {
+    const { data } = await supabase.from('contacts').select('id,first_name,last_name').in('id', need.slice(i, i + 200));
+    (data ?? []).forEach(r => people.set(r.id, { id: r.id, name: `${r.first_name ?? ''} ${r.last_name ?? ''}`.trim() } as Contact));
+  }
+  return groups.map(g => ({ ...g, names: Object.fromEntries(g.ids.map(id => [id, people.get(id)?.name ?? id])) }));
 }
 
 export async function draftEmail(contact: Contact, goal: string): Promise<{ subject: string; body: string }> {

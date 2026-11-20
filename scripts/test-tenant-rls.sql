@@ -84,5 +84,46 @@ BEGIN
   END;
 END $$;
 
+-- duplicate detection functions respect tenant scope and find exact phone matches
+-- (same-email duplicates cannot be created any more: contacts_tenant_email_key)
+SELECT set_config('request.jwt.claims', '{"tenant_id":"tenant-dup-a"}', true);
+INSERT INTO contacts (first_name, last_name, email, phone) VALUES
+  ('Dee', 'Smith', 'dup1@x.com', '+1 (555) 123-4567'),
+  ('Dede', 'Smith', 'dup2@x.com', '1.555.123.4567'),
+  ('Solo', 'Other', 'solo@x.com', NULL);
+DO $$
+DECLARE n int; m int;
+BEGIN
+  SELECT count(*) INTO n FROM contact_duplicate_groups() WHERE reason = 'Same email' AND cardinality(ids) = 2;
+  SELECT count(*) INTO m FROM contact_duplicate_groups() WHERE reason = 'Same phone' AND cardinality(ids) = 2;
+  IF n <> 0 OR m <> 1 THEN RAISE EXCEPTION 'FAIL: expected 0 email + 1 phone duplicate group, got % / %', n, m; END IF;
+  SELECT count(*) INTO n FROM contact_fuzzy_candidates(150);
+  IF n <> 2 THEN RAISE EXCEPTION 'FAIL: expected 2 fuzzy candidates (shared last name), got %', n; END IF;
+END $$;
+SELECT set_config('request.jwt.claims', '{"tenant_id":"tenant-dup-b"}', true);
+DO $$
+DECLARE n int;
+BEGIN
+  SELECT count(*) INTO n FROM contact_duplicate_groups();
+  IF n <> 0 THEN RAISE EXCEPTION 'FAIL: tenant B sees % duplicate groups of tenant A', n; END IF;
+  SELECT count(*) INTO n FROM contact_fuzzy_candidates(150);
+  IF n <> 0 THEN RAISE EXCEPTION 'FAIL: tenant B sees fuzzy candidates of tenant A'; END IF;
+END $$;
+
+-- rate limit table is not reachable from client roles
+DO $$
+BEGIN
+  BEGIN
+    PERFORM 1 FROM rate_limits LIMIT 1;
+    RAISE EXCEPTION 'FAIL: anon can read rate_limits';
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+  END;
+  BEGIN
+    PERFORM rate_limit_hit('x', 1, 60);
+    RAISE EXCEPTION 'FAIL: anon can call rate_limit_hit';
+  EXCEPTION WHEN insufficient_privilege THEN NULL;
+  END;
+END $$;
+
 SELECT 'PASS tenant isolation' AS result;
 ROLLBACK;

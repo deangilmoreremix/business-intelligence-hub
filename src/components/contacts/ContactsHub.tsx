@@ -12,8 +12,8 @@ import {
   listCompanies, loadViews, mergeContacts, saveViews, type Activity, type Company, type SavedView,
 } from '../../services/contactService';
 import {
-  scoreContact, draftEmail, enrichContact, applyEnrichment, type EnrichmentResult, findDuplicates, askAboutContacts, generateContactAvatar,
-  type LeadScore, type DuplicateGroup,
+  scoreContact, draftEmail, enrichContact, applyEnrichment, type EnrichmentResult, findDuplicatesServer, askAboutContacts, type NamedDuplicateGroup, generateContactAvatar,
+  type LeadScore,
 } from '../../services/contactAIService';
 
 type SortKey = 'name' | 'company' | 'crmStatus' | 'createdAt';
@@ -43,7 +43,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const [avatar, setAvatar] = useState<string | null>(null);
   const [enrich, setEnrich] = useState<EnrichmentResult | null>(null);
   const [accept, setAccept] = useState<Set<keyof EnrichmentResult>>(new Set());
-  const [dupes, setDupes] = useState<DuplicateGroup[] | null>(null);
+  const [dupes, setDupes] = useState<NamedDuplicateGroup[] | null>(null);
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
@@ -178,9 +178,9 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
     await afterBulk(`Enriched ${saved} of ${ids.length} contact(s)`);
   });
 
-  const mergeGroup = (g: DuplicateGroup) => guard(async () => {
+  const mergeGroup = (g: NamedDuplicateGroup) => guard(async () => {
     const [primary, ...rest] = g.ids;
-    if (!window.confirm(`Merge ${g.ids.length} contacts into "${contacts[primary]?.name}"? The others will be deleted.`)) return;
+    if (!window.confirm(`Merge ${g.ids.length} contacts into "${g.names?.[primary] ?? contacts[primary]?.name}"? The others will be deleted.`)) return;
     const snap: ContactSnapshot = await snapshotContacts(g.ids);
     await mergeContacts(primary, rest);
     setDupes(d => d && d.filter(x => x !== g));
@@ -252,7 +252,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
         <button className={btn} onClick={() => fileRef.current?.click()}><Upload className="w-4 h-4" />Import CSV</button>
         <input ref={fileRef} type="file" accept=".csv" hidden onChange={e => onImport(e.target.files?.[0])} />
         <button className={btn} onClick={() => guard(async () => { const all: Contact[] = []; for (let p = 0; p < 100; p++) { const r = await listContactsPage({ query: debounced, status, sortKey: sort.key, sortDir: sort.dir, page: p, pageSize: 500 }); all.push(...r.rows); if (all.length >= r.total || !r.rows.length) break; } const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([toCSV(all)], { type: 'text/csv' })); a.download = 'contacts.csv'; a.click(); })}><Download className="w-4 h-4" />Export</button>
-        <button className={btn} disabled={busy === 'dupes'} onClick={() => run('dupes', () => findDuplicates(Object.values(contacts)), setDupes)}><Copy className="w-4 h-4" />Find duplicates</button>
+        <button className={btn} disabled={busy === 'dupes'} onClick={() => run('dupes', () => findDuplicatesServer(), setDupes)}><Copy className="w-4 h-4" />Find duplicates</button>
       </div>
 
       {!!checked.size && (
@@ -279,7 +279,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
 
       <div className="flex gap-2 mb-4">
         <input value={question} onChange={e => setQuestion(e.target.value)} placeholder="Ask AI about your contacts (e.g. which leads have no email?)" className="flex-1 py-2 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent text-sm" />
-        <button className={btn} disabled={!question || busy === 'ask'} onClick={() => run('ask', () => askAboutContacts(question, Object.values(contacts)), setAnswer)}><Sparkles className="w-4 h-4" />Ask</button>
+        <button className={btn} disabled={!question || busy === 'ask'} onClick={() => run('ask', async () => askAboutContacts(question, (await listContactsPage({ query: debounced, status, sortKey: sort.key, sortDir: sort.dir, page: 0, pageSize: 200 })).rows), setAnswer)}><Sparkles className="w-4 h-4" />Ask</button>
       </div>
       {answer && <p className="mb-4 p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-sm whitespace-pre-wrap">{answer}</p>}
       {(aiError || error) && <p className="mb-4 text-sm text-red-600">{aiError || error}</p>}
@@ -287,7 +287,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
         <ul className="mb-4 space-y-2 text-sm" aria-label="Duplicate groups">
           {dupes.map((d, i) => (
             <li key={i} className="flex items-center gap-3 p-2 rounded-lg border border-amber-300 dark:border-amber-700">
-              <span className="flex-1"><b>{d.reason}:</b> {d.ids.map(id => contacts[id]?.name).join(', ')}</span>
+              <span className="flex-1"><b>{d.reason}:</b> {d.ids.map(id => d.names?.[id] ?? contacts[id]?.name).join(', ')}</span>
               <button className={btn} onClick={() => mergeGroup(d)}><GitMerge className="w-4 h-4" />Merge</button>
             </li>
           ))}
