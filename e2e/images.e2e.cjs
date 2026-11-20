@@ -44,7 +44,7 @@ fs.writeFileSync(files.contact, png(220, 60, 60)); fs.writeFileSync(files.team, 
   await page.waitForFunction(() => document.querySelector('aside [data-testid=image-upload-contacts] img'), null, { timeout: 20000 }).catch(() => undefined);
   await page.waitForTimeout(1500);
   const row = (await db.query("select avatar_url from contacts where first_name='Ann'")).rows[0];
-  check('contact photo URL saved to contacts.avatar_url', !!row.avatar_url && /people-images\/contacts\/.+\.png$/.test(row.avatar_url), row.avatar_url);
+  check('contact photo URL saved to contacts.avatar_url', !!row.avatar_url && /people-images\/public\/contacts\/.+\.png$/.test(row.avatar_url), row.avatar_url);
   const px = row.avatar_url ? await pixel(row.avatar_url) : [0, 0, 0];
   check('stored image is the uploaded file (red pixel)', px[0] > 180 && px[1] < 90, JSON.stringify(px));
   check('upload control now shows the photo', (await page.locator('aside [data-testid=image-upload-contacts] img').count()) >= 1);
@@ -76,7 +76,7 @@ fs.writeFileSync(files.contact, png(220, 60, 60)); fs.writeFileSync(files.team, 
   await card.locator('input[type=file]').setInputFiles(files.team);
   await page.waitForTimeout(2500);
   const team = (await db.query("select avatar_url from team_members where name='Sarah Johnson'")).rows[0].avatar_url;
-  check('team member photo saved', !!team && /people-images\/team\//.test(team), team);
+  check('team member photo saved', !!team && /people-images\/public\/team\//.test(team), team);
   await page.screenshot({ path: `${SHOTS}/28-added-image-upload-team-members.png` });
   await page.goto(BASE + '/app/win-rate-intelligence'); await page.waitForSelector('h1'); await page.waitForTimeout(2000);
   const srcs = await page.locator('img').evaluateAll(els => els.map(e => e.src));
@@ -92,7 +92,7 @@ fs.writeFileSync(files.contact, png(220, 60, 60)); fs.writeFileSync(files.team, 
   await page.locator('[data-testid=image-upload-companies] input[type=file]').setInputFiles(files.logo);
   await page.waitForTimeout(2500);
   const logo = (await db.query("select logo_url from companies where name='Acme Corp'")).rows[0].logo_url;
-  check('company logo saved', !!logo && /people-images\/companies\//.test(logo), logo);
+  check('company logo saved', !!logo && /people-images\/public\/companies\//.test(logo), logo);
   await page.click('button:has-text("Done")');
   check('logo thumbnail shown in the table', (await page.locator('img[alt="Acme Corp logo"]').count()) === 1);
   await page.screenshot({ path: `${SHOTS}/30-added-image-upload-company-logo.png` });

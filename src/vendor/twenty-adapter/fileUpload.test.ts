@@ -12,8 +12,8 @@ describe('Supabase Storage adapter for Twenty file upload mutations', () => {
     setUploadFolder('contacts');
     const t = await resolveCreateFileUpload({ filename: 'Me.JPG', size: 1000 }, storage);
     expect(t.contentType).toBe('image/jpeg');
-    expect(t.fileId).toMatch(/^contacts\/[0-9a-f-]{36}\.jpg$/);
-    expect(t.uploadUrl).toContain('/object/upload/sign/people-images/contacts/');
+    expect(t.fileId).toMatch(/^public\/contacts\/[0-9a-f-]{36}\.jpg$/);
+    expect(t.uploadUrl).toContain('/object/upload/sign/people-images/public/contacts/');
     expect(new Date(t.expiresAt).getTime()).toBeGreaterThan(Date.now());
   });
 
@@ -39,6 +39,17 @@ describe('Supabase Storage adapter for Twenty file upload mutations', () => {
   it('sanitises the folder name', async () => {
     setUploadFolder('../../etc');
     const t = await resolveCreateFileUpload({ filename: 'a.png', size: 5 }, storage);
-    expect(t.fileId.startsWith('etc/')).toBe(true);
+    expect(t.fileId.startsWith('public/etc/')).toBe(true);
+  });
+
+  it('prefixes uploads with the host token tenant', async () => {
+    const { setHostToken } = await import('../../lib/hostAuth');
+    const b64 = (o: object) => btoa(JSON.stringify(o)).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
+    setHostToken(`${b64({ alg: 'HS256' })}.${b64({ tenant_id: 'Acme Co/../x', exp: 9999999999 })}.sig`);
+    try {
+      setUploadFolder('team');
+      const t = await resolveCreateFileUpload({ filename: 'a.png', size: 5 }, storage);
+      expect(t.fileId.startsWith('AcmeCox/team/')).toBe(true);
+    } finally { setHostToken(null); }
   });
 });

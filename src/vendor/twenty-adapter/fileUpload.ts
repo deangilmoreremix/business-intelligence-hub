@@ -5,6 +5,8 @@
  *   (upstream PUTs the file to that URL)
  *   completeFileUpload -> public URL of the stored image
  */
+import { getHostTenant } from '../../lib/hostAuth';
+
 export const PEOPLE_BUCKET = 'people-images';
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
@@ -34,7 +36,8 @@ export const validateImage = (filename: string, size: number): { ext: string; co
 
 export const resolveCreateFileUpload = async (vars: { filename: string; size: number }, storage?: StorageLike) => {
   const { ext, contentType } = validateImage(vars.filename, vars.size);
-  const path = `${folder}/${crypto.randomUUID()}.${ext}`;
+  // First path segment is the tenant: storage policies only let a tenant write under its own prefix.
+  const path = `${getHostTenant()}/${folder}/${crypto.randomUUID()}.${ext}`;
   const store = storage ?? (await defaultStorage());
   const { data, error } = await store.createSignedUploadUrl(path);
   if (error || !data) throw new Error(error?.message ?? 'Could not start the upload');
