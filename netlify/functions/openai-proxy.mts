@@ -1,7 +1,8 @@
 // Netlify Function: server-side proxy for the OpenAI Responses and Images APIs.
 // Requires env var OPENAI_API_KEY (set in Netlify site settings). Optional: ALLOWED_ORIGIN.
 import type { Context } from '@netlify/functions';
-import { authenticate, rateLimit } from '../lib/auth.mts';
+import { authenticate } from '../lib/auth.mts';
+import { checkRate } from '../lib/ratelimit.mts';
 import { log } from '../lib/log.mts';
 import { exceeded, hasLimits, limitsFromEnv, supabaseBudgetStore, tokensOf, type BudgetStore } from '../lib/budget.mts';
 
@@ -29,7 +30,7 @@ export default async (req: Request, _ctx: Context) => {
 
   const auth = authenticate(req);
   if (!auth.ok) return json({ error: auth.error }, auth.status ?? 401);
-  const limit = rateLimit(auth.tenant, Number(process.env.RATE_LIMIT_PER_MIN) || DEFAULT_RATE_LIMIT_PER_MIN);
+  const limit = await checkRate(`openai:${auth.tenant}`, Number(process.env.RATE_LIMIT_PER_MIN) || DEFAULT_RATE_LIMIT_PER_MIN);
   if (!limit.ok) return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), { status: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': String(limit.retryAfter) } });
 
   const apiKey = process.env.OPENAI_API_KEY;

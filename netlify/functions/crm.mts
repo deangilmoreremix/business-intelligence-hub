@@ -3,7 +3,8 @@
 // Env: SUPABASE_URL (or VITE_SUPABASE_URL), SUPABASE_SERVICE_ROLE_KEY, HOST_JWT_SECRET, optional CRM_ALLOWED_HOSTS.
 import type { Context } from '@netlify/functions';
 import { createClient } from '@supabase/supabase-js';
-import { authenticate, rateLimit } from '../lib/auth.mts';
+import { authenticate } from '../lib/auth.mts';
+import { checkRate } from '../lib/ratelimit.mts';
 import { log } from '../lib/log.mts';
 import { assertSafeCrmUrl, mapContact, mapDeal } from '../lib/crm.mts';
 
@@ -44,7 +45,7 @@ export default async (req: Request, _ctx: Context) => {
   const auth = authenticate(req);
   if (!auth.ok) return json({ error: auth.error }, auth.status ?? 401);
   if (auth.anonymous) return json({ error: 'CRM connection requires a host token (set HOST_JWT_SECRET)' }, 401);
-  const lim = rateLimit(`crm:${auth.tenant}`, 20);
+  const lim = await checkRate(`crm:${auth.tenant}`, 20);
   if (!lim.ok) return json({ error: 'Rate limit exceeded' }, 429);
 
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
