@@ -22,7 +22,7 @@ DO $$
 DECLARE t text;
 BEGIN
   FOREACH t IN ARRAY ARRAY[
-    'companies','contacts','contact_notes','contact_activities','deals',
+    'companies','bi_contacts','contact_notes','contact_activities','bi_deals',
     'app_settings','ai_insights','ai_usage_logs','dashboard_layouts','saved_filters','team_members'
   ] LOOP
     IF to_regclass('public.' || t) IS NULL THEN CONTINUE; END IF;

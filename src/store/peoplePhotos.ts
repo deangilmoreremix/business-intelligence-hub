@@ -18,7 +18,7 @@ export const usePeoplePhotos = create<PeoplePhotosState>()((set) => ({
   load: async () => {
     try {
       const [contacts, team] = await Promise.all([
-        supabase.from('contacts').select('first_name,last_name,avatar_url').not('avatar_url', 'is', null),
+        supabase.from('bi_contacts').select('first_name,last_name,avatar_url').not('avatar_url', 'is', null),
         supabase.from('team_members').select('name,avatar_url').not('avatar_url', 'is', null),
       ]);
       const next: Record<string, string> = {};

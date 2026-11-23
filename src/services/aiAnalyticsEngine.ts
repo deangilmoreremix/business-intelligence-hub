@@ -158,14 +158,14 @@ class AIAnalyticsEngine {
     const subscription = supabase
       .channel('ai_auto_analysis')
       .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'deals' },
+        { event: '*', schema: 'public', table: 'bi_deals' },
         async () => {
           console.log('Deals data changed, triggering auto-analysis');
           await this.triggerAutoAnalysis(appIds, provider);
         }
       )
       .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'contacts' },
+        { event: '*', schema: 'public', table: 'bi_contacts' },
         async () => {
           console.log('Contacts data changed, triggering auto-analysis');
           await this.triggerAutoAnalysis(appIds, provider);
@@ -291,8 +291,8 @@ class AIAnalyticsEngine {
   private async getCRMDataForAnalysis() {
     try {
       const [dealsResponse, contactsResponse, communicationsResponse] = await Promise.all([
-        supabase.from('deals').select('*').limit(100),
-        supabase.from('contacts').select('*').limit(100),
+        supabase.from('bi_deals').select('*').limit(100),
+        supabase.from('bi_contacts').select('*').limit(100),
         supabase.from('communications').select('*').limit(50)
       ]);
 

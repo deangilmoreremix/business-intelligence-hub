@@ -19,7 +19,7 @@ describe('chart resolvers (Supabase-backed replacement for Twenty chart queries)
     expect(out.data.map(d => d.label)).toEqual(['Customer', 'Lead', 'Not set']);
     expect(out.data.map(d => d.value)).toEqual([5, 2, 1]);
     expect(out.formattedToRawLookup).toMatchObject({ Customer: 'customer', Lead: 'lead' });
-    expect(calls.at(-1)).toMatchObject({ p_table: 'contacts', p_metric: 'count', p_group1: 'status', p_field: null });
+    expect(calls.at(-1)).toMatchObject({ p_table: 'bi_contacts', p_metric: 'count', p_group1: 'status', p_field: null });
   });
 
   it('bar: secondary grouping pivots into keys; sum maps to numeric field', async () => {

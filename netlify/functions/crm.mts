@@ -98,11 +98,11 @@ export default async (req: Request, _ctx: Context) => {
         const known = new Set(contactRows.map(r => r.id));
         const dealRows = deals.map(d => mapDeal(tenant, d)).map(r => ({ ...r, contact_id: r.contact_id && known.has(r.contact_id) ? r.contact_id : null }));
         for (let i = 0; i < contactRows.length; i += 500) {
-          const { error } = await db.from('contacts').upsert(contactRows.slice(i, i + 500), { onConflict: 'id' });
+          const { error } = await db.from('bi_contacts').upsert(contactRows.slice(i, i + 500), { onConflict: 'id' });
           if (error) throw new Error(`contacts: ${error.message}`);
         }
         for (let i = 0; i < dealRows.length; i += 500) {
-          const { error } = await db.from('deals').upsert(dealRows.slice(i, i + 500), { onConflict: 'id' });
+          const { error } = await db.from('bi_deals').upsert(dealRows.slice(i, i + 500), { onConflict: 'id' });
           if (error) throw new Error(`deals: ${error.message}`);
         }
         const last = new Date().toISOString();

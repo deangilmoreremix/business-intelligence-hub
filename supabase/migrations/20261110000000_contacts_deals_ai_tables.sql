@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS companies (
   updated_at timestamptz DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS contacts (
+CREATE TABLE IF NOT EXISTS bi_contacts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   first_name text NOT NULL DEFAULT '',
   last_name text NOT NULL DEFAULT '',
@@ -35,31 +35,31 @@ CREATE TABLE IF NOT EXISTS contacts (
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
-CREATE INDEX IF NOT EXISTS contacts_email_idx ON contacts (lower(email));
-CREATE INDEX IF NOT EXISTS contacts_status_idx ON contacts (status);
+CREATE INDEX IF NOT EXISTS bi_contacts_email_idx ON bi_contacts (lower(email));
+CREATE INDEX IF NOT EXISTS bi_contacts_status_idx ON bi_contacts (status);
 
 CREATE TABLE IF NOT EXISTS contact_notes (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  contact_id uuid NOT NULL REFERENCES contacts(id) ON DELETE CASCADE,
+  contact_id uuid NOT NULL REFERENCES bi_contacts(id) ON DELETE CASCADE,
   body text NOT NULL,
   created_at timestamptz DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS contact_activities (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  contact_id uuid NOT NULL REFERENCES contacts(id) ON DELETE CASCADE,
+  contact_id uuid NOT NULL REFERENCES bi_contacts(id) ON DELETE CASCADE,
   kind text NOT NULL,
   detail text,
   created_at timestamptz DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS deals (
+CREATE TABLE IF NOT EXISTS bi_deals (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title text NOT NULL,
   value numeric DEFAULT 0,
   stage_id text,
   probability numeric,
-  contact_id uuid REFERENCES contacts(id) ON DELETE SET NULL,
+  contact_id uuid REFERENCES bi_contacts(id) ON DELETE SET NULL,
   assigned_to text,
   expected_close_date timestamptz,
   created_at timestamptz DEFAULT now(),
@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS ai_usage_logs (
 DO $$
 DECLARE t text;
 BEGIN
-  FOREACH t IN ARRAY ARRAY['companies','contacts','contact_notes','contact_activities','deals','app_settings','ai_insights','ai_usage_logs']
+  FOREACH t IN ARRAY ARRAY['companies','bi_contacts','contact_notes','contact_activities','bi_deals','app_settings','ai_insights','ai_usage_logs']
   LOOP
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
     EXECUTE format('DROP POLICY IF EXISTS "%s_all" ON %I', t, t);

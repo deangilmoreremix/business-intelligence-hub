@@ -113,7 +113,7 @@ export async function findDuplicatesServer(useAI = true): Promise<NamedDuplicate
   }
   const need = Array.from(new Set(groups.flatMap(g => g.ids))).filter(id => !people.has(id));
   for (let i = 0; i < need.length; i += 200) {
-    const { data } = await supabase.from('contacts').select('id,first_name,last_name').in('id', need.slice(i, i + 200));
+    const { data } = await supabase.from('bi_contacts').select('id,first_name,last_name').in('id', need.slice(i, i + 200));
     (data ?? []).forEach(r => people.set(r.id, { id: r.id, name: `${r.first_name ?? ''} ${r.last_name ?? ''}`.trim() } as Contact));
   }
   return groups.map(g => ({ ...g, names: Object.fromEntries(g.ids.map(id => [id, people.get(id)?.name ?? id])) }));
@@ -231,7 +231,7 @@ export async function applyEnrichment(contactId: string, r: EnrichmentResult, ac
   };
   const patch: Record<string, unknown> = { enrichment: r, enriched_at: new Date().toISOString() };
   for (const k of accept) { const m = map[k as string]; if (m?.[1]) patch[m[0]] = m[1]; }
-  const { error } = await supabase.from('contacts').update(patch).eq('id', contactId);
+  const { error } = await supabase.from('bi_contacts').update(patch).eq('id', contactId);
   if (error) throw new Error(error.message);
   await supabase.from('contact_activities').insert({ contact_id: contactId, kind: 'enriched', detail: `Sources: ${r.sources.join(', ')}` });
 }

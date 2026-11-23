@@ -4,8 +4,8 @@ const fs = require('fs');
 const db = new Pool({ host: '127.0.0.1', user: 'postgres', password: 'pw', database: 'biztest' });
 const results = []; const check = (n, ok, x = '') => { results.push(ok); console.log(ok ? 'PASS' : 'FAIL', n, x); };
 (async () => {
-  await db.query("TRUNCATE contacts, companies, contact_notes, contact_activities CASCADE");
-  await db.query("insert into contacts (first_name,last_name,email,status) values ('Jane','Doe','jane@acme.com','lead')");
+  await db.query("TRUNCATE bi_contacts, companies, contact_notes, contact_activities CASCADE");
+  await db.query("insert into bi_contacts (first_name,last_name,email,status) values ('Jane','Doe','jane@acme.com','lead')");
   fs.writeFileSync('/tmp/import2.csv', '﻿Email,First Name,Last Name,Company,Status\r\nann@x.com,Ann,Lee,"Acme, Inc",customer\r\njane@acme.com,Jane,Again,Acme,lead\r\nnot-an-email,Bad,Mail,X,lead\r\ncy@x.com,,NoFirst,X,lead\r\nbo@x.com,Bo,Ray,"Multi\nLine",prospect\r\n');
   const b = await chromium.launch(); const ctx = await b.newContext({ viewport: { width: 1440, height: 1000 } });
   await ctx.addInitScript(() => localStorage.setItem('walkthrough_completed', 'true'));
@@ -18,7 +18,7 @@ const results = []; const check = (n, ok, x = '') => { results.push(ok); console
   check('imported the 2 valid rows', /Imported 2 contact/.test(msg));
   check('reports 1 already existing', /1 already existed/.test(msg));
   check('reports 2 skipped with reasons', /2 skipped/.test(msg) && /invalid email/.test(msg) && /missing first name/.test(msg));
-  const rows = (await db.query("select first_name, company, status from contacts order by first_name")).rows;
+  const rows = (await db.query("select first_name, company, status from bi_contacts order by first_name")).rows;
   check('db has Jane + Ann + Bo only', rows.map(r => r.first_name).join() === 'Ann,Bo,Jane', JSON.stringify(rows));
   check('quoted comma and newline preserved', rows.find(r => r.first_name === 'Ann').company === 'Acme, Inc' && rows.find(r => r.first_name === 'Bo').company === 'Multi\nLine');
   check('no page errors', errs.length === 0, errs.join(';'));

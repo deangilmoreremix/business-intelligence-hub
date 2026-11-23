@@ -58,7 +58,7 @@ export const useDealStore = create<DealState>()((set, get) => ({
       set({ isLoading: true, error: null });
       
       const { data, error } = await supabase
-        .from('deals')
+        .from('bi_deals')
         .select(`
           *,
           contact:contacts(id, first_name, last_name, email)

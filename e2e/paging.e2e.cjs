@@ -3,8 +3,8 @@ const { Pool } = require('pg');
 const db = new Pool({ host: '127.0.0.1', user: 'postgres', password: 'pw', database: 'biztest' });
 const results = []; const check = (n, ok, x = '') => { results.push(ok); console.log(ok ? 'PASS' : 'FAIL', n, x); };
 (async () => {
-  await db.query("TRUNCATE contacts, companies, contact_notes, contact_activities CASCADE");
-  await db.query("insert into contacts (first_name,last_name,email,status,company) select 'Person'||lpad(g::text,3,'0'), 'Test', 'p'||g||'@x.com', case when g%4=0 then 'customer' else 'lead' end, case when g=77 then 'Zebra Corp' else 'Acme' end from generate_series(1,120) g");
+  await db.query("TRUNCATE bi_contacts, companies, contact_notes, contact_activities CASCADE");
+  await db.query("insert into bi_contacts (first_name,last_name,email,status,company) select 'Person'||lpad(g::text,3,'0'), 'Test', 'p'||g||'@x.com', case when g%4=0 then 'customer' else 'lead' end, case when g=77 then 'Zebra Corp' else 'Acme' end from generate_series(1,120) g");
   const b = await chromium.launch(); const ctx = await b.newContext({ viewport: { width: 1440, height: 1000 } });
   await ctx.addInitScript(() => localStorage.setItem('walkthrough_completed', 'true'));
   const page = await ctx.newPage(); const errs = []; page.on('pageerror', e => errs.push(e.message));

@@ -1,5 +1,5 @@
 -- Public-web enrichment fields (OpenAI web search) for contacts.
-ALTER TABLE contacts
+ALTER TABLE bi_contacts
   ADD COLUMN IF NOT EXISTS linkedin_url text,
   ADD COLUMN IF NOT EXISTS twitter_url text,
   ADD COLUMN IF NOT EXISTS website text,

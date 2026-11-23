@@ -8,17 +8,17 @@ const check = (name, ok, extra = '') => { results.push(ok); console.log(ok ? 'PA
 const rpcCalls = [];
 
 (async () => {
-  await db.query('TRUNCATE dashboard_layouts, saved_filters, app_settings, contacts, deals, companies CASCADE');
+  await db.query('TRUNCATE dashboard_layouts, saved_filters, app_settings, bi_contacts, bi_deals, companies CASCADE');
   const co = (await db.query("insert into companies (name, industry) values ('Acme','SaaS'),('Initech','Finance') returning id,name")).rows;
   const acme = co.find(c => c.name === 'Acme').id;
-  const contacts = (await db.query(`insert into contacts (first_name,last_name,email,company,company_id,status,lead_score,created_at) values
+  const contacts = (await db.query(`insert into bi_contacts (first_name,last_name,email,company,company_id,status,lead_score,created_at) values
     ('Ann','Lee','ann@acme.com','Acme','${acme}','lead',20,'2026-01-10'),
     ('Bob','Ray',null,'Acme','${acme}','lead',40,'2026-02-10'),
     ('Cy','Doe','cy@i.com','Initech',null,'customer',90,'2026-02-20'),
     ('Di','Poe','di@i.com','Initech',null,'prospect',60,'2026-03-05'),
     ('Ed','Fox','ed@i.com','Initech',null,'customer',80,'2026-03-15') returning id,first_name`)).rows;
   const ann = contacts.find(c => c.first_name === 'Ann').id;
-  await db.query(`insert into deals (title,value,stage_id,contact_id) values ('D1',1000,'open','${ann}'),('D2',3000,'won','${ann}'),('D3',500,'open',null)`);
+  await db.query(`insert into bi_deals (title,value,stage_id,contact_id) values ('D1',1000,'open','${ann}'),('D2',3000,'won','${ann}'),('D3',500,'open',null)`);
 
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 1400, height: 1000 } });
@@ -41,8 +41,8 @@ const rpcCalls = [];
   check('aggregate "Pipeline value" sums deals (4500)', /4[,.\s]?500|4\.5k|4,5/i.test(pipeline), pipeline.replace(/\n/g, ' | ').slice(0, 80));
   check('record list shows contacts', (await page.locator('[data-testid=record-row]').count()) === 5);
   check('pie legend uses select option labels', /Lead/.test(await page.locator('[data-widget-id]').nth(2).innerText()));
-  check('RPC called with group by status', rpcCalls.some(c => c.p_group1 === 'status' && c.p_table === 'contacts' && c.p_metric === 'count'));
-  check('sum of deal value by stage RPC', rpcCalls.some(c => c.p_table === 'deals' && c.p_metric === 'sum' && c.p_field === 'value' && c.p_group1 === 'stageId'));
+  check('RPC called with group by status', rpcCalls.some(c => c.p_group1 === 'status' && c.p_table === 'bi_contacts' && c.p_metric === 'count'));
+  check('sum of deal value by stage RPC', rpcCalls.some(c => c.p_table === 'bi_deals' && c.p_metric === 'sum' && c.p_field === 'value' && c.p_group1 === 'stageId'));
   await page.screenshot({ path: require('os').tmpdir() + '/builder-1-view.png' });
 
   /* 2. drag + resize + persist */
@@ -113,7 +113,7 @@ const rpcCalls = [];
   await page.waitForTimeout(2500);
   const ctxText = await page.locator('[data-testid=widget]:has-text("Pipeline value")').innerText();
   check('widget filtered by selected contact (deals of Ann = 4000)', /4[,.\s]?000|4k/i.test(ctxText), ctxText.replace(/\n/g, ' | ').slice(0, 80));
-  check('context filter sent as contactId to RPC', rpcCalls.some(c => c.p_table === 'deals' && JSON.stringify(c.p_filter).includes('contactId')));
+  check('context filter sent as contactId to RPC', rpcCalls.some(c => c.p_table === 'bi_deals' && JSON.stringify(c.p_filter).includes('contactId')));
   await page.click('button[aria-label="Close settings"]');
   await page.click('button[aria-label="Clear context"]');
 

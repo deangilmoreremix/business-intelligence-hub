@@ -10,9 +10,9 @@ const NS = '6f1f5b0e-2f4e-4b1d-9a55-0a1c7c1d2e00';
 export const metaId = (key: string): string => uuidv5(key, NS);
 
 export type CatalogObjectName = 'contact' | 'deal' | 'company';
-export const TABLE_BY_OBJECT: Record<CatalogObjectName, 'contacts' | 'deals' | 'companies'> = {
-  contact: 'contacts',
-  deal: 'deals',
+export const TABLE_BY_OBJECT: Record<CatalogObjectName, 'bi_contacts' | 'bi_deals' | 'companies'> = {
+  contact: 'bi_contacts',
+  deal: 'bi_deals',
   company: 'companies',
 };
 

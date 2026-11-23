@@ -4,29 +4,29 @@ SET LOCAL ROLE anon;
 
 -- tenant A writes
 SELECT set_config('request.jwt.claims', '{"tenant_id":"tenant-a"}', true);
-INSERT INTO contacts (first_name, last_name, email) VALUES ('Alice', 'A', 'a@a.com');
+INSERT INTO bi_contacts (first_name, last_name, email) VALUES ('Alice', 'A', 'a@a.com');
 INSERT INTO app_settings (setting_key, setting_value) VALUES ('crm_config', '{"x":1}');
 
 -- tenant B writes the same keys without conflict, and cannot see A
 SELECT set_config('request.jwt.claims', '{"tenant_id":"tenant-b"}', true);
-INSERT INTO contacts (first_name, last_name, email) VALUES ('Bob', 'B', 'b@b.com');
+INSERT INTO bi_contacts (first_name, last_name, email) VALUES ('Bob', 'B', 'b@b.com');
 INSERT INTO app_settings (setting_key, setting_value) VALUES ('crm_config', '{"x":2}');
 
 DO $$
 DECLARE n int;
 BEGIN
-  SELECT count(*) INTO n FROM contacts WHERE email = 'a@a.com';
+  SELECT count(*) INTO n FROM bi_contacts WHERE email = 'a@a.com';
   IF n <> 0 THEN RAISE EXCEPTION 'FAIL: tenant B can read tenant A contacts'; END IF;
-  SELECT count(*) INTO n FROM contacts;
+  SELECT count(*) INTO n FROM bi_contacts;
   IF n <> 1 THEN RAISE EXCEPTION 'FAIL: tenant B sees % contacts, expected 1', n; END IF;
-  UPDATE contacts SET first_name = 'Hacked' WHERE email = 'a@a.com';
+  UPDATE bi_contacts SET first_name = 'Hacked' WHERE email = 'a@a.com';
   GET DIAGNOSTICS n = ROW_COUNT;
   IF n <> 0 THEN RAISE EXCEPTION 'FAIL: tenant B updated tenant A row'; END IF;
-  DELETE FROM contacts WHERE email = 'a@a.com';
+  DELETE FROM bi_contacts WHERE email = 'a@a.com';
   GET DIAGNOSTICS n = ROW_COUNT;
   IF n <> 0 THEN RAISE EXCEPTION 'FAIL: tenant B deleted tenant A row'; END IF;
   BEGIN
-    INSERT INTO contacts (first_name, last_name, email, tenant_id) VALUES ('Eve', 'E', 'e@e.com', 'tenant-a');
+    INSERT INTO bi_contacts (first_name, last_name, email, tenant_id) VALUES ('Eve', 'E', 'e@e.com', 'tenant-a');
     RAISE EXCEPTION 'FAIL: tenant B inserted a row into tenant A';
   EXCEPTION WHEN insufficient_privilege OR check_violation THEN NULL; -- expected (RLS WITH CHECK)
   END;
@@ -37,7 +37,7 @@ SELECT set_config('request.jwt.claims', '{"tenant_id":"tenant-a"}', true);
 DO $$
 DECLARE n int; v text;
 BEGIN
-  SELECT count(*) INTO n FROM contacts;
+  SELECT count(*) INTO n FROM bi_contacts;
   IF n <> 1 THEN RAISE EXCEPTION 'FAIL: tenant A sees % contacts, expected 1', n; END IF;
   SELECT (setting_value->>'x') INTO v FROM app_settings WHERE setting_key = 'crm_config';
   IF v <> '1' THEN RAISE EXCEPTION 'FAIL: tenant A settings leaked/overwritten (x=%)', v; END IF;
@@ -48,7 +48,7 @@ SELECT set_config('request.jwt.claims', '', true);
 DO $$
 DECLARE n int;
 BEGIN
-  SELECT count(*) INTO n FROM contacts WHERE tenant_id <> 'public';
+  SELECT count(*) INTO n FROM bi_contacts WHERE tenant_id <> 'public';
   IF n <> 0 THEN RAISE EXCEPTION 'FAIL: anonymous (public tenant) sees % rows of other tenants', n; END IF;
 END $$;
 
@@ -85,9 +85,9 @@ BEGIN
 END $$;
 
 -- duplicate detection functions respect tenant scope and find exact phone matches
--- (same-email duplicates cannot be created any more: contacts_tenant_email_key)
+-- (same-email duplicates cannot be created any more: bi_contacts_tenant_email_key)
 SELECT set_config('request.jwt.claims', '{"tenant_id":"tenant-dup-a"}', true);
-INSERT INTO contacts (first_name, last_name, email, phone) VALUES
+INSERT INTO bi_contacts (first_name, last_name, email, phone) VALUES
   ('Dee', 'Smith', 'dup1@x.com', '+1 (555) 123-4567'),
   ('Dede', 'Smith', 'dup2@x.com', '1.555.123.4567'),
   ('Solo', 'Other', 'solo@x.com', NULL);
@@ -114,8 +114,8 @@ END $$;
 DO $$
 BEGIN
   BEGIN
-    PERFORM 1 FROM rate_limits LIMIT 1;
-    RAISE EXCEPTION 'FAIL: anon can read rate_limits';
+    PERFORM 1 FROM bi_rate_limits LIMIT 1;
+    RAISE EXCEPTION 'FAIL: anon can read bi_rate_limits';
   EXCEPTION WHEN insufficient_privilege THEN NULL;
   END;
   BEGIN

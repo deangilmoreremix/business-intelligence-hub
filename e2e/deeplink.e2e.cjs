@@ -2,8 +2,8 @@ const { chromium } = require('playwright');
 const { Pool } = require('pg');
 const db = new Pool({ host: '127.0.0.1', user: 'postgres', password: 'pw', database: 'biztest' });
 (async () => {
-  await db.query("TRUNCATE contacts, companies, contact_notes, contact_activities CASCADE");
-  await db.query("insert into contacts (first_name,last_name,email,status) values ('Ann','Lee','ann@x.com','lead'),('Bob','Ray','bob@x.com','customer'),('Cy','Lead','cy@x.com','lead')");
+  await db.query("TRUNCATE bi_contacts, companies, contact_notes, contact_activities CASCADE");
+  await db.query("insert into bi_contacts (first_name,last_name,email,status) values ('Ann','Lee','ann@x.com','lead'),('Bob','Ray','bob@x.com','customer'),('Cy','Lead','cy@x.com','lead')");
   const b = await chromium.launch(); const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } });
   await ctx.addInitScript(() => localStorage.setItem('walkthrough_completed', 'true'));
   const page = await ctx.newPage(); let ok = true;

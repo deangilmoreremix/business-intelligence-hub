@@ -22,9 +22,9 @@ const files = { contact: require('os').tmpdir() + '/person-contact.png', team: r
 fs.writeFileSync(files.contact, png(220, 60, 60)); fs.writeFileSync(files.team, png(40, 120, 220)); fs.writeFileSync(files.logo, png(30, 160, 90)); fs.writeFileSync(files.bad, 'hello');
 
 (async () => {
-  await db.query("TRUNCATE contacts, companies, contact_notes, contact_activities CASCADE; UPDATE team_members SET avatar_url = NULL");
+  await db.query("TRUNCATE bi_contacts, companies, contact_notes, contact_activities CASCADE; UPDATE team_members SET avatar_url = NULL");
   const co = (await db.query("insert into companies (name, domain) values ('Acme Corp','acme.com') returning id")).rows[0].id;
-  await db.query("insert into contacts (first_name,last_name,email,company,company_id,status) values ('Ann','Lee','ann@acme.com','Acme Corp',$1,'lead')", [co]);
+  await db.query("insert into bi_contacts (first_name,last_name,email,company,company_id,status) values ('Ann','Lee','ann@acme.com','Acme Corp',$1,'lead')", [co]);
 
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 960 }, deviceScaleFactor: 2 });
@@ -43,7 +43,7 @@ fs.writeFileSync(files.contact, png(220, 60, 60)); fs.writeFileSync(files.team, 
   await page.locator('[data-testid=image-upload-contacts] input[type=file]').setInputFiles(files.contact);
   await page.waitForFunction(() => document.querySelector('aside [data-testid=image-upload-contacts] img'), null, { timeout: 20000 }).catch(() => undefined);
   await page.waitForTimeout(1500);
-  const row = (await db.query("select avatar_url from contacts where first_name='Ann'")).rows[0];
+  const row = (await db.query("select avatar_url from bi_contacts where first_name='Ann'")).rows[0];
   check('contact photo URL saved to contacts.avatar_url', !!row.avatar_url && /people-images\/public\/contacts\/.+\.png$/.test(row.avatar_url), row.avatar_url);
   const px = row.avatar_url ? await pixel(row.avatar_url) : [0, 0, 0];
   check('stored image is the uploaded file (red pixel)', px[0] > 180 && px[1] < 90, JSON.stringify(px));
@@ -54,20 +54,20 @@ fs.writeFileSync(files.contact, png(220, 60, 60)); fs.writeFileSync(files.team, 
   /* ---- 2. rejects a non-image ---- */
   await page.locator('[data-testid=image-upload-contacts] input[type=file]').setInputFiles(files.bad);
   await page.waitForTimeout(1200);
-  const stillOk = (await db.query("select avatar_url from contacts where first_name='Ann'")).rows[0].avatar_url === row.avatar_url;
+  const stillOk = (await db.query("select avatar_url from bi_contacts where first_name='Ann'")).rows[0].avatar_url === row.avatar_url;
   check('non-image file does not replace the photo', stillOk);
 
   /* ---- 3. photo shows in the table after reload ---- */
   await page.reload(); await page.waitForSelector('td:has-text("Ann Lee")');
   const { photos } = await page.evaluate(() => ({ photos: null }));
   void photos;
-  check('contact row loads avatar_url after reload', (await db.query("select count(*) c from contacts where avatar_url is not null")).rows[0].c === '1');
+  check('contact row loads avatar_url after reload', (await db.query("select count(*) c from bi_contacts where avatar_url is not null")).rows[0].c === '1');
 
   /* ---- 4. remove ---- */
   await page.click('td:has-text("Ann Lee")'); await page.waitForSelector('[data-testid=image-upload-contacts]');
   const removeBtn = page.locator('[data-testid=image-upload-contacts] button:has-text("Remove")');
   await removeBtn.click({ timeout: 10000 }).catch(() => undefined); await page.waitForTimeout(1500);
-  check('Remove clears the photo', (await db.query("select avatar_url from contacts where first_name='Ann'")).rows[0].avatar_url === null);
+  check('Remove clears the photo', (await db.query("select avatar_url from bi_contacts where first_name='Ann'")).rows[0].avatar_url === null);
   await page.click('aside button[aria-label=Close]');
 
   /* ---- 5. team member photo shows across other pages ---- */

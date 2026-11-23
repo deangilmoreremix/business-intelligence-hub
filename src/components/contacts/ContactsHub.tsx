@@ -119,7 +119,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const persistScore = async (s: LeadScore) => {
     setScore(s);
     if (selected) {
-      await supabase.from('contacts').update({ lead_score: s.score, ai_summary: s.summary, ai_next_action: s.nextAction }).eq('id', selected.id);
+      await supabase.from('bi_contacts').update({ lead_score: s.score, ai_summary: s.summary, ai_next_action: s.nextAction }).eq('id', selected.id);
       await addActivity(selected.id, 'scored', `${s.score}/100 (${s.tier})`);
       refreshActivities();
     }
@@ -326,7 +326,7 @@ export const ContactsHub: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
             folder="contacts"
             value={selected.avatarUrl}
             onChange={async url => {
-              const { error: e } = await supabase.from('contacts').update({ avatar_url: url }).eq('id', selected.id);
+              const { error: e } = await supabase.from('bi_contacts').update({ avatar_url: url }).eq('id', selected.id);
               if (e) throw new Error(e.message);
               usePeoplePhotos.getState().set(selected.name, url);
               await addActivity(selected.id, url ? 'photo updated' : 'photo removed');

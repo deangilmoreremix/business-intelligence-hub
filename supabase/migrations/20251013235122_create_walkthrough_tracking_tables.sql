@@ -156,7 +156,7 @@ CREATE INDEX IF NOT EXISTS idx_tooltip_interactions_user_id ON tooltip_interacti
 CREATE INDEX IF NOT EXISTS idx_tooltip_interactions_composite ON tooltip_interactions(user_id, tooltip_id);
 
 -- Create updated_at trigger function
-CREATE OR REPLACE FUNCTION update_updated_at_column()
+CREATE OR REPLACE FUNCTION bi_update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = now();
@@ -166,7 +166,7 @@ $$ language 'plpgsql';
 
 -- Add triggers for updated_at
 CREATE TRIGGER update_user_preferences_updated_at BEFORE UPDATE ON user_preferences
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION bi_update_updated_at_column();
 
 CREATE TRIGGER update_walkthrough_progress_updated_at BEFORE UPDATE ON walkthrough_progress
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION bi_update_updated_at_column();

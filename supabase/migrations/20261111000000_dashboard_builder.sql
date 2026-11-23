@@ -44,7 +44,7 @@ CREATE OR REPLACE FUNCTION dashboard_column(p_table text, p_field text)
 RETURNS text LANGUAGE plpgsql STABLE AS $$
 DECLARE col text;
 BEGIN
-  IF p_table NOT IN ('contacts', 'deals', 'companies') THEN
+  IF p_table NOT IN ('bi_contacts', 'bi_deals', 'companies') THEN
     RAISE EXCEPTION 'table % is not allowed', p_table USING ERRCODE = '42501';
   END IF;
   col := lower(regexp_replace(p_field, '([A-Z])', '_\1', 'g'));

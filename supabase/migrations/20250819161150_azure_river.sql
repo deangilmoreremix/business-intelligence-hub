@@ -49,7 +49,7 @@ CREATE POLICY "Enable delete for authenticated users on their own content" ON pu
   FOR DELETE USING (auth.uid() = user_id);
 
 -- Create function to automatically update updated_at timestamp
-CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+CREATE OR REPLACE FUNCTION public.bi_update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated_at = now();
@@ -60,7 +60,7 @@ $$ language 'plpgsql';
 -- Create trigger to automatically update updated_at
 CREATE TRIGGER update_app_content_updated_at
 BEFORE UPDATE ON public.app_content
-FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+FOR EACH ROW EXECUTE FUNCTION public.bi_update_updated_at_column();
 
 -- Create indexes for optimal performance
 CREATE INDEX IF NOT EXISTS idx_app_content_key ON public.app_content (key);

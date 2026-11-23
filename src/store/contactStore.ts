@@ -102,7 +102,7 @@ export const useContactStore = create<ContactState>()((set, get) => ({
       company: input.company ?? null,
       status: input.crmStatus ?? 'lead',
     };
-    const { data, error } = await supabase.from('contacts').insert(row).select().single();
+    const { data, error } = await supabase.from('bi_contacts').insert(row).select().single();
     if (error || !data) {
       set({ error: error?.message ?? 'Failed to create contact' });
       return null;
@@ -112,7 +112,7 @@ export const useContactStore = create<ContactState>()((set, get) => ({
   },
 
   deleteContact: async (id) => {
-    const { error } = await supabase.from('contacts').delete().eq('id', id);
+    const { error } = await supabase.from('bi_contacts').delete().eq('id', id);
     if (error) { set({ error: error.message }); return; }
     get().removeContact(id);
   },
@@ -126,7 +126,7 @@ export const useContactStore = create<ContactState>()((set, get) => ({
       set({ isLoading: true, error: null });
       
       const { data, error } = await supabase
-        .from('contacts')
+        .from('bi_contacts')
         .select('*')
         .order('created_at', { ascending: false });
       

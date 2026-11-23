@@ -13,7 +13,7 @@ const proxyCalls = [];
 const textMsg = text => ({ output: [{ type: 'message', content: [{ type: 'output_text', text }] }] });
 
 (async () => {
-  await db.query('TRUNCATE contacts, companies, app_settings, deals, ai_insights, ai_usage_logs CASCADE');
+  await db.query('TRUNCATE bi_contacts, companies, app_settings, bi_deals, ai_insights, ai_usage_logs CASCADE');
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ acceptDownloads: true });
   const page = await ctx.newPage(); __page = page;
@@ -56,14 +56,14 @@ const textMsg = text => ({ output: [{ type: 'message', content: [{ type: 'output
   await page.fill('input[placeholder=company]', 'Acme');
   await page.click('form button[type=submit]');
   await page.waitForSelector('td:has-text("Jane Doe")');
-  check('create contact via form', (await db.query("select 1 from contacts where email='jane@acme.com'")).rowCount === 1);
+  check('create contact via form', (await db.query("select 1 from bi_contacts where email='jane@acme.com'")).rowCount === 1);
 
   // 2. CSV import
   const csv = 'first_name,last_name,email,phone,company,status\n"Bob","Smith","bob@initech.com","","Initech","prospect"\n"Robert","Smith","","","Initech","lead"\n';
   fs.writeFileSync('/tmp/import.csv', csv);
   await page.setInputFiles('input[type=file]', '/tmp/import.csv');
   await page.waitForSelector('td:has-text("Robert Smith")');
-  check('CSV import creates rows', (await db.query("select count(*) c from contacts")).rows[0].c === '3');
+  check('CSV import creates rows', (await db.query("select count(*) c from bi_contacts")).rows[0].c === '3');
 
   // 3. search / filter / sort
   await page.fill('input[placeholder="Search contacts…"]', 'smith');
@@ -96,7 +96,7 @@ const textMsg = text => ({ output: [{ type: 'message', content: [{ type: 'output
   await page.waitForSelector('h2:has-text("Jane Doe")');
   await page.click('button:has-text("AI score")');
   await page.waitForSelector('text=87/100');
-  check('AI lead score shown + persisted', (await db.query("select lead_score,ai_next_action from contacts where email='jane@acme.com'")).rows[0].lead_score === 87);
+  check('AI lead score shown + persisted', (await db.query("select lead_score,ai_next_action from bi_contacts where email='jane@acme.com'")).rows[0].lead_score === 87);
   await page.click('button:has-text("Draft email")');
   await page.waitForSelector('text=Quick follow up');
   check('AI email draft shown', true);
@@ -105,7 +105,7 @@ const textMsg = text => ({ output: [{ type: 'message', content: [{ type: 'output
   check('enrichment shows sources', (await page.locator('summary:has-text("Sources (2)")').count()) === 1);
   await page.click('button:has-text("Save selected")');
   await page.waitForSelector('text=Public info found', { state: 'detached' });
-  const row = (await db.query("select job_title,city,linkedin_url,enriched_at from contacts where email='jane@acme.com'")).rows[0];
+  const row = (await db.query("select job_title,city,linkedin_url,enriched_at from bi_contacts where email='jane@acme.com'")).rows[0];
   check('enrichment saved to Supabase', row.job_title === 'VP Sales' && row.city === 'Austin' && row.linkedin_url === 'https://linkedin.com/in/jane' && !!row.enriched_at);
   const wsReq = proxyCalls.find(c => c.body.tools);
   check('web_search tool sent with tool_choice=required', wsReq?.body.tools[0].type === 'web_search' && wsReq.body.tool_choice === 'required');
@@ -131,7 +131,7 @@ const textMsg = text => ({ output: [{ type: 'message', content: [{ type: 'output
   await page.click('td:has-text("Jane Doe")');
   await page.selectOption('select[aria-label=Company]', { label: 'Acme Corp' });
   await page.waitForTimeout(500);
-  check('contact linked to company', (await db.query("select company,company_id from contacts where email='jane@acme.com'")).rows[0].company === 'Acme Corp');
+  check('contact linked to company', (await db.query("select company,company_id from bi_contacts where email='jane@acme.com'")).rows[0].company === 'Acme Corp');
   await page.click('aside button[aria-label=Close]');
   await page.click('[role=tab]:has-text("Companies")');
   await page.waitForSelector('tr:has-text("Acme Corp") td:nth-child(5):has-text("1")');
@@ -144,13 +144,13 @@ const textMsg = text => ({ output: [{ type: 'message', content: [{ type: 'output
   check('AI duplicate group found', (await page.locator('[aria-label="Duplicate groups"] li').innerText()).includes('Bob/Robert Smith'));
   await page.click('button:has-text("Merge")');
   await page.waitForSelector('text=Merged');
-  const smiths = (await db.query("select first_name,email,company from contacts where last_name='Smith'")).rows;
+  const smiths = (await db.query("select first_name,email,company from bi_contacts where last_name='Smith'")).rows;
   check('merge leaves one contact and keeps donor fields', smiths.length === 1 && smiths[0].email === 'bob@initech.com', JSON.stringify(smiths));
   // 8b. undo the merge: both Smiths are back, the merge marker activity is gone, then merge again
   await page.waitForSelector('[data-testid=undo-bar]');
   await page.click('[data-testid=undo-bar] button:has-text("Undo")');
   await page.waitForSelector('text=Merge undone');
-  check('undo merge restores both contacts', (await db.query("select count(*) c from contacts where last_name='Smith'")).rows[0].c === '2');
+  check('undo merge restores both contacts', (await db.query("select count(*) c from bi_contacts where last_name='Smith'")).rows[0].c === '2');
   check('undo merge removes the merged marker', (await db.query("select count(*) c from contact_activities where kind='merged'")).rows[0].c === '0');
   await page.click('button:has-text("Find duplicates")');
   await page.waitForSelector('[aria-label="Duplicate groups"]');
@@ -161,11 +161,11 @@ const textMsg = text => ({ output: [{ type: 'message', content: [{ type: 'output
   await page.click('input[aria-label="Select all"]');
   await page.selectOption('select[aria-label="Set status"]', 'customer');
   await page.waitForSelector('text=Status set to customer');
-  check('bulk set status', (await db.query("select count(*) c from contacts where status='customer'")).rows[0].c === '2');
+  check('bulk set status', (await db.query("select count(*) c from bi_contacts where status='customer'")).rows[0].c === '2');
   await page.click('input[aria-label="Select all"]');
   await page.click('button:has-text("Tag")');
   await page.waitForSelector('text=Tagged "vip"');
-  check('bulk tag', (await db.query("select count(*) c from contacts where 'vip' = any(tags)")).rows[0].c === '2');
+  check('bulk tag', (await db.query("select count(*) c from bi_contacts where 'vip' = any(tags)")).rows[0].c === '2');
   await page.click('input[aria-label="Select all"]');
   const before = proxyCalls.filter(c => c.body.tools).length;
   await page.click('button:has-text("Enrich selected")');
@@ -174,11 +174,11 @@ const textMsg = text => ({ output: [{ type: 'message', content: [{ type: 'output
   await page.click('input[aria-label="Select all"]');
   await page.click('[role=toolbar] button:has-text("Delete")');
   await page.waitForSelector('text=Deleted');
-  check('bulk delete', (await db.query('select count(*) c from contacts')).rows[0].c === '0');
+  check('bulk delete', (await db.query('select count(*) c from bi_contacts')).rows[0].c === '0');
   await page.waitForSelector('[data-testid=undo-bar]');
   await page.click('[data-testid=undo-bar] button:has-text("Undo")');
   await page.waitForSelector('text=Restored');
-  check('undo bulk delete brings the contacts back', (await db.query('select count(*) c from contacts')).rows[0].c === '2');
+  check('undo bulk delete brings the contacts back', (await db.query('select count(*) c from bi_contacts')).rows[0].c === '2');
   check('undo bulk delete restores notes', (await db.query('select count(*) c from contact_notes')).rows[0].c >= '1');
 
   check('no uncaught page errors', pageErrors.length === 0, pageErrors.join(' ; '));

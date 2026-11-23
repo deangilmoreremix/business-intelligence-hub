@@ -34,7 +34,7 @@ const must = <T,>(r: { data: T | null; error: { message: string } | null }): T =
 /* ---------- companies ---------- */
 export async function listCompanies(): Promise<Company[]> {
   const companies = must(await supabase.from('companies').select('*').order('name')) as Company[];
-  const links = must(await supabase.from('contacts').select('company_id')) as Array<{ company_id: string | null }>;
+  const links = must(await supabase.from('bi_contacts').select('company_id')) as Array<{ company_id: string | null }>;
   const counts = new Map<string, number>();
   for (const l of links) if (l.company_id) counts.set(l.company_id, (counts.get(l.company_id) ?? 0) + 1);
   return (companies ?? []).map(c => ({ ...c, contactCount: counts.get(c.id) ?? 0 }));
@@ -45,11 +45,11 @@ export async function createCompany(input: { name: string; domain?: string; indu
 }
 
 export async function linkContactToCompany(contactId: string, company: Company | null): Promise<void> {
-  must(await supabase.from('contacts').update({ company_id: company?.id ?? null, company: company?.name ?? null }).eq('id', contactId).select());
+  must(await supabase.from('bi_contacts').update({ company_id: company?.id ?? null, company: company?.name ?? null }).eq('id', contactId).select());
 }
 
 export async function getContactCompanyId(contactId: string): Promise<string | null> {
-  const row = must(await supabase.from('contacts').select('company_id').eq('id', contactId).single()) as { company_id: string | null };
+  const row = must(await supabase.from('bi_contacts').select('company_id').eq('id', contactId).single()) as { company_id: string | null };
   return row?.company_id ?? null;
 }
 
@@ -64,19 +64,19 @@ export async function addActivity(contactId: string, kind: string, detail?: stri
 
 /* ---------- bulk ---------- */
 export async function bulkSetStatus(ids: string[], status: NonNullable<Contact['crmStatus']>): Promise<void> {
-  must(await supabase.from('contacts').update({ status }).in('id', ids).select());
+  must(await supabase.from('bi_contacts').update({ status }).in('id', ids).select());
 }
 
 export async function bulkTag(ids: string[], tag: string): Promise<void> {
-  const rows = must(await supabase.from('contacts').select('id,tags').in('id', ids)) as Array<{ id: string; tags: string[] | null }>;
+  const rows = must(await supabase.from('bi_contacts').select('id,tags').in('id', ids)) as Array<{ id: string; tags: string[] | null }>;
   for (const r of rows ?? []) {
     const tags = Array.from(new Set([...(r.tags ?? []), tag]));
-    must(await supabase.from('contacts').update({ tags }).eq('id', r.id).select());
+    must(await supabase.from('bi_contacts').update({ tags }).eq('id', r.id).select());
   }
 }
 
 export async function bulkDelete(ids: string[]): Promise<void> {
-  must(await supabase.from('contacts').delete().in('id', ids).select());
+  must(await supabase.from('bi_contacts').delete().in('id', ids).select());
 }
 
 /* ---------- merge duplicates ---------- */
@@ -85,7 +85,7 @@ const MERGE_FIELDS = ['email', 'phone', 'company', 'company_id', 'job_title', 'c
 /** Merge `otherIds` into `primaryId`: fill the primary's empty fields, re-point notes/activities/deals, delete the rest. */
 export async function mergeContacts(primaryId: string, otherIds: string[]): Promise<void> {
   const ids = [primaryId, ...otherIds];
-  const rows = must(await supabase.from('contacts').select('*').in('id', ids)) as Array<Record<string, unknown> & { id: string }>;
+  const rows = must(await supabase.from('bi_contacts').select('*').in('id', ids)) as Array<Record<string, unknown> & { id: string }>;
   const primary = rows.find(r => r.id === primaryId);
   if (!primary) throw new Error('Primary contact not found');
   const patch: Record<string, unknown> = {};
@@ -96,12 +96,12 @@ export async function mergeContacts(primaryId: string, otherIds: string[]): Prom
   }
   const tags = Array.from(new Set(rows.flatMap(r => (r.tags as string[] | null) ?? [])));
   if (tags.length) patch.tags = tags;
-  if (Object.keys(patch).length) must(await supabase.from('contacts').update(patch).eq('id', primaryId).select());
-  for (const table of ['contact_notes', 'contact_activities', 'deals']) {
+  if (Object.keys(patch).length) must(await supabase.from('bi_contacts').update(patch).eq('id', primaryId).select());
+  for (const table of ['contact_notes', 'contact_activities', 'bi_deals']) {
     must(await supabase.from(table).update({ contact_id: primaryId }).in('contact_id', otherIds).select());
   }
   await addActivity(primaryId, 'merged', `Merged ${otherIds.length} duplicate contact(s)`);
-  must(await supabase.from('contacts').delete().in('id', otherIds).select());
+  must(await supabase.from('bi_contacts').delete().in('id', otherIds).select());
 }
 
 /* ---------- saved views (stored in app_settings) ---------- */
@@ -134,7 +134,7 @@ export const searchPattern = (q: string): string => `"*${q.trim().replace(/[\\"]
 export interface ContactsPageQuery { query?: string; status?: string; sortKey?: ContactSortKey; sortDir?: 1 | -1; page: number; pageSize: number }
 
 export async function listContactsPage(q: ContactsPageQuery): Promise<{ rows: Contact[]; total: number }> {
-  let req = supabase.from('contacts').select('*', { count: 'exact' });
+  let req = supabase.from('bi_contacts').select('*', { count: 'exact' });
   if (q.status && q.status !== 'all') req = req.eq('status', q.status);
   const text = q.query?.trim();
   if (text) {
@@ -163,10 +163,10 @@ export interface ContactSnapshot {
 export async function snapshotContacts(ids: string[]): Promise<ContactSnapshot> {
   const takenAt = new Date().toISOString();
   const [contacts, notes, activities, deals] = await Promise.all([
-    supabase.from('contacts').select('*').in('id', ids),
+    supabase.from('bi_contacts').select('*').in('id', ids),
     supabase.from('contact_notes').select('*').in('contact_id', ids),
     supabase.from('contact_activities').select('*').in('contact_id', ids),
-    supabase.from('deals').select('id,contact_id').in('contact_id', ids),
+    supabase.from('bi_deals').select('id,contact_id').in('contact_id', ids),
   ]);
   return {
     takenAt,
@@ -179,12 +179,12 @@ export async function snapshotContacts(ids: string[]): Promise<ContactSnapshot> 
 
 /** Puts a snapshot back: recreates deleted contacts, restores edited fields, notes, activities and deal links. */
 export async function restoreSnapshot(snap: ContactSnapshot, opts: { removeMergedMarkerFor?: string } = {}): Promise<void> {
-  if (snap.contacts.length) must(await supabase.from('contacts').upsert(snap.contacts, { onConflict: 'id' }).select());
+  if (snap.contacts.length) must(await supabase.from('bi_contacts').upsert(snap.contacts, { onConflict: 'id' }).select());
   if (snap.notes.length) must(await supabase.from('contact_notes').upsert(snap.notes, { onConflict: 'id' }).select());
   if (snap.activities.length) must(await supabase.from('contact_activities').upsert(snap.activities, { onConflict: 'id' }).select());
   const byContact = new Map<string, string[]>();
   for (const d of snap.deals) byContact.set(d.contact_id, [...(byContact.get(d.contact_id) ?? []), d.id]);
-  for (const [contactId, dealIds] of byContact) must(await supabase.from('deals').update({ contact_id: contactId }).in('id', dealIds).select());
+  for (const [contactId, dealIds] of byContact) must(await supabase.from('bi_deals').update({ contact_id: contactId }).in('id', dealIds).select());
   if (opts.removeMergedMarkerFor) {
     must(await supabase.from('contact_activities').delete().eq('contact_id', opts.removeMergedMarkerFor).eq('kind', 'merged').gte('created_at', snap.takenAt).select());
   }
@@ -199,7 +199,7 @@ export async function importContacts(rows: Array<{ firstName: string; lastName: 
   const emails = rows.map(r => r.email).filter((e): e is string => !!e);
   const existing = new Set<string>();
   for (let i = 0; i < emails.length; i += 200) {
-    const { data } = await supabase.from('contacts').select('email').in('email', emails.slice(i, i + 200));
+    const { data } = await supabase.from('bi_contacts').select('email').in('email', emails.slice(i, i + 200));
     (data ?? []).forEach(r => r.email && existing.add(String(r.email).toLowerCase()));
   }
   const fresh = rows.filter(r => {
@@ -209,11 +209,11 @@ export async function importContacts(rows: Array<{ firstName: string; lastName: 
   const toDb = (r: (typeof rows)[number]) => ({ first_name: r.firstName, last_name: r.lastName, email: r.email, phone: r.phone, company: r.company, status: r.crmStatus });
   for (let i = 0; i < fresh.length; i += 200) {
     const chunk = fresh.slice(i, i + 200);
-    const { error } = await supabase.from('contacts').insert(chunk.map(toDb));
+    const { error } = await supabase.from('bi_contacts').insert(chunk.map(toDb));
     if (!error) { out.imported += chunk.length; continue; }
     // A unique-index race or one bad row: fall back to row by row so the rest still import.
     for (const r of chunk) {
-      const one = await supabase.from('contacts').insert(toDb(r));
+      const one = await supabase.from('bi_contacts').insert(toDb(r));
       if (!one.error) out.imported++;
       else if (one.error.code === '23505') out.duplicates.push(r.email ?? r.firstName);
       else out.failed.push(`${r.firstName} ${r.lastName}`.trim());

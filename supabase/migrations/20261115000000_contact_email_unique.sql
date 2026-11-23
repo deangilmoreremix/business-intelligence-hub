@@ -4,9 +4,9 @@
 */
 DO $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM contacts WHERE email IS NOT NULL AND email <> '' GROUP BY tenant_id, lower(email) HAVING count(*) > 1) THEN
-    RAISE NOTICE 'contacts_tenant_email_key NOT created: duplicate emails exist. Merge duplicates, then run: CREATE UNIQUE INDEX contacts_tenant_email_key ON contacts (tenant_id, lower(email)) WHERE email IS NOT NULL AND email <> ''''';
+  IF EXISTS (SELECT 1 FROM bi_contacts WHERE email IS NOT NULL AND email <> '' GROUP BY tenant_id, lower(email) HAVING count(*) > 1) THEN
+    RAISE NOTICE 'bi_contacts_tenant_email_key NOT created: duplicate emails exist. Merge duplicates, then run: CREATE UNIQUE INDEX bi_contacts_tenant_email_key ON bi_contacts (tenant_id, lower(email)) WHERE email IS NOT NULL AND email <> ''''';
   ELSE
-    CREATE UNIQUE INDEX IF NOT EXISTS contacts_tenant_email_key ON contacts (tenant_id, lower(email)) WHERE email IS NOT NULL AND email <> '';
+    CREATE UNIQUE INDEX IF NOT EXISTS bi_contacts_tenant_email_key ON bi_contacts (tenant_id, lower(email)) WHERE email IS NOT NULL AND email <> '';
   END IF;
 END $$;

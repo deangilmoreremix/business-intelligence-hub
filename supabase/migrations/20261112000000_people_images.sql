@@ -29,7 +29,7 @@ BEGIN
   END IF;
 END $$;
 
-ALTER TABLE contacts ADD COLUMN IF NOT EXISTS avatar_url text;
+ALTER TABLE bi_contacts ADD COLUMN IF NOT EXISTS avatar_url text;
 ALTER TABLE companies ADD COLUMN IF NOT EXISTS logo_url text;
 
 CREATE TABLE IF NOT EXISTS team_members (
